@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_linklist</name>
+    <displayName><![CDATA[Lista de liga&ccedil;&otilde;es]]></displayName>
+    <version><![CDATA[6.0.7]]></version>
+    <description><![CDATA[D&ecirc; mais visibilidade aos seus conte&uacute;dos/p&aacute;ginas est&aacute;ticas (CMS, p&aacute;ginas externas, ou outras), onde e quando quiser, para que os seus visitantes sintam vontade de fazer compras na sua loja.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[front_office_features]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+</module>

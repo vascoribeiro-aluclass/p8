@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>dashproducts</name>
+    <displayName><![CDATA[Painel de Produtos]]></displayName>
+    <version><![CDATA[2.1.4]]></version>
+    <description><![CDATA[Enrique&ccedil;a as suas estat&iacute;sticas: apresente um quadro com as suas &uacute;ltimas encomendas e uma classifica&ccedil;&atilde;o dos seus produtos.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>1</need_instance>
+</module>

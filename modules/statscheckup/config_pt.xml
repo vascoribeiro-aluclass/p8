@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>statscheckup</name>
+    <displayName><![CDATA[Avalia&ccedil;&atilde;o do cat&aacute;logo]]></displayName>
+    <version><![CDATA[2.0.3]]></version>
+    <description><![CDATA[Enrique&ccedil;a as suas estat&iacute;sticas, d&ecirc; ao seu cat&aacute;logo uma avalia&ccedil;&atilde;o r&aacute;pida para analisar melhor a sua actividade.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>0</need_instance>
+</module>

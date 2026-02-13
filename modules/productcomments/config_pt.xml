@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>productcomments</name>
+    <displayName><![CDATA[Coment&aacute;rios ao produto]]></displayName>
+    <version><![CDATA[7.0.0]]></version>
+    <description><![CDATA[Permita que os utilizadores publiquem coment&aacute;rios sobre os seus produtos e/ou os classifiquem com base em crit&eacute;rios espec&iacute;ficos.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[front_office_features]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+</module>

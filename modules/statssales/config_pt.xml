@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>statssales</name>
+    <displayName><![CDATA[Vendas e encomendas]]></displayName>
+    <version><![CDATA[2.1.0]]></version>
+    <description><![CDATA[Enrique&ccedil;a as suas estat&iacute;sticas, adicione gr&aacute;ficos que apresentem a evolu&ccedil;&atilde;o das suas vendas e encomendas.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>0</need_instance>
+</module>

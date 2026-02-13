@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>statspersonalinfos</name>
+    <displayName><![CDATA[Informa&ccedil;&atilde;o de clientes registados]]></displayName>
+    <version><![CDATA[2.0.4]]></version>
+    <description><![CDATA[Enrique&ccedil;a as suas estat&iacute;sticas, adicione informa&ccedil;&otilde;es sobre os seus clientes registados e saiba mais sobre eles!]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[analytics_stats]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>0</need_instance>
+</module>

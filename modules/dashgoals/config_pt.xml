@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>dashgoals</name>
+    <displayName><![CDATA[Painel de Metas a Atingir]]></displayName>
+    <version><![CDATA[2.0.4]]></version>
+    <description><![CDATA[Enrique&ccedil;a as suas estat&iacute;sticas: Adicione um bloco com a previs&atilde;o da sua loja para estar sempre um passo &agrave; frente!!]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>1</need_instance>
+</module>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_accounts</name>
+    <displayName><![CDATA[Conta PrestaShop]]></displayName>
+    <version><![CDATA[7.2.2]]></version>
+    <description><![CDATA[Ligue a sua loja &agrave; sua conta PrestaShop para ativar e gerir as suas subscri&ccedil;&otilde;es no seu back office. N&atilde;o desinstale este m&oacute;dulo se tiver uma subscri&ccedil;&atilde;o em curso.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+	<confirmUninstall><![CDATA[Esta ação impedirá imediatamente que os seus serviços PrestaShop e os serviços da Comunidade funcionem visto que eles usam o módulo PrestaShop Accounts para autenticação.]]></confirmUninstall>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+</module>

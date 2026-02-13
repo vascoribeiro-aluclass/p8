@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>statsproduct</name>
+    <displayName><![CDATA[Detalhes do produto]]></displayName>
+    <version><![CDATA[2.1.3]]></version>
+    <description><![CDATA[Enrique&ccedil;a as suas estat&iacute;sticas, adicione estat&iacute;sticas detalhadas para cada produto do seu cat&aacute;logo.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>0</need_instance>
+</module>

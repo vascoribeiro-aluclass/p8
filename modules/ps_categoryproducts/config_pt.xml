@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_categoryproducts</name>
+    <displayName><![CDATA[Produtos na mesma categoria]]></displayName>
+    <version><![CDATA[1.0.8]]></version>
+    <description><![CDATA[Adicione um bloco em cada p&aacute;gina de produto, para que apresente itens da mesma categoria.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[pricing_promotion]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>1</need_instance>
+</module>

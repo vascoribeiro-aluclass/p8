@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>contactform</name>
+    <displayName><![CDATA[Formul&aacute;rio de contacto]]></displayName>
+    <version><![CDATA[4.4.3]]></version>
+    <description><![CDATA[Ajude os seus clientes a entrar em contacto quando precisarem, adicione um formul&aacute;rio de contacto na sua loja.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[front_office_features]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>1</need_instance>
+</module>

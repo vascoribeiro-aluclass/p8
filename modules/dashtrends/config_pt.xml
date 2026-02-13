@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>dashtrends</name>
+    <displayName><![CDATA[Painel de Tend&ecirc;ncias]]></displayName>
+    <version><![CDATA[2.1.3]]></version>
+    <description><![CDATA[Enrique&ccedil;a o seu painel de controlo: apresente uma representa&ccedil;&atilde;o gr&aacute;fica do desenvolvimento da sua loja.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>1</need_instance>
+</module>

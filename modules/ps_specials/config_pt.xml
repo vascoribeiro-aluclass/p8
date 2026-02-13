@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_specials</name>
+    <displayName><![CDATA[Bloco Promo&ccedil;&otilde;es]]></displayName>
+    <version><![CDATA[1.0.3]]></version>
+    <description><![CDATA[Forne&ccedil;a informa&ccedil;&otilde;es sobre as suas ofertas especiais num bloco espec&iacute;fico apresentado na sua p&aacute;gina inicial.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[front_office_features]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+</module>

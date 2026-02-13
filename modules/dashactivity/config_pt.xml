@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>dashactivity</name>
+    <displayName><![CDATA[Painel de Atividade]]></displayName>
+    <version><![CDATA[2.1.1]]></version>
+    <description><![CDATA[Verifique num relance o que est&aacute; a acontecer na sua loja com uma lista de KPI(Key Performance Indicator) no seu painel de controlo.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>1</need_instance>
+</module>

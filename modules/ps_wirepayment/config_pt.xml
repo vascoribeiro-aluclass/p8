@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_wirepayment</name>
+    <displayName><![CDATA[Pagamento por transfer&ecirc;ncia banc&aacute;ria]]></displayName>
+    <version><![CDATA[2.2.0]]></version>
+    <description><![CDATA[Aceite pagamentos por transfer&ecirc;ncia banc&aacute;ria apresentando os detalhes da sua conta durante a finaliza&ccedil;&atilde;o da compra.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[payments_gateways]]></tab>
+	<confirmUninstall><![CDATA[Tem a certeza que quer remover estes detalhes?]]></confirmUninstall>
+    <is_configurable>1</is_configurable>
+    <need_instance>1</need_instance>
+</module>
