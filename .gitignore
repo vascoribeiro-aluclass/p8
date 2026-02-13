@@ -1,6 +1,6 @@
 # Cache
 /var/
-
+/cache/
 # Configurações locais (IMPORTANTE)
 /app/config/parameters.php
 /config/settings.inc.php
