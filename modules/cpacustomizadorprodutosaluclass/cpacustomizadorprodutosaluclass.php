@@ -1,29 +1,30 @@
 <?php
+if (!defined('_PS_VERSION_')) {
+  exit;
+}
 
-class cpa_customizador_produtos_aluclass extends Module
+
+class CpaCustomizadorProdutosAluclass extends Module
 {
 
   public function __construct()
   {
-    $this->name = 'cpa_customizador_produtos_aluclass';
+    $this->name = 'cpacustomizadorprodutosaluclass';
     $this->tab = 'front_office_features';
     $this->version = '1.0.0';
     $this->author = 'Aluclass';
+    $this->ps_versions_compliancy = ['min' => '8.0.0', 'max' => _PS_VERSION_];
+    $this->bootstrap = true;
+    parent::__construct();
     $this->displayName = $this->l('CPA Customizador Produtos Aluclass');
     $this->description = $this->l('Criação de campos personalizados com preço.');
-
-    parent::__construct();
-  }
-
-  public function hookStandard()
-  {
-    return $this->registerHook('displayRightColumnProduct');
   }
 
   public function install()
   {
-       
+    require_once $this->local_path  . 'install/sql/uninstall.php';
     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
+
     if ($id_tab > 0) {
       $this->uninstallModuleTab('AdminCpaPorduct', $id_tab);
       $this->uninstallModuleTab('AdminCpaCustomization', $id_tab);
@@ -32,8 +33,9 @@ class cpa_customizador_produtos_aluclass extends Module
 
 
     $this->installModuleTab('AdminCpaCustomizadorProdutosAluclassNo', array((int)$this->context->language->id => 'Gerir Campos Customizados'), 0);
-
-    require_once _PS_MODULE_DIR_ . 'install/sql/install.php';
+    
+    
+    require_once $this->local_path  . 'install/sql/install.php';
 
     return parent::install()
       && $this->registerHook('Header')
@@ -46,7 +48,7 @@ class cpa_customizador_produtos_aluclass extends Module
   {
     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
     if (!parent::uninstall() || !$this->uninstallModuleTab('AdminCpaCustomizadorProdutosAluclassNo', $id_tab) || !$this->uninstallModuleTab('AdminCpaPorduct', $id_tab) || !$this->uninstallModuleTab('AdminCpaCustomization', $id_tab))
-      return false; 
+      return false;
     else
       return true;
   }
@@ -74,7 +76,7 @@ class cpa_customizador_produtos_aluclass extends Module
 
   private function uninstallModuleTab($tabClass, $idTabParent)
   {
-    require_once _PS_MODULE_DIR_ . 'install/sql/uninstall.php';
+    require_once $this->local_path  . 'install/sql/uninstall.php';
     $idTab = Tab::getIdFromClassName($tabClass);
     if ($idTab != 0) {
       $tab = new Tab($idTab);
@@ -83,4 +85,6 @@ class cpa_customizador_produtos_aluclass extends Module
     }
     return false;
   }
+
+
 }

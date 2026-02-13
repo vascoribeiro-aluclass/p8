@@ -1,7 +1,6 @@
 <?php
 
 
-
 $sql = array();
 $sqlIndexes = array();
 $sqlUpdate = array();
@@ -15,7 +14,7 @@ $tables =
 			'cols' =>
 			array(
 				array('name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'),
-				array('name' => 'type', 'opts' => 'int(1) NOT NULL'),
+				array('name' => 'id_cpa_customization_type', 'opts' => 'int(10) NOT NULL'),
 				array('name' => 'id_shop', 'opts' => 'int(10) NOT NULL DEFAULT 0'),
 				array('name' => 'position', 'opts' => 'int(10) NOT NULL DEFAULT 0'),
 				array('name' => 'order_position', 'opts' => 'int(10) NOT NULL DEFAULT 0'),
@@ -33,6 +32,16 @@ $tables =
 				array('name' => 'quantity_max', 'opts' => 'int(10) NOT NULL DEFAULT 0'),
 				array('name' => 'open_status', 'opts' => 'tinyint(4) NOT NULL DEFAULT 0'),
 
+			)
+		),
+			array(
+			'name' => 'cpa_customization_type',
+			'primary' => 'id_cpa_customization_type',
+			'cols' =>
+			array(
+				array('name' => 'id_cpa_customization_type', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'),
+				array('name' => 'name', 'opts' => 'varchar(255) NOT NULL'),
+				array('name' => 'class', 'opts' => 'varchar(255) NOT NULL'),
 			)
 		),
 		array(
@@ -187,12 +196,6 @@ foreach ($tables as $table) {
 	$sql[$table['name']] .= ' )  ENGINE=' . $engine;
 
 	foreach ($table['cols'] as $col) {
-		if ($table['name'] == 'ndk_customization_field_configuration_lang')
-			$sqlIndexes[] = 'ALTER TABLE ' . $prefix . $table['name'] . ' CHANGE `id_ndk_customization_field_configuration` `id_ndk_customization_field_configuration` INT(10) NOT NULL';
-
-		if ($table['name'] == 'ndk_customization_field_group_lang')
-			$sqlIndexes[] = 'ALTER TABLE ' . $prefix . $table['name'] . ' CHANGE `id_ndk_customization_field_group` `id_ndk_customization_field_group` INT(10) NOT NULL';
-
 
 		//check if col exists
 		$sqlCheck = 'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
@@ -206,17 +209,6 @@ foreach ($tables as $table) {
 			$sql[] = "ALTER TABLE `" . $prefix . $table['name'] . "` ADD  `" . $col["name"] . "` " . $col["opts"];
 	}
 
-	//on enlève la premiere colonne
-	//check if col exists
-	$sqlCheckRemove = 'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
-	 WHERE table_name = "' . $prefix . $table['name'] . '" 
-	 AND table_schema = "' . _DB_NAME_ . '" 
-	 AND column_name = "remove_me_after" ';
-
-	$checkRemove = Db::getInstance()->executeS($sqlCheckRemove);
-
-	if (sizeof($checkRemove) > 0)
-		$sql[] = "ALTER TABLE " . $prefix . $table['name'] . " DROP COLUMN remove_me_after";
 }
 
 
@@ -243,13 +235,14 @@ foreach ($sqlIndexes as $query)
 	if (Db::getInstance()->execute($query) == false)
 		return false;
 
+$sqlinsert[] = "INSERT INTO `".$prefix."cpa_customization_type` (name,class) VALUES ('Dimensões','cpatypedimensions')";
+$sqlinsert[] = "INSERT INTO `".$prefix."cpa_customization_type` (name,class) VALUES ('Seletor por imagens','cpatypeselectorimages')";
+$sqlinsert[] = "INSERT INTO `".$prefix."cpa_customization_type` (name,class) VALUES ('Seletor Radio Button ','cpatypeselectorradio')";
+$sqlinsert[] = "INSERT INTO `".$prefix."cpa_customization_type` (name,class) VALUES ('Seletor Checkbox','cpatypeselectorcheckbox')";
+$sqlinsert[] = "INSERT INTO `".$prefix."cpa_customization_type` (name,class) VALUES ('Acessórios Quantidade','cpatypeaccessquant')";
+$sqlinsert[] = "INSERT INTO `".$prefix."cpa_customization_type` (name,class) VALUES ('Acessórios Sem Quantidade','cpatypeaccessnoquant')";
 
 
-// Db::getInstance()->execute('ALTER TABLE `' . $prefix . 'customized_data` CHANGE `value` `value` VARCHAR(2500)');
-
-// $shop_query = 'SELECT id_ndk_customization_field FROM ' . $prefix . 'ndk_customization_field_shop';
-// $result = Db::getInstance()->executeS($shop_query);
-// if (count($result) == 0)
-// 	Db::getInstance()->execute('INSERT IGNORE INTO ' . $prefix . 'ndk_customization_field_shop (id_ndk_customization_field, id_shop) SELECT id_ndk_customization_field, ' . (int)Configuration::get('PS_SHOP_DEFAULT') . '  FROM ' . $prefix . 'ndk_customization_field');
-
-// Configuration::updateValue('NDK_ADD_PRODUCT_PRICE', '1');
+foreach ($sqlinsert as $query)
+	if (Db::getInstance()->execute($query) == false)
+		return false;
