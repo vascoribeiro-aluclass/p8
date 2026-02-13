@@ -1,0 +1,13 @@
+ 
+
+{shop_url}
+
+Olá {firstname} {lastname},
+
+Aqui está um teste email da vossa loja.
+
+Se consegue ler isto, o teste foi bem-sucedido!
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)

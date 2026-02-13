@@ -1,0 +1,15 @@
+ 
+
+{shop_url}
+
+Hallo {firstname} {lastname},
+
+Bestellung {order_name} - Rechnungskorrektur
+
+Für die Bestellung mit der Referenz {order_name} wurde ein Einzahlungsschein in Ihrem Namen erstellt.
+
+Um diese Rechnungskorrektur zu prüfen und Ihre Rechnung in unserem Shop herunterzuladen, gehen Sie zum Abschnitt [Rechnungskorrekturen]({history_url}) Ihres Kundenkontos.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)

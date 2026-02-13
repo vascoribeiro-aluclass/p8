@@ -1,0 +1,13 @@
+ 
+
+{shop_url}
+
+Olá,
+
+Subscrição de newsletter
+
+Obrigado por subscrever a nossa newsletter. Temos o prazer de lhe oferecer o seguinte voucher: {discount}
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)

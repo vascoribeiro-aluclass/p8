@@ -1,0 +1,15 @@
+# Cache
+/var/
+
+# Configurações locais (IMPORTANTE)
+/app/config/parameters.php
+/config/settings.inc.php
+
+# Uploads e imagens
+/img/
+/download/
+/upload/
+
+# Dependências
+/vendor/
+

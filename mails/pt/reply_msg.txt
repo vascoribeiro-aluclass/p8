@@ -1,0 +1,13 @@
+ 
+
+{shop_url}
+
+Olá {firstname} {lastname},
+
+{reply}
+
+Por favor, não responda diretamente a este e-mail, não vamos recebê-lo. Para responder, clique no seguinte link: {link}
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)

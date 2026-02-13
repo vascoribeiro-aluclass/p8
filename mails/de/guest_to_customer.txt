@@ -1,0 +1,20 @@
+ 
+
+{shop_url}
+
+Hallo {firstname} {lastname},
+
+Ihr Gast-Konto wurde in ein Kunden-Konto umgewandelt
+
+Gratulation, Ihr Gast-Konto bei {shop_name} wurde in ein Kunden-Konto umgewandelt!
+
+E-Mail-Adresse: {email}
+
+Klicken Sie auf den folgenden Link, um Ihr Passwort einzurichten:
+{url}
+
+Auf Ihr Kundenkonto können Sie in unserem Shop zugreifen: [{shop_name}]({shop_url})
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)

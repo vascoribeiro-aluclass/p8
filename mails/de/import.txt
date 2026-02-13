@@ -1,0 +1,13 @@
+ 
+
+{shop_url}
+
+Hallo {firstname} {lastname},
+
+Import abgeschlossen
+
+Die Datei {filename} wurde erfolgreich in Ihren Shop importiert.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)

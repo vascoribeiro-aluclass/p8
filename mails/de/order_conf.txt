@@ -1,0 +1,44 @@
+ 
+
+{shop_url}
+
+Hallo {firstname} {lastname},
+
+Vielen Dank für Ihren Einkauf bei {shop_name}!
+
+Details zu Ihrer Bestellung
+
+Bestellung: {order_name} vom {date}
+
+Zahlung: {payment}
+
+Artikel-Nr.	Artikel	Stückpreis	Menge	Gesamtpreis  {products_txt} {discounts_txt}
+Artikel	{total_products}
+Rabatt	{total_discounts}
+Versand	{total_shipping}
+Gesamt MwSt.	{total_tax_paid}
+Gesamt	{total_paid}
+
+Versand
+
+Versanddienst: {carrier}
+
+Zahlung: {payment}
+
+Recycling-Verpackung: {recycled_packaging_label}
+
+Lieferadresse:
+
+{delivery_block_txt}
+
+Rechnungsadresse
+
+{invoice_block_txt}
+
+Follow your order and download your invoice on our store, go to the [Verlauf und Details Ihrer Bestellungen]({history_url}) section of your customer account.
+
+Wenn Sie ein Gast-Konto haben, können Sie Ihre Bestellung im Abschnitt "[Bestellverfolgung]({guest_tracking_url})" in unserem Shop verfolgen.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop-project.org/)
