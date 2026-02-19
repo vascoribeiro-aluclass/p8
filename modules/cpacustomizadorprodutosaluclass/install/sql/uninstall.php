@@ -18,6 +18,8 @@ $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_configuration
 $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_configuration_lang`";
 $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_csv`";
 $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_cache`";
+$sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_rel_customization_field_shop`";
+$sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_rel_customization_field_value_shop`";
 
 foreach ($sql as $query)
 	if (Db::getInstance()->execute($query) == false)

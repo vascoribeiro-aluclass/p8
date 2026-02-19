@@ -31,6 +31,7 @@ $tables =
 				array('name' => 'quantity_min', 'opts' => 'int(10) NOT NULL DEFAULT 0'),
 				array('name' => 'quantity_max', 'opts' => 'int(10) NOT NULL DEFAULT 0'),
 				array('name' => 'open_status', 'opts' => 'tinyint(4) NOT NULL DEFAULT 0'),
+				array('name' => 'isvisivel', 'opts' => 'tinyint(4) NOT NULL DEFAULT 0'),
 
 			)
 		),
@@ -56,6 +57,17 @@ $tables =
 				array('name' => 'admin_name', 'opts' => 'varchar(255) NOT NULL'),
 				array('name' => 'notice', 'opts' => 'text NOT NULL'),
 				array('name' => 'tooltip', 'opts' => 'text NOT NULL'),
+			)
+		),
+		array(
+			'name' => 'cpa_rel_customization_field_shop',
+			'index' => array('id_cpa_customization_field', 'id_shop'),
+			'primary' => '',
+			'cols' =>
+			array(
+				array('name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL'),
+				array('name' => 'id_shop', 'opts' => 'int(10) NOT NULL'),
+
 			)
 		),
 		array(
@@ -98,6 +110,18 @@ $tables =
 				array('name' => 'influences_obligations', 'opts' => 'varchar(2500) NOT NULL'),
 				array('name' => 'position', 'opts' => 'int(10) NOT NULL DEFAULT 0'),
 				array('name' => 'reference', 'opts' => 'varchar(255) NOT NULL '),
+				array('name' => 'isvisivel', 'opts' => 'varchar(255) NOT NULL '),
+			)
+		),
+				array(
+			'name' => 'cpa_rel_customization_field_value_shop',
+			'index' => array('id_cpa_customization_field_value', 'id_shop'),
+			'primary' => '',
+			'cols' =>
+			array(
+				array('name' => 'id_cpa_customization_field_value', 'opts' => 'int(10) NOT NULL'),
+				array('name' => 'id_shop', 'opts' => 'int(10) NOT NULL'),
+
 			)
 		),
 		array(
