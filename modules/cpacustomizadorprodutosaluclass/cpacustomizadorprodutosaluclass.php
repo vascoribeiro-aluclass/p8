@@ -3,6 +3,8 @@ if (!defined('_PS_VERSION_')) {
   exit;
 }
 
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCf.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCfv.php';
 
 class CpaCustomizadorProdutosAluclass extends Module
 {
@@ -28,12 +30,18 @@ class CpaCustomizadorProdutosAluclass extends Module
     if ($id_tab > 0) {
       $this->uninstallModuleTab('AdminCpaPorduct', $id_tab);
       $this->uninstallModuleTab('AdminCpaCustomization', $id_tab);
+      $this->uninstallModuleTab('AdminCpaCustomizationValue', -1);
       $this->uninstallModuleTab('AdminCpaCustomizadorProdutosAluclassNo', 0);
     }
 
+    if (!is_dir(_PS_IMG_DIR_ . 'scenes/' . 'cpa/'))
+        mkdir(_PS_IMG_DIR_ . 'scenes/' . 'cpa/', 0777);
+
+    if (!is_dir(_PS_IMG_DIR_ . 'scenes/' . 'cpa/thumbs/'))
+        mkdir(_PS_IMG_DIR_ . 'scenes/' . 'cpa/thumbs/', 0777);
 
     $this->installModuleTab('AdminCpaCustomizadorProdutosAluclassNo', array((int)$this->context->language->id => 'Gerir Campos Customizados'), 0);
-    
+     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
     
     require_once $this->local_path  . 'install/sql/install.php';
 
@@ -41,13 +49,14 @@ class CpaCustomizadorProdutosAluclass extends Module
       && $this->registerHook('Header')
       && $this->registerHook('displayRightColumnProduct')
       && $this->installModuleTab('AdminCpaPorduct', array((int)$this->context->language->id => 'Produtos Customizados'), $id_tab)
-      && $this->installModuleTab('AdminCpaCustomization', array((int)$this->context->language->id => 'Gerir Campos Customizados'), $id_tab);
+      && $this->installModuleTab('AdminCpaCustomization', array((int)$this->context->language->id => 'Gerir Campos Customizados'), $id_tab)
+      && $this->installModuleTab('AdminCpaCustomizationValue', array((int)$this->context->language->id => 'Gerir Valores Campos Customizados'), -1);
   }
 
   public function uninstall()
   {
     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
-    if (!parent::uninstall() || !$this->uninstallModuleTab('AdminCpaCustomizadorProdutosAluclassNo', $id_tab) || !$this->uninstallModuleTab('AdminCpaPorduct', $id_tab) || !$this->uninstallModuleTab('AdminCpaCustomization', $id_tab))
+    if (!parent::uninstall() || !$this->uninstallModuleTab('AdminCpaCustomizadorProdutosAluclassNo', $id_tab) || !$this->uninstallModuleTab('AdminCpaPorduct', $id_tab) || !$this->uninstallModuleTab('AdminCpaCustomization', $id_tab) || !$this->uninstallModuleTab('AdminCpaCustomizationValue', -1))
       return false;
     else
       return true;
@@ -58,20 +67,25 @@ class CpaCustomizadorProdutosAluclass extends Module
   {
     $tab = new Tab();
 
-    $langues = Language::getLanguages(false);
-    foreach ($langues as $langue)
-      $tabName[$langue['id_lang']] = $tabName[(int)$this->context->language->id];
+    $languages = Language::getLanguages(false);
+    // ensure name is provided for all languages
+    foreach ($languages as $lang) {
+      $tab->name[$lang['id_lang']] = isset($tabName[$lang['id_lang']])
+        ? $tabName[$lang['id_lang']]
+        : $tabName[(int)$this->context->language->id];
+    }
 
-
-    $tab->name = $tabName;
     $tab->class_name = $tabClass;
     $tab->module = $this->name;
-    $tab->id_parent = $idTabParent;
-    $id_tab = $tab->save();
-    if (!$id_tab)
-      return false;
+    $tab->id_parent = (int)$idTabParent;
+    $tab->active = 1;
 
-    return true;
+    // use add() to insert the tab and check if it succeeded
+    if ($tab->add() && (int)$tab->id > 0) {
+      return true;
+    }
+
+    return false;
   }
 
   private function uninstallModuleTab($tabClass, $idTabParent)
