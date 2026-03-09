@@ -117,9 +117,11 @@ class AdminCpaCustomizationController extends ModuleAdminController
                 'noMatches' => $this->trans('Nenhum resultado encontrado', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                 'searching' => $this->trans('A pesquisar...', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                 'searchingProducts' => $this->trans('A pesquisar produtos...', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            ]
+            ],
+            'csv_file_text_error' => $this->trans('Formato inválido. Use apenas CSV.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
         ]);
 
+        $this->addJS($this->module->getPathUri() . 'views/js/admin/cpacustomizationadmin.js');
         $this->addJS($this->module->getPathUri() . 'views/js/admin/cpacustomization.js');
     }
 
@@ -267,9 +269,8 @@ class AdminCpaCustomizationController extends ModuleAdminController
         array_push($type_array, $empty_refc);
 
         $arrayopenstatus = [
-            ['id_open_status' => 0, 'op_name' => $this->trans('Normal', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')],
-            ['id_open_status' => 1, 'op_name' => $this->trans('Aberto', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')],
-            ['id_open_status' => 2, 'op_name' => $this->trans('Fechado', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')],
+            ['id_open_status' => 0, 'op_name' => $this->trans('Fechado', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')],
+            ['id_open_status' => 1, 'op_name' => $this->trans('Aberto', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')]
         ];
         $arraytypeprice = [
             ['id_price_type' => 'amount', 'name' => $this->trans('Montante', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')],
@@ -289,6 +290,20 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     'label' => $this->trans('Shop association', [], 'Admin.Global'),
                     'name' => 'checkBoxShopAsso',
                 ],
+                [
+                    'type' => 'select',
+                    'label' => $this->trans('Tipo :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'id_cpa_customization_field_type',
+                    'required' => true,
+                    'class' => 'chosen',
+                    'desc' => $this->trans('Tipo do campo presonalizado.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'options' => [
+                        'query' => $type_array,
+                        'id' => 'id_cpa_customization_field_type',
+                        'name' => 'name'
+                    ],
+                ],
+
                 [
                     'type' => 'text',
                     'label' => $this->trans('Nome Administrativo :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
@@ -321,7 +336,6 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     'autoload_rte' => true,
                     'lang' => true,
                 ],
-
                 [
                     'type' => 'select',
                     'label' => $this->trans('Estado do campo :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
@@ -337,19 +351,6 @@ class AdminCpaCustomizationController extends ModuleAdminController
                 ],
                 [
                     'type' => 'select',
-                    'label' => $this->trans('Tipo :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'name' => 'id_cpa_customization_field_type',
-                    'required' => true,
-                    'class' => 'chosen',
-                    'desc' => $this->trans('Tipo do campo presonalizado.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'options' => [
-                        'query' => $type_array,
-                        'id' => 'id_cpa_customization_field_type',
-                        'name' => 'name'
-                    ],
-                ],
-                [
-                    'type' => 'select',
                     'label' => $this->trans('Tipo de preço :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'price_type',
                     'class' => 'fixed-width-xs',
@@ -361,36 +362,6 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     ],
                     'desc' => $this->trans('Escolha se o aumento do campo será em valor absoluto ou percentual.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
                 ],
-                [
-                    'type' => 'text',
-                    'label' => $this->trans('Influências com outros campos:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'name' => 'selected_cpa_fields',
-                    'class' => 'ajax-cpa-fields-search',
-                    'desc' => $this->trans('Você pode especificar um campo para influenciá-lo de acordo com os valores atuais do campo de criação.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
-
-                ],
-
-                [
-                    'type' => 'switch',
-                    'label' => $this->trans('Visual :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'name' => 'is_visual',
-                    'is_bool' => true,
-                    'desc' => $this->trans('Se o campo tem um efeito visual (imagem aprecer sobre a iamgem do produto)', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'values' => [
-                        [
-                            'id' => 'is_visual_on',
-                            'value' => 1,
-                            'label' => $this->trans('Yes', [], 'Admin.Global')
-                        ],
-                        [
-                            'id' => 'is_visual_off',
-                            'value' => 0,
-                            'label' => $this->trans('No', [], 'Admin.Global')
-                        ]
-                    ],
-                ],
-
-
                 [
                     'type' => 'switch',
                     'label' => $this->trans('Visível :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
@@ -440,7 +411,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
                 ],
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Posição da ordem :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->trans('Posição de desbloqueio :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'order_position',
                     'required' => true,
                     'desc' => $this->trans('Ordem em que os campos personalizados são desbloqueados.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
@@ -448,29 +419,60 @@ class AdminCpaCustomizationController extends ModuleAdminController
                 ],
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Z-Index :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'name' => 'zindex',
-                    'required' => true,
-                    'desc' => $this->trans('Z-Index da imagem vai ser apresentada da custimização se tiver uma imagem.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'class' => 'integer-field',
-                ],
-                [
-                    'type' => 'file',
-                    'label' => $this->trans('Ficheiro CVS:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'name' => 'csv',
-                    'display_image' => true,
-                    'desc' =>  $this->trans('Adicione aqui os ficheiros CSV de preços', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'class' => '',
-                ],
-                [
-                    'type' => 'text',
                     'label' => $this->trans('Produtos associados:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'selected_products',
                     'class' => 'ajax-product-search',
                     'desc' => $this->trans('Ative este campo para estes produtos.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                ],
 
+                [
+                    'type' => 'text',
+                    'label' => $this->trans('Influências com outros campos:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'selected_cpa_fields',
+                    'class' => 'ajax-cpa-fields-search visivel-2 visivel-3',
+                    'desc' => $this->trans('Você pode especificar um campo para influenciá-lo de acordo com os valores atuais do campo de criação.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+
+                ],
+
+                [
+                    'type' => 'switch',
+                    'label' => $this->trans('Visual :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'is_visual',
+                    'is_bool' => true,
+                    'form_group_class' => 'visivel-2 visivel-3',
+                    'desc' => $this->trans('Se o campo tem um efeito visual (imagem aprecer sobre a iamgem do produto)', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'values' => [
+                        [
+                            'id' => 'is_visual_on',
+                            'value' => 1,
+                            'label' => $this->trans('Yes', [], 'Admin.Global')
+                        ],
+                        [
+                            'id' => 'is_visual_off',
+                            'value' => 0,
+                            'label' => $this->trans('No', [], 'Admin.Global')
+                        ]
+                    ],
+                ],
+
+
+
+                [
+                    'type' => 'text',
+                    'label' => $this->trans('Z-Index :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'zindex',
+                    'required' => false,
+                    'desc' => $this->trans('Z-Index da imagem vai ser apresentada da custimização se tiver uma imagem.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'class' => 'integer-field visivel-2',
+                ],
+                [
+                    'type' => 'file',
+                    'label' => $this->trans('Ficheiro CSV :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'csv_file',
+                    'desc' =>  $this->trans('Adicione aqui os ficheiros CSV de preços', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'form_group_class' => 'visivel-1',
                 ]
-                // [
+
 
             ],
         ];
@@ -550,8 +552,23 @@ class AdminCpaCustomizationController extends ModuleAdminController
                 }
             }
 
+            if (!isset($_FILES['csv_file']) || empty($_FILES['csv_file']['tmp_name'])) {
+        
+            } else {
+                $file = $_FILES['csv_file']['tmp_name'];
+
+
+                require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCfv.php';
+
+                $importer = new CpaCsvImporter($object->id);
+                if (!$importer->importCSV($file)) {
+                    $this->errors = array_merge($this->errors, $importer->getErrors());
+                    return;
+                }
+            }
+
             $this->confirmations[] = $this->trans('Campo gravado com sucesso', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
-            Tools::redirectAdmin($this->context->link->getAdminLink('AdminCpaCustomizationValue') . '&id_cpa_customization_field=' . (int)$object->id);
+            Tools::redirectAdmin($this->context->link->getAdminLink('AdminCpaCustomizationValue') . '&id_cpa_customization_field=' . (int)$object->id . '&id_cpa_customization_field_type=' . (int)$object->id_cpa_customization_field_type);
         } else {
             $this->errors[] = $this->trans('Erro ao gravar o campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
         }

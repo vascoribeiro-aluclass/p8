@@ -7,7 +7,7 @@ class CpaCfv extends ObjectModel
   public $id_cpa_customization_field;
   public $price;
   public $cost_price;
-  public $color;
+  public $colorpicker;
   public $quantity_min;
   public $quantity_max;
   public $position;
@@ -24,9 +24,9 @@ class CpaCfv extends ObjectModel
     'multishop' => true,
     'fields' => [
       'id_cpa_customization_field' => ['type' => self::TYPE_STRING,  'required' => true],
-      'price' =>   ['type' => self::TYPE_INT,  'required' => true],
-      'cost_price' =>   ['type' => self::TYPE_INT,  'required' => false],
-      'color' =>   ['type' => self::TYPE_INT,  'required' => false],
+      'price' =>   ['type' => self::TYPE_FLOAT,  'required' => true],
+      'cost_price' =>   ['type' => self::TYPE_FLOAT,  'required' => false],
+      'colorpicker' =>   ['type' => self::TYPE_STRING,  'required' => false],
       'quantity_min' =>   ['type' => self::TYPE_INT,  'required' => false],
       'quantity_max' =>   ['type' => self::TYPE_INT,  'required' => false],
       'position' =>   ['type' => self::TYPE_INT,  'required' => true],
@@ -45,16 +45,54 @@ class CpaCfv extends ObjectModel
 
   public function delete()
   {
+    
+    $id_cpa_customization_field_value = (int)Tools::getValue('id_cpa_customization_field_value');
+    $id_cpa_customization_field_type = (int)Tools::getValue('id_cpa_customization_field_type');
 
-    // Db::getInstance()->delete(
-    //   'specific_price_customize_product',
-    //   'id_specific_price_rule = ' . (int) Tools::getValue('id_specific_price_rule')
-    // );
+    Db::getInstance()->delete(
+      'cpa_customization_field_value',
+      'id_cpa_customization_field_value = ' . (int)$id_cpa_customization_field_value
+    );
 
-    // return  Db::getInstance()->delete(
-    //   'specific_price_rule_customize_product',
-    //   'id_specific_price_rule = ' . (int) Tools::getValue('id_specific_price_rule')
-    // );
+    Db::getInstance()->delete(
+      'cpa_customization_field_value_excludes_product',
+      'id_cpa_customization_field_value = ' . (int)$id_cpa_customization_field_value
+    );
+
+    Db::getInstance()->delete(
+      'cpa_customization_field_value_influence',
+      'id_cpa_customization_field_value = ' . (int)$id_cpa_customization_field_value
+    );
+
+    Db::getInstance()->delete(
+      'cpa_customization_field_value_lang',
+      'id_cpa_customization_field_value = ' . (int)$id_cpa_customization_field_value
+    );
+
+    Db::getInstance()->delete(
+      'cpa_customization_field_value_shop',
+      'id_cpa_customization_field_value = ' . (int)$id_cpa_customization_field_value
+    );
+
+    $arrayPath =['preview','img','thumbs'];
+    $arrayExt =['webp','jpg','png','jpeg'];
+
+    foreach($arrayPath as $path){
+        foreach($arrayExt as $ext){
+            $destination = _PS_IMG_DIR_ . 'scenes/cpa/' . $path . '/' . (int)$id_cpa_customization_field_value . '.' . $ext;
+
+            if (is_file($destination) && file_exists($destination)) {
+                unlink($destination);
+            }
+        }
+    }
+
+    $context = Context::getContext();
+
+    Tools::redirectAdmin(
+      $context->link->getAdminLink('AdminCpaCustomizationValue') .
+        '&id_cpa_customization_field=' . (int)$this->id_cpa_customization_field . '&id_cpa_customization_field_type=' . (int)$id_cpa_customization_field_type
+    );
   }
 
 

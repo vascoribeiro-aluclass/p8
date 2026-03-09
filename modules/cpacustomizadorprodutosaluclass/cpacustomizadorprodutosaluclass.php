@@ -2,7 +2,7 @@
 if (!defined('_PS_VERSION_')) {
   exit;
 }
-
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaCsvImporter.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCf.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCfv.php';
 

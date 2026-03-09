@@ -1,6 +1,13 @@
-console.log(already_selected_products);
+
 
 $(document).ready(function () {
+    var $selectStatus = $('#id_cpa_customization_field_type');
+    $selectStatus.on('change', function () {
+        manageVisibility($selectStatus.val());
+    });
+
+    setupFileValidation('csv_file', ['text/csv', 'application/vnd.ms-excel'], '.csv', csv_file_text_error);
+
 
     if (typeof already_selected_products !== 'undefined' && already_selected_products.length) {
 
@@ -21,7 +28,7 @@ $(document).ready(function () {
     }
 
     $('.integer-field').on('input', function () {
-        this.value = this.value.replace(/[^0-9]/g, ''); // permite só dígitos
+        this.value = this.value.replace(/[^0-9]/g, '');
     });
 
     $('.ajax-cpa-fields-search').select2({
@@ -55,7 +62,7 @@ $(document).ready(function () {
                     results: $.map(data, function (item) {
                         return {
                             id: item.id_cpa_customization_field,
-                            text: item.admin_name 
+                            text: item.admin_name
                         };
                     })
                 };
