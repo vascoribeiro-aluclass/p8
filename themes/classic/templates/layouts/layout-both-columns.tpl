@@ -85,8 +85,9 @@
 
             {block name="right_column"}
               <div id="right-column" class="col-xs-12 col-md-4 col-lg-3">
+              asdas asdaaaaaaasdasd
                 {if $page.page_name == 'product'}
-                  {hook h='displayRightColumnProduct'}
+                  {hook h='displayRightColumnProduct'} 
                 {else}
                   {hook h="displayRightColumn"}
                 {/if}

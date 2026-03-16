@@ -121,7 +121,7 @@ class CpaCsvImporter
 
         $sql = 'SELECT COUNT(*) 
             FROM ' . _DB_PREFIX_ . 'cpa_customization_field_value 
-            WHERE cpa_customization_field_id = ' . (int)$this->id_cpa_customization_field;
+            WHERE id_cpa_customization_field = ' . (int)$this->id_cpa_customization_field;
 
         return (Db::getInstance()->getValue($sql) > 0) ? true : false;
     }
@@ -169,7 +169,7 @@ class CpaCsvImporter
     public function dimensionsUpdate($dimensions)
     {
         return Db::getInstance()->update(
-            'cpa_customization_field_csv',
+            'cpa_customization_field',
             [
                 'dimensions' => (int)$dimensions,
             ],

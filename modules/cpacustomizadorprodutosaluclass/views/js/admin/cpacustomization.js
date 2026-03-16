@@ -2,9 +2,10 @@
 
 $(document).ready(function () {
     var $selectStatus = $('#id_cpa_customization_field_type');
-    $selectStatus.on('change', function () {
+    $('#id_cpa_customization_field_type').on('change', function () {
         manageVisibility($selectStatus.val());
     });
+    $selectStatus.trigger('change');
 
     setupFileValidation('csv_file', ['text/csv', 'application/vnd.ms-excel'], '.csv', csv_file_text_error);
 

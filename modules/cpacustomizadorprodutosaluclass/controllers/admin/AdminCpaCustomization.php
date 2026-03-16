@@ -186,7 +186,8 @@ class AdminCpaCustomizationController extends ModuleAdminController
             'pl',
             'p.id_product = pl.id_product AND pl.id_lang = ' . (int)$this->context->language->id . ' AND pl.id_shop = ' . (int)$this->context->shop->id
         );
-        $sql->where('pl.name LIKE "%' . pSQL($q) . '%"');
+        
+        $sql->where('pl.name LIKE "%' . pSQL($q) . '%" and p.id_category_default != '.(int)Configuration::get('CPA_CATEGORY'));
         $sql->limit(20);
 
         $products = Db::getInstance()->executeS($sql);
@@ -388,6 +389,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     'name' => 'required',
                     'is_bool' => true,
                     'desc' => $this->trans('Se o campo é obrigatório', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'form_group_class' => 'visivel-1 visivel-2 visivel-3',
                     'values' => [
                         [
                             'id' => 'required_on',

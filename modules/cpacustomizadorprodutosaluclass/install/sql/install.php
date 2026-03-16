@@ -140,6 +140,18 @@ $tables =
 			]
 		],
 		[
+			'name' => 'cpa_customization_field_value_img',
+			'index' => ['id_cpa_customization_field_value', 'type'],
+			'primary' => '',
+			'cols' =>
+			[
+				['name' => 'id_cpa_customization_field_value', 'opts' => 'int(10) NOT NULL'],
+				['name' => 'ext', 'opts' => 'varchar(4) NOT NULL'],
+				['name' => 'type', 'opts' => 'varchar(50) NOT NULL'],
+
+			]
+		],
+		[
 			'name' => 'cpa_customization_field_value_excludes_product',
 			'index' => ['id_cpa_customization_field_value', 'id_product'],
 			'primary' => '',
@@ -193,7 +205,7 @@ $tables =
 		],
 
 		[
-			'name' => 'ndk_customization_field_cache',
+			'name' => 'cpa_customization_field_cache',
 			'primary' => 'id_cache',
 			'cols' =>
 			[
@@ -264,7 +276,7 @@ foreach ($sqlIndexes as $query)
 $sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (1,'Dimensões','cpatypedimensions')";
 $sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (2,'Seletor por imagens','cpatypeselectorimages')";
 $sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (3,'Seletor Radio Button ','cpatypeselectorradio')";
-$sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (4,'Seletor Checkbox','cpatypeselectorcheckbox')";
+$sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (4,'Texto','cpatypetext')";
 $sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (5,'Acessórios Quantidade','cpatypeaccessquant')";
 $sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (6,'Acessórios Sem Quantidade','cpatypeaccessnoquant')";
 

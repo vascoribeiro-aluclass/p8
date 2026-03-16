@@ -16,7 +16,8 @@ $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_value`";
 $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_value_lang`";
 $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_value_shop`";
 $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_value_excludes_product`";
-$sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_value_influences`";
+$sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_value_influence`";
+$sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_value_img`";
 
 // tabelas de produtos presonalizados
 $sql[] = "DROP TABLE IF EXISTS `".$prefix."cpa_customization_field_configuration`";
