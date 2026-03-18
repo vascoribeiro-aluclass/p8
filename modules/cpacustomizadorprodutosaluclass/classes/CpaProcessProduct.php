@@ -44,30 +44,70 @@ class CpaProcessProduct
     public function init()
     {
         $arrayFields = [];
+        $arrayFieldsTemp = [];
 
         foreach ($this->datacustom as $custom) {
             $arrayCustom = explode('_', $custom);
-            if (!count($arrayCustom) == 3) {
+            if (!count($arrayCustom) == 4) {
+                return false;
+            }
+            $id_type       = $arrayCustom[0];
+            $id_field       = $arrayCustom[1];
+            $id_field_value = $arrayCustom[2];
+            $field_qty      = $arrayCustom[3];
+
+            if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 1) {
                 return false;
             }
 
-            $id_field       = $arrayCustom[0];
-            $id_field_value = $arrayCustom[1];
-            $field_qty   = $arrayCustom[2];
-
-            if ($id_field < 1 || $id_field_value < 1 || $field_qty < 1) {
-                return false;
-            }
-
-            $resultInfField = $this->getInfField($id_field, $id_field_value);
+            $resultInfField = $this->getInfField($id_type, $id_field, $id_field_value);
 
             if (!$resultInfField) {
                 return false;
             }
-            $arrayFields[] = [
+
+            $arrayFieldsTemp[$resultInfField[0]['id_field']][] = [
+                'id_type' => $resultInfField[0]['id_type'],
                 'fieldname' => $resultInfField[0]['fieldname'],
                 'fieldvaluename' => $resultInfField[0]['fieldvaluename'],
+                'field_qty' => $field_qty,
                 'price' => $resultInfField[0]['price']
+            ];
+        }
+
+
+
+        foreach ($arrayFieldsTemp as $arrayfieldstemp) {
+            $price = 0;
+            $fieldname = '';
+            $fieldvaluename = '';
+            switch ($arrayfieldstemp[0]['id_type']) {
+                case 1:
+                    foreach ($arrayfieldstemp as $fieldstemp) {
+                        $fieldvaluename = $fieldvaluename .  $fieldstemp['field_qty'] . " x ";
+                    }
+                    $fieldvaluename = substr($fieldvaluename, 0, -2) . 'mm';
+                    $fieldname = $fieldstemp['fieldname'];
+                    $price = $this->getPriceDimensions($arrayfieldstemp[0]['field_qty'], $arrayfieldstemp[1]['field_qty'], $arrayfieldstemp[2]['field_qty']);
+                    break;
+                case 5:
+                    foreach ($arrayfieldstemp as $fieldstemp) {
+                        $fieldname = $fieldstemp['fieldname'];
+                        $fieldvaluename = $fieldvaluename . " " . $fieldstemp['fieldvaluename'] . " x " . $fieldstemp['field_qty'];
+                        $price += ($fieldstemp['field_qty'] * $fieldstemp['price']);
+                    }
+                    break;
+                default:
+                    $fieldname = $arrayfieldstemp[0]['fieldname'];
+                    $fieldvaluename = $fieldvaluename . " " . $arrayfieldstemp[0]['fieldvaluename'];
+                    $price += $arrayfieldstemp[0]['price'];
+                    break;
+            }
+
+            $arrayFields[] = [
+                'fieldname' => $fieldname,
+                'fieldvaluename' => $fieldvaluename,
+                'price' => $price
             ];
         }
 
@@ -78,7 +118,7 @@ class CpaProcessProduct
         }
 
         foreach ($arrayFields as $field) {
-            $this->addPrice += $field['price']*$field_qty;
+            $this->addPrice += $field['price'];
             $cpaCustomValue[] = array('index' => $this->createLabel($this->new_id_product, $field['fieldname'], 1, 0), 'value' => $field['fieldvaluename'] . ($field['price'] > 0 ? ' + ' . $this->getIVAPrice($field['price']) . ' €' : ''));
         }
 
@@ -105,8 +145,24 @@ class CpaProcessProduct
 
         $this->updateDescriptionProduct();
         $this->addImage();
-       
+
         return (int)$this->new_id_product;
+    }
+
+    private function getPriceDimensions($width, $height, $depth): float
+    {
+        return  Db::getInstance()->getValue("SELECT price
+                        FROM palu.ps_cpa_customization_field_csv
+                        WHERE 
+                            width  >= " . (int)$width . " AND
+                            height >= " . (int)$height . " AND
+                            depth  >= " . (int)$depth . "
+                        ORDER BY 
+                            POW(width - " . (int)$width . ",2) +
+                            POW(height - " . (int)$height . ",2) +
+                            POW(depth - " . (int)$depth . ",2)
+                        ASC
+                        ");
     }
 
 
@@ -173,8 +229,8 @@ class CpaProcessProduct
     // codigo provisório ***************************************************
     private function addImage()
     {
-        $id_product_source = $this->id_product; 
-        $id_product_dest = $this->new_id_product;   
+        $id_product_source = $this->id_product;
+        $id_product_dest = $this->new_id_product;
 
         $cover = Image::getCover($id_product_source);
         if ($cover) {
@@ -211,11 +267,13 @@ class CpaProcessProduct
             }
         }
     }
-  // FIm codigo provisório ***************************************************
+    // FIm codigo provisório ***************************************************
 
-    private function getInfField($id_field, $id_field_value)
+    private function getInfField($id_type, $id_field, $id_field_value)
     {
         $sqlfields = 'SELECT 
+                        cf.id_cpa_customization_field_type as id_type, 
+                        cf.id_cpa_customization_field as id_field, 
                         cfl.name as fieldname, 
                         cfvl.name as fieldvaluename, 
                         cfv.price
@@ -226,7 +284,7 @@ class CpaProcessProduct
                     INNER JOIN ' . _DB_PREFIX_ . 'cpa_customization_field_product cfp on cfp.id_cpa_customization_field = cf.id_cpa_customization_field and id_product = ' . (int)$this->id_product . '
                     INNER JOIN ' . _DB_PREFIX_ . 'cpa_customization_field_value_shop cfvs on cfvs.id_cpa_customization_field_value = cfv.id_cpa_customization_field_value and cfvs.id_shop = ' . (int)$this->id_shop . '
                     INNER JOIN ' . _DB_PREFIX_ . 'cpa_customization_field_value_lang cfvl on cfv.id_cpa_customization_field_value = cfvl.id_cpa_customization_field_value and cfvl.id_lang = ' . (int)$this->id_lang . '
-                    WHERE cfv.id_cpa_customization_field_value = ' . (int)$id_field_value . ' and cf.id_cpa_customization_field = ' . (int)$id_field . '
+                    WHERE cfv.id_cpa_customization_field_value = ' . (int)$id_field_value . ' and cf.id_cpa_customization_field_type = ' . (int)$id_type . ' and cf.id_cpa_customization_field = ' . (int)$id_field . '
                             ';
 
         return Db::getInstance()->executeS($sqlfields);
@@ -334,9 +392,6 @@ class CpaProcessProduct
                     VALUES ' . $values)) {
             return false;
         }
-
-
-
 
         return (int)$id_customization_field;
     }

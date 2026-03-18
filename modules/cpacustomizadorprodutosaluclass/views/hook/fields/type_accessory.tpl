@@ -26,12 +26,12 @@
 								<div class="input-group bootstrap-touchspin">
 									<span class="input-group-addon bootstrap-touchspin-prefix"
 										style="display: none;"></span>
-									<input class="fromset" data-message=""
+									<input class="fromset pricecal" data-message=""
 										id="cpafield_value_{$value.id_cpa_customization_field_value}" type="hidden"
 										name="cpafield_value_{$value.id_cpa_customization_field_value}" data-price="0"
 										value="0_0_0" disabled/>
 
-									<input id="cpafieldvalue-qty-{$value.id_cpa_customization_field_value}" type="number" data-id-value="{$value.id_cpa_customization_field_value}" data-field="{$id_cpa_customization_field}"  data-price="{$value.price|escape:'htmlall':'UTF-8'}" name="qty" id="quantity_wanted" inputmode="numeric"
+									<input id="cpafieldvalue-qty-{$value.id_cpa_customization_field_value}" data-typefield="{$type_id}" type="number" data-id-value="{$value.id_cpa_customization_field_value}" data-field="{$id_cpa_customization_field}"  data-price="{$value.price|escape:'htmlall':'UTF-8'}" name="qty" id="quantity_wanted" inputmode="numeric"
 										pattern="[0-9]*" value="0" min="0" class="input-group form-control cpafieldvalue-qty "
 										aria-label="Quantidade" style="display: block;">
 									<span class="input-group-addon bootstrap-touchspin-postfix"

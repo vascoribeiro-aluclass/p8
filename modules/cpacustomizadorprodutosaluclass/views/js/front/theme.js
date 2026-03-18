@@ -16,7 +16,6 @@ function HideCPAFieldError(idfield) {
     $("#error-" + idfield).hide();
 }
 
-
 $('[data-toggle="tooltip"]').tooltip();
 
 $(document).on('click', '.toggler', function () {
@@ -40,10 +39,9 @@ $(document).on('click', '.cpafieldvalue', function () {
     HideCPAFieldError(field);
 
     $('[data-field="' + field + '"]').removeClass('select-value');
+
     $(this).addClass('select-value');
 });
-
-
 
 $(document).on('click', '.cpafieldvalue.is_visual', function () {
     var src = $(this).attr('data-src');
@@ -102,10 +100,6 @@ $.fn.cpaSubmit = function (event) {
 
 
     datacustom['id_product'] = $('#cpafields-block').attr('data-key');
-
-    // console.log(datacustom);
-    //$('#cpaloader').fadeOut().remove();
-    // return;
 
     $.ajax({
         type: 'POST',

@@ -509,6 +509,9 @@ class AdminCpaCustomizationController extends ModuleAdminController
 
 
         if ($object->save()) {
+            
+            Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache');
+
             $shops = Tools::getValue('checkBoxShopAsso_' . $this->table, []);
 
             Db::getInstance()->delete(

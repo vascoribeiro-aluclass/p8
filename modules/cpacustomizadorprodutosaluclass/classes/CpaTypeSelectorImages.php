@@ -51,6 +51,7 @@ class CpaTypeSelectorImages extends CpaFields
             "order_position" => $this->order_position,
             "type_id"        => $this->type_id,
             "required"       => $this->required,
+            "price_type"     => $this->price_type,
             "id_cpa_customization_field" => $this->id_cpa_customization_field,
             "open_status"    => $this->open_status,
             "name"           => $this->name,

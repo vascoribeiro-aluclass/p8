@@ -35,7 +35,6 @@ abstract class CpaFields
 
     protected function getIVAPrice($price)
     {
-        //$product = new Product($this->id_product,false,Context::getContext()->language->id,Context::getContext()->shop->id);
         $tax_rate = Tax::getProductTaxRate($this->id_product,null,Context::getContext());
         $price_with_iva = $price + ($price * $tax_rate / 100);
 

@@ -17,19 +17,44 @@ class cpacustomizadorprodutosaluclassajaxModuleFrontController extends ModuleFro
     {
         $action = Tools::getValue('action');
         $result = ['success' => false];
+        switch ($action) {
+            case 'ProcessCPADimensions':
+                $dimensions  = Tools::getValue('dimensions');
 
-        if ($action === 'ProcessCPAProduct') {
-            $datacustom  = Tools::getValue('datacustom');
+                $price = Db::getInstance()->getValue("SELECT price
+                        FROM palu.ps_cpa_customization_field_csv
+                        WHERE 
+                            width  >= " . (int)$dimensions['width'] . " AND
+                            height >= " . (int)$dimensions['height'] . " AND
+                            depth  >= " . (int)$dimensions['depth'] . "
+                        ORDER BY 
+                            POW(width - " . (int)$dimensions['width'] . ",2) +
+                            POW(height - " . (int)$dimensions['height'] . ",2) +
+                            POW(depth - " . (int)$dimensions['depth'] . ",2)
+                        ASC
+                        ");
 
-            $cpaProcessProduct = new CpaProcessProduct($datacustom['id_product'], $datacustom['cpafields']);
-            $resultproduct = $cpaProcessProduct->init();
+                $result = [
+                    'success' => true,
+                    'message' => 'Success',
+                    'data' => $price
+                ];
+                break;
 
-            $result = [
-                'success' => true,
-                'message' => 'Pedido AJAX processado com sucesso!',
-                'data' => $resultproduct
-            ];
+            case 'ProcessCPAProduct':
+                $datacustom  = Tools::getValue('datacustom');
+
+                $cpaProcessProduct = new CpaProcessProduct($datacustom['id_product'], $datacustom['cpafields']);
+                $resultproduct = $cpaProcessProduct->init();
+
+                $result = [
+                    'success' => true,
+                    'message' => 'Success',
+                    'data' => $resultproduct
+                ];
+                break;
         }
+
 
         // Retorna o JSON e encerra a execução
         header('Content-Type: application/json');

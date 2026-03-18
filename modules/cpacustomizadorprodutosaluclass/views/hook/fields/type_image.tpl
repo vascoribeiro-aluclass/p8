@@ -11,7 +11,7 @@
 		{/if}
 
 		<div class="clearfix clear row mt-2 {if $required == 1} required_field{/if}" id="main-{$id_cpa_customization_field}" data-field="{$id_cpa_customization_field}" data-typefield="{$type_id}">
-			<input data-message=""  class="fromset" 
+			<input data-message=""  class="fromset pricecal" 
 				id="cpafield_{$id_cpa_customization_field}" type="hidden" name="cpafield_{$id_cpa_customization_field}"
 				data-price="0" value="0_0_0" disabled />
 
@@ -29,12 +29,18 @@
 						src="{$value.thumbs}" 
 						data-zindex="{$zindex|escape:'htmlall':'UTF-8'}"
 						data-qty="1" 
+						data-typefield="{$type_id}"
 						data-price="{$value.price|escape:'htmlall':'UTF-8'}"
 						data-id-value="{$value.id_cpa_customization_field_value}"
 						data-field="{$id_cpa_customization_field}" />
 					<center>
 						<i id="descriptionPrice_{$value.id_cpa_customization_field_value|escape:'intval'}">
-							{if $value.price > 0} + {Tools::convertPrice($value.price_with_iva, Context::getContext()->currency->id)|round:2} €</i>
+						{if $value.price > 0}
+							{if $price_type == 'amount'} 
+								+ {Tools::convertPrice($value.price_with_iva, Context::getContext()->currency->id)|round:2} €</i>
+							{else}
+							    + {Tools::convertPrice($value.price, Context::getContext()->currency->id)|round:0} %</i>
+							{/if}
 						{/if}
 						</i>
 						{if $value.description !=''}

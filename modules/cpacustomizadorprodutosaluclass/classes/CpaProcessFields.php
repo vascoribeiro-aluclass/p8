@@ -2,26 +2,9 @@
 class CpaProcessFields
 {
 
-
     public static function  init($id_product)
     {
         $context = Context::getContext();
-        
-        // Verifica se existe cache para o produto, se existir e não tiver expirado, exibe o cache.
-        // $key_cache = $id_product . '_' . (int)$context->language->id . '_' . (int)$context->shop->id;
-        // $expire = time() + 43200;
-
-        // $search_cache = 'SELECT * FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache 
-        //                 WHERE key_cache = "' . $key_cache . '" AND expire > ' . time();
-
-        // $cache_found =  Db::getInstance()->getRow($search_cache);
-
-        // if (sizeof($cache_found) > 0 && $cache_found['key_cache'] == $key_cache && $cache_found['expire'] > time()) {
-        //   $this->context->smarty->assign('template', $cache_found['content']);
-        //   return $this->display(__FILE__, 'cpa_cached.tpl');
-        // }
-
-
 
         $sqlfields = 'SELECT 
                       cf.id_cpa_customization_field,

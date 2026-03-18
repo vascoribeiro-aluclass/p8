@@ -10,10 +10,11 @@ require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaProce
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeSelectorImages.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeSelectorRadio.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeAccessQty.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeDimensions.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCf.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCfv.php';
-
-
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/install.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/uninstall.php';
 class CpaCustomizadorProdutosAluclass extends Module
 {
 
@@ -33,7 +34,7 @@ class CpaCustomizadorProdutosAluclass extends Module
 
   public function install()
   {
-    require_once $this->local_path  . 'install/sql/uninstall.php';
+
     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
 
     if ($id_tab > 0) {
@@ -47,7 +48,8 @@ class CpaCustomizadorProdutosAluclass extends Module
     $this->installModuleTab('AdminCpaCustomizadorProdutosAluclassNo', array((int)$this->context->language->id => 'Gerir Campos Customizados'), 0);
     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
 
-    require_once $this->local_path  . 'install/sql/install.php';
+
+    installCPASQL::init();
     return parent::install()
       && $this->registerHook('Header')
       && $this->registerHook('displayReassurance')
@@ -63,6 +65,7 @@ class CpaCustomizadorProdutosAluclass extends Module
 
   public function uninstall()
   {
+    uninstallCPASQL::init();
     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
     if (!parent::uninstall() || !$this->uninstallModuleTab('AdminCpaCustomizadorProdutosAluclassNo', $id_tab) || !$this->uninstallModuleTab('AdminCpaPorduct', $id_tab) || !$this->uninstallModuleTab('AdminCpaCustomization', $id_tab) || !$this->uninstallModuleTab('AdminCpaCustomizationValue', -1))
       return false;
@@ -97,7 +100,7 @@ class CpaCustomizadorProdutosAluclass extends Module
 
   private function uninstallModuleTab($tabClass, $idTabParent)
   {
-    require_once $this->local_path  . 'install/sql/uninstall.php';
+
     $idTab = Tab::getIdFromClassName($tabClass);
     if ($idTab != 0) {
       $tab = new Tab($idTab);
@@ -138,12 +141,13 @@ class CpaCustomizadorProdutosAluclass extends Module
           'priority' => 800,
         ]
       );
-         // //  $product = new Product($this->id_product);
-      // // $tax_rate = Tax::getProductTaxRate($product->id);
 
-      // //  Media::addJsDef([
-      // //       'ivaProduct' => $tax_rate,
-      // //  ]);
+      $product = new Product($id_product, false, (int)$this->context->language->id, (int)$this->context->shop->id);
+      $tax_rate = Tax::getProductTaxRate($product->id);
+
+      Media::addJsDef([
+        'ivaProduct' => $tax_rate,
+      ]);
 
       $this->context->controller->registerJavascript(
         'module-cpa-calculeprice-js',
@@ -153,24 +157,22 @@ class CpaCustomizadorProdutosAluclass extends Module
           'priority' => 850,
         ]
       );
-
     }
   }
 
   public function hookDisplayProductPriceBlock($params)
   {
-    if (Tools::getValue('controller') == 'price') {
+    if (Tools::getValue('controller') == 'product') {
 
-      if ($params['type'] == 'price') {
+      if ($params['type'] == 'custom_price') {
         $id_product = (int)Tools::getValue('id_product');
 
-        if ($this->checkCPAProduct($id_product) == 0) {
-          return '';
-        }
-        $price = Tools::displayPrice(0);
+        $product = new Product($id_product, false, (int)$this->context->language->id, (int)$this->context->shop->id);
+
         $this->context->smarty->assign(
           [
-            'price' => $price
+            'price' => $product->getPrice(true),
+            'price_tax_exc' => $product->getPrice(false),
           ]
         );
 
@@ -187,6 +189,21 @@ class CpaCustomizadorProdutosAluclass extends Module
       if ($this->checkCPAProduct($id_product) == 0) {
         return '';
       }
+
+      $key_cache = $id_product . '_' . (int)$this->context->language->id . '_' . (int)$this->context->shop->id;
+      $expire = time() + 43200;
+
+      $search_cache = 'SELECT * FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache 
+                        WHERE key_cache = "' . $key_cache . '" AND expire > ' . time();
+
+      $cache_found =  Db::getInstance()->getRow($search_cache);
+      if (is_array($cache_found)) {
+        if (sizeof($cache_found) > 0 && $cache_found['key_cache'] == $key_cache && $cache_found['expire'] > time()) {
+          $this->context->smarty->assign('template', $cache_found['content']);
+          return $this->display(__FILE__, 'views/hook/cpa_cache.tpl');
+        }
+      }
+
 
       $resultsfields = CpaProcessFields::init($id_product);
 
@@ -216,6 +233,13 @@ class CpaCustomizadorProdutosAluclass extends Module
             $htmlFields .= $this->display(__FILE__, $fieldObj->getTemplate());
 
             break;
+          case "cpatypedimensions":
+            $fieldObj = new CpaTypeDimensions($field, $id_product);
+
+            $this->context->smarty->assign($fieldObj->getAssign());
+            $htmlFields .= $this->display(__FILE__, $fieldObj->getTemplate());
+
+            break;
         }
       }
 
@@ -227,6 +251,11 @@ class CpaCustomizadorProdutosAluclass extends Module
       );
       $template = $this->display(__FILE__, 'views/hook/cpa.tpl');
 
+
+      Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache WHERE key_cache = "' . $key_cache . '"');
+
+      $setCache = 'INSERT INTO ' . _DB_PREFIX_ . 'cpa_customization_field_cache (key_cache, content, expire) VALUES ("' . pSQL($key_cache) . '", "' . pSQL($template, true) . '", ' . $expire . ')';
+      Db::getInstance()->execute($setCache);
 
       return $template;
     }
