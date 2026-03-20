@@ -144,7 +144,7 @@ class installCPASQL
 				],
 				[
 					'name' => 'cpa_customization_field_value_img',
-					'index' => ['id_cpa_customization_field_value', 'type'],
+					'index' => ['id_cpa_customization_field_value', 'ext'],
 					'primary' => '',
 					'cols' =>
 					[

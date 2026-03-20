@@ -6,7 +6,12 @@ function addCustomerPrice() {
 
     $(".pricecal").each(function () {
         if (!$(this).is(":disabled")) {
-            pricecustomize = pricecustomize + parseFloat($(this).attr("data-price"));
+            if($(this).attr("data-price-type") == 'amount'){
+                pricecustomize = pricecustomize + parseFloat($(this).attr("data-price"));
+            }else{
+                pricecustomize = pricecustomize + ( (parseFloat($(this).attr("data-price"))/100)*parseFloat(pricebase) );
+            }
+            
         }
     });
 
@@ -26,16 +31,16 @@ function getCustomerPricedimensions(element) {
 
     var field = $(element).attr('data-field');
 
-    var minWidth = parseInt($('input[data-field="' + field + '"].dimension_text_width').attr('min'));
-    var maxWidth = parseInt($('input[data-field="' + field + '"].dimension_text_width').attr('max'));
+    var minWidth  = parseInt($('input[data-field="' + field + '"].dimension_text_width').attr('min'));
+    var maxWidth  = parseInt($('input[data-field="' + field + '"].dimension_text_width').attr('max'));
     var minHeight = parseInt($('input[data-field="' + field + '"].dimension_text_height').attr('min'));
     var maxHeight = parseInt($('input[data-field="' + field + '"].dimension_text_height').attr('max'));
-    var minDepth = parseInt($('input[data-field="' + field + '"].dimension_text_depth').attr('min'));
-    var maxDepth = parseInt($('input[data-field="' + field + '"].dimension_text_depth').attr('max'));
+    var minDepth  = parseInt($('input[data-field="' + field + '"].dimension_text_depth').attr('min'));
+    var maxDepth  = parseInt($('input[data-field="' + field + '"].dimension_text_depth').attr('max'));
 
-    var valWidth = parseInt($('input[data-field="' + field + '"].dimension_text_width').val()) || 0;
+    var valWidth  = parseInt($('input[data-field="' + field + '"].dimension_text_width').val())  || 0;
     var valHeight = parseInt($('input[data-field="' + field + '"].dimension_text_height').val()) || 0;
-    var valDepth = parseInt($('input[data-field="' + field + '"].dimension_text_depth').val()) || 0;
+    var valDepth  = parseInt($('input[data-field="' + field + '"].dimension_text_depth').val())  || 0;
 
     if (valWidth >= minWidth && valWidth <= maxWidth && valHeight >= minHeight && valHeight <= maxHeight && valDepth >= minDepth && valDepth <= maxDepth) {
         var datadimensions = {
@@ -82,10 +87,13 @@ $(document).on('change', '.cpa_dimension_text', function () {
     var max = parseInt($(this).attr('max'));
 
     if (qty >= min && qty <= max) {
+        $('#cpafield_value_' + idvalue).addClass('select-value');
         $('#cpafield_value_' + idvalue).val(type + '_' + field + '_' + idvalue + '_' + qty);
         $('#cpafield_value_' + idvalue).prop('disabled', false);
+        HideCPAFieldError(field);
 
     } else {
+        $('#cpafield_value_' + idvalue).removeClass('select-value');;
         $('#cpafield_value_' + idvalue).prop('disabled', true);
     }
 

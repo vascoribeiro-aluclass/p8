@@ -118,6 +118,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
         Media::addJsDef([
             'ajaxExcProductUrl' => $this->context->link->getAdminLink('AdminCpaCustomizationValue', true, [], ['action' => 'SearchExcProductsCPA', 'ajax' => 1]),
+            'ajaxRemoveImgUrl' => $this->context->link->getAdminLink('AdminCpaCustomizationValue', true, [], ['action' => 'RemoveImgCPA', 'ajax' => 1]),
             'already_selected_exc_products' => $cpaProducts,
             'id_cpa_customization_field_type' => $this->id_cpa_customization_field_type,
             'select2_translations' => [
@@ -129,6 +130,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             'icon_file_text_error' => $this->trans('Formato inválido. Use apenas PNG, JPG, JPEG ou WebP.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
             'img_file_text_error' => $this->trans('Formato inválido. Use apenas PNG, JPG, JPEG ou WebP.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
             'preview_file_text_error' => $this->trans('Formato inválido. Use apenas JPG, JPEG ou WebP.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+              'cpa_delete_img' => $this->trans('Deseja eliminar imagem?', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
 
         ]);
 
@@ -153,6 +155,42 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
         );
 
         return Db::getInstance()->executeS($sql);
+    }
+
+    public function ajaxProcessRemoveImgCPA()
+    {
+
+        $id_cpa_customization_field_value = Tools::getValue('idfieldvalue');
+        $path = Tools::getValue('path');
+
+        $sql = new DbQuery();
+        $sql->select('p.ext');
+        $sql->from($this->table . "_img", 'p');
+        $sql->where("p.id_" . $this->table . " = " . (int)$id_cpa_customization_field_value . " AND p.type = '" . pSQL($path) . "'");
+
+
+        $arrayExt = Db::getInstance()->executeS($sql);
+
+        Db::getInstance()->delete(
+            $this->table . "_img",
+            "id_" . $this->table . " = " . (int)$id_cpa_customization_field_value . " AND type = '" . pSQL($path) . "'"
+        );
+
+        foreach ($arrayExt as $ext) {
+            $destination = _PS_IMG_DIR_ . 'scenes/' . $path . (int)$id_cpa_customization_field_value . '.' . $ext;
+
+            if (is_file($destination) && file_exists($destination)) {
+                unlink($destination);
+            }
+        }
+
+
+
+
+        die(json_encode([
+            'success' => true,
+            'message' => 'Imagem removida com sucesso'
+        ]));
     }
 
     public function ajaxProcessSearchExcProductsCPA()
@@ -241,20 +279,23 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
     private function getHtmlImg($path, $arrayImg, $alt, $style)
     {
+
+        $obj = $this->loadObject(true);
+
         if (key_exists($path, $arrayImg)) {
-            $iswebp = false;
-            $countImg = count($arrayImg[$path]);
+            $imghtml = '<div id="cpa_img_'.$obj->id.'"><picture>';
 
             foreach ($arrayImg[$path] as $imgIconValue) {
                 if ($imgIconValue == 'webp') {
-                    $iswebp = true;
+                    $imghtml .= '<img src="' . $this->getImageUrl($imgIconValue, $path) . '" alt="' . $alt . '" style="' . $style . '">';
+                } else {
+                    $imghtml .= '<source  src="' . $this->getImageUrl($imgIconValue, $path) . '" >';
                 }
             }
-            if ($iswebp && $countImg == 1) {
-                return '<img src="' . $this->getImageUrl('webp', $path) . '" alt="' . $alt . '" style="' . $style . '">';
-            } else if ($countImg == 1) {
-                return '<img src="' . $this->getImageUrl($arrayImg[$path][0], $path) . '" alt="' . $alt . '" style="' . $style . '">';
-            }
+            $imghtml .= '</picture><i class="material-icons " onclick="removeImgValueCPA(' . $obj->id . ',\''.$path.'\')"  title="" style="position: absolute; cursor: pointer;">
+					disabled_by_default
+				</i></div>';
+            return $imghtml;
         }
         return '';
     }
@@ -334,7 +375,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                     'label' => $this->trans('Cor :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'colorpicker',
                     'class' => 'color mColorPickerInput',
-                    'form_group_class' => 'visivel-2',
+                    'form_group_class' => 'visivel-2 visivel-5 visivel-6',
                 ],
 
                 [
@@ -390,16 +431,14 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                     'name' => 'icon_file',
                     'desc' =>  $this->trans('Adicione aqui o ícon do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'class' => 'icon-file-input',
-                    'multiple' => true,
-                    'form_group_class' => 'visivel-2   visivel-3  visivel-5 visivel-6',
+                    'form_group_class' => 'visivel-2 visivel-5 visivel-6',
                 ],
                 [
                     'type' => 'html',
                     'name' => 'icon_preview',
                     'label' => $this->trans('Pré-visualização do icon', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-
                     'html_content' => $htmlImgIcon,
-                    'form_group_class' => 'visivel-2 visivel-3 visivel-5 visivel-6',
+                    'form_group_class' => 'visivel-2 visivel-5 visivel-6',
                 ],
 
                 [
@@ -408,7 +447,6 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                     'name' => 'img_file',
                     'desc' =>  $this->trans('Adicione aqui a imagem do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'class' => 'img-file-input',
-                    'multiple' => true,
                     'form_group_class' => 'visivel-2 visivel-3',
                 ],
                 [
@@ -424,15 +462,14 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                     'name' => 'preview_file',
                     'desc' =>  $this->trans('Adicione aqui a imagem de pré-visualização do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'class' => 'preview-file-input',
-                    'multiple' => true,
-                    'form_group_class' => 'visivel-2 visivel-3',
+                    'form_group_class' => 'visivel-2 visivel-3 visivel-5 visivel-6',
                 ],
                 [
                     'type' => 'html',
                     'name' => 'preview_preview',
                     'label' => $this->trans('Pré-visualização da imagem de pré-visualização do campo.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'html_content' =>  $htmlImgPreview,
-                    'form_group_class' => 'visivel-2 visivel-3',
+                    'form_group_class' => 'visivel-2 visivel-3 visivel-5 visivel-6',
                 ],
                 [
                     'type' => 'hidden',
@@ -512,68 +549,141 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
     public function updatefile($id_cpa_customization_field_value, $fieldsImgUpload, $path)
     {
+        if (
+            isset($_FILES[$fieldsImgUpload]['error']) &&
+            $_FILES[$fieldsImgUpload]['error'] === UPLOAD_ERR_OK
+        ) {
 
-        if (isset($_FILES[$fieldsImgUpload]['error'][0]) && $_FILES[$fieldsImgUpload]['error'][0] === UPLOAD_ERR_OK) {
-
+            // Apaga registo antigo
             Db::getInstance()->delete(
                 $this->table . "_img",
-                "id_" . $this->table . " = " . (int)$id_cpa_customization_field_value . " and  type = '" . $path . "' "
+                "id_" . $this->table . " = " . (int)$id_cpa_customization_field_value . " 
+            AND type = '" . pSQL($path) . "'"
             );
 
+            $file = $_FILES[$fieldsImgUpload];
 
-            $files = $_FILES[$fieldsImgUpload];
-
-            if (!is_array($files['name'])) {
-                $files = [
-                    'name'     => [$files['name']],
-                    'type'     => [$files['type']],
-                    'tmp_name' => [$files['tmp_name']],
-                    'error'    => [$files['error']],
-                    'size'     => [$files['size']],
-                ];
+            // Validar upload
+            if ($error = ImageManager::validateUpload($file, 4000000)) {
+                $this->errors[] = $error;
+                return;
             }
 
-            foreach ($files['name'] as $key => $name) {
+            // Extensão do ficheiro
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
 
-                if (empty($files['tmp_name'][$key])) {
-                    continue;
-                }
+            // Nome final
+            $fileName = $id_cpa_customization_field_value . '.' . $ext;
 
-                $file = [
-                    'name'     => $files['name'][$key],
-                    'type'     => $files['type'][$key],
-                    'tmp_name' => $files['tmp_name'][$key],
-                    'error'    => $files['error'][$key],
-                    'size'     => $files['size'][$key],
-                ];
+            // Caminho destino
+            $destination = _PS_IMG_DIR_ . 'scenes/' . $path . '/';
 
-                if ($error = ImageManager::validateUpload($file, 4000000)) {
-                    $this->errors[] = $error;
+            // Criar pasta se não existir
+            if (!file_exists($destination)) {
+                mkdir($destination, 0755, true);
+            }
+
+            // Redimensionar e guardar
+            if (ImageManager::resize($file['tmp_name'], $destination . $fileName)) {
+
+                $webpFile = $destination . $id_cpa_customization_field_value . '.webp';
+
+                if (!ImageManager::resize($file['tmp_name'], $webpFile)) {
+                    $this->errors[] = $this->trans(
+                        'Erro ao gerar WebP',
+                        [],
+                        'Modules.Cpacustomizadorprodutosaluclass.Admin'
+                    );
                     return;
                 }
 
-                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $fileName = $id_cpa_customization_field_value . '.' . $ext;
-                $destination = _PS_IMG_DIR_ . 'scenes/' . $path;
+                Db::getInstance()->insert(
+                    $this->table . '_img',
+                    [
+                        'id_' . $this->table => (int)$id_cpa_customization_field_value,
+                        'ext'  => 'webp',
+                        'type' => $path,
+                    ]
+                );
 
-                if (!file_exists($destination)) {
-                    mkdir($destination, 0755, true);
-                }
+                Db::getInstance()->insert(
+                    $this->table . '_img',
+                    [
+                        'id_' . $this->table => (int)$id_cpa_customization_field_value,
+                        'ext'  => $ext,
+                        'type' => $path,
+                    ]
+                );
 
-                if (ImageManager::resize($file['tmp_name'], $destination . $fileName)) {
-
-                    Db::getInstance()->insert(
-                        $this->table . '_img',
-                        [
-                            'id_' . $this->table  => (int)$id_cpa_customization_field_value,
-                            'ext' => $ext,
-                            'type' => $path,
-                        ]
-                    );
-
-                    $_POST[$fieldsImgUpload] = $fileName;
-                }
+                $_POST[$fieldsImgUpload] = $fileName;
             }
         }
     }
+
+    // public function updatefile($id_cpa_customization_field_value, $fieldsImgUpload, $path)
+    // {
+
+    //     if (isset($_FILES[$fieldsImgUpload]['error'][0]) && $_FILES[$fieldsImgUpload]['error'][0] === UPLOAD_ERR_OK) {
+
+    //         Db::getInstance()->delete(
+    //             $this->table . "_img",
+    //             "id_" . $this->table . " = " . (int)$id_cpa_customization_field_value . " and  type = '" . $path . "' "
+    //         );
+
+
+    //         $files = $_FILES[$fieldsImgUpload];
+
+    //         if (!is_array($files['name'])) {
+    //             $files = [
+    //                 'name'     => [$files['name']],
+    //                 'type'     => [$files['type']],
+    //                 'tmp_name' => [$files['tmp_name']],
+    //                 'error'    => [$files['error']],
+    //                 'size'     => [$files['size']],
+    //             ];
+    //         }
+
+    //         foreach ($files['name'] as $key => $name) {
+
+    //             if (empty($files['tmp_name'][$key])) {
+    //                 continue;
+    //             }
+
+    //             $file = [
+    //                 'name'     => $files['name'][$key],
+    //                 'type'     => $files['type'][$key],
+    //                 'tmp_name' => $files['tmp_name'][$key],
+    //                 'error'    => $files['error'][$key],
+    //                 'size'     => $files['size'][$key],
+    //             ];
+
+    //             if ($error = ImageManager::validateUpload($file, 4000000)) {
+    //                 $this->errors[] = $error;
+    //                 return;
+    //             }
+
+    //             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    //             $fileName = $id_cpa_customization_field_value . '.' . $ext;
+    //             $destination = _PS_IMG_DIR_ . 'scenes/' . $path;
+
+    //             if (!file_exists($destination)) {
+    //                 mkdir($destination, 0755, true);
+    //             }
+
+    //             if (ImageManager::resize($file['tmp_name'], $destination . $fileName)) {
+
+    //                 Db::getInstance()->insert(
+    //                     $this->table . '_img',
+    //                     [
+    //                         'id_' . $this->table  => (int)$id_cpa_customization_field_value,
+    //                         'ext' => $ext,
+    //                         'type' => $path,
+    //                     ]
+    //                 );
+
+    //                 $_POST[$fieldsImgUpload] = $fileName;
+    //             }
+    //         }
+    //     }
+    // }
 }

@@ -14,6 +14,7 @@ class CpaProcessProduct
     private $languages = [];
     private $addPrice = 0;
     private $description = '';
+    private $product;
 
     public function __construct($id_product, $datacustom)
     {
@@ -38,6 +39,7 @@ class CpaProcessProduct
         }
 
         $this->languages  = Language::getLanguages(true, $this->id_shop);
+        $this->product = new Product($this->id_product, false, $this->id_lang, $this->id_shop);
     }
 
 
@@ -45,19 +47,27 @@ class CpaProcessProduct
     {
         $arrayFields = [];
         $arrayFieldsTemp = [];
+        
 
         foreach ($this->datacustom as $custom) {
             $arrayCustom = explode('_', $custom);
             if (!count($arrayCustom) == 4) {
                 return false;
             }
-            $id_type       = $arrayCustom[0];
+
+            $id_type        = $arrayCustom[0];
             $id_field       = $arrayCustom[1];
             $id_field_value = $arrayCustom[2];
             $field_qty      = $arrayCustom[3];
 
-            if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 1) {
-                return false;
+            if ($id_type == 1) {
+                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 0) {
+                    return false;
+                }
+            } else {
+                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 1) {
+                    return false;
+                }
             }
 
             $resultInfField = $this->getInfField($id_type, $id_field, $id_field_value);
@@ -69,9 +79,10 @@ class CpaProcessProduct
             $arrayFieldsTemp[$resultInfField[0]['id_field']][] = [
                 'id_type' => $resultInfField[0]['id_type'],
                 'fieldname' => $resultInfField[0]['fieldname'],
+                'price_type' => $resultInfField[0]['price_type'],
                 'fieldvaluename' => $resultInfField[0]['fieldvaluename'],
                 'field_qty' => $field_qty,
-                'price' => $resultInfField[0]['price']
+                'price' => ($resultInfField[0]['price_type'] == 'amount' ? $resultInfField[0]['price'] : ($resultInfField[0]['price']/100)*$this->product->price)
             ];
         }
 
@@ -84,7 +95,9 @@ class CpaProcessProduct
             switch ($arrayfieldstemp[0]['id_type']) {
                 case 1:
                     foreach ($arrayfieldstemp as $fieldstemp) {
-                        $fieldvaluename = $fieldvaluename .  $fieldstemp['field_qty'] . " x ";
+                        if ($fieldstemp['field_qty'] > 0) {
+                            $fieldvaluename = $fieldvaluename .  $fieldstemp['field_qty'] . " x ";
+                        }
                     }
                     $fieldvaluename = substr($fieldvaluename, 0, -2) . 'mm';
                     $fieldname = $fieldstemp['fieldname'];
@@ -119,7 +132,7 @@ class CpaProcessProduct
 
         foreach ($arrayFields as $field) {
             $this->addPrice += $field['price'];
-            $cpaCustomValue[] = array('index' => $this->createLabel($this->new_id_product, $field['fieldname'], 1, 0), 'value' => $field['fieldvaluename'] . ($field['price'] > 0 ? ' + ' . $this->getIVAPrice($field['price']) . ' €' : ''));
+            $cpaCustomValue[] = array('index' => $this->createLabel($this->new_id_product, $field['fieldname'], 1, 0), 'value' => $field['fieldvaluename'] . ($field['price'] > 0 ? ' + ' . $this->getIVAPrice(round($field['price']),2) . ' €' : ''));
         }
 
         $this->updatePriceProduct();
@@ -274,6 +287,7 @@ class CpaProcessProduct
         $sqlfields = 'SELECT 
                         cf.id_cpa_customization_field_type as id_type, 
                         cf.id_cpa_customization_field as id_field, 
+                        cf.price_type as price_type, 
                         cfl.name as fieldname, 
                         cfvl.name as fieldvaluename, 
                         cfv.price
@@ -308,10 +322,9 @@ class CpaProcessProduct
     {
         $cusText = 'CPA PRODUCT ';
 
-        $product = new Product($this->id_product, false, $this->id_lang, $this->id_shop);
-        if (Validate::isLoadedObject($product)) {
+        if (Validate::isLoadedObject($this->product)) {
             $customProd = new Product(null, false, null, $this->id_shop);
-            $name = $product->name;
+            $name = $this->product->name;
 
             $link_rewrite = preg_replace('/[\s\'\:\/\[\]\-\|]+/', ' ', $name);
             $link_rewrite = str_replace(array(' ', '/', '|'), '-', $link_rewrite);
@@ -326,31 +339,31 @@ class CpaProcessProduct
             }
 
 
-            $customProd->reference = Tools::str2url('custom-' . $product->id);
+            $customProd->reference = Tools::str2url('custom-' . $this->product->id);
 
             $customProd->id_category_default = (int)Configuration::get('CPA_CATEGORY');
 
             $customProd->customizable = 1;
-            $customProd->id_supplier = (int)$product->id_supplier;
-            $customProd->id_manufacturer = (int)$product->id_manufacturer;
+            $customProd->id_supplier = (int)$this->product->id_supplier;
+            $customProd->id_manufacturer = (int)$this->product->id_manufacturer;
             $customProd->indexed = 0;
 
-            $customProd->is_virtual = $product->is_virtual;
+            $customProd->is_virtual = $this->product->is_virtual;
             //forpack
             $customProd->cache_is_pack = 1;
             $customProd->pack_stock_type = 1;
 
             $customProd->visibility = 'none';
-            $customProd->price =  $product->price;
+            $customProd->price =  $this->product->price;
             $customProd->uploadable_files = 99;
             $customProd->text_fields = 99;
-            $customProd->width = $product->width;
-            $customProd->height = $product->height;
-            $customProd->depth = $product->depth;
-            $customProd->weight = $product->weight;
-            $customProd->ecotax = $product->ecotax;
-            $customProd->tax_rate = $product->tax_rate;
-            $customProd->id_tax_rules_group = (int)$product->id_tax_rules_group;
+            $customProd->width = $this->product->width;
+            $customProd->height = $this->product->height;
+            $customProd->depth = $this->product->depth;
+            $customProd->weight = $this->product->weight;
+            $customProd->ecotax = $this->product->ecotax;
+            $customProd->tax_rate = $this->product->tax_rate;
+            $customProd->id_tax_rules_group = (int)$this->product->id_tax_rules_group;
             $customProd->minimal_quantity = 1;
             $customProd->save();
             //$customProd->addToShop($this->id_shop);

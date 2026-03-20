@@ -128,8 +128,6 @@
 .tooltip-cpa {
   font-size: 20px !important;
   color: #4b4b4b;
-
-  margin-top: 5px;
   cursor: pointer;
 }
 
@@ -298,4 +296,20 @@
   border-bottom: 1px dashed #f6f6f6;
   padding: 10px;
   margin: 0;
+}
+
+
+.tooltipPreview {
+  position: absolute;
+  display: none;
+  border: 1px solid #ccc;
+  background: white;
+  padding: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  z-index: 9999;
+}
+
+.tooltipPreview img {
+  max-width: 200px;
+  max-height: 200px;
 }

@@ -116,10 +116,6 @@ class CpaCustomizadorProdutosAluclass extends Module
     if (Tools::getValue('controller') == 'product') {
       $id_product = (int)Tools::getValue('id_product');
 
-      if ($this->checkCPAProduct($id_product) == 0) {
-        return '';
-      }
-
       Media::addJsDef(array(
         'url_ajax_cpacustomizadorprodutosaluclass' => $this->context->link->getModuleLink('cpacustomizadorprodutosaluclass', 'ajax')
       ));
@@ -186,23 +182,19 @@ class CpaCustomizadorProdutosAluclass extends Module
     if (Tools::getValue('controller') == 'product') {
       $id_product = (int)Tools::getValue('id_product');
 
-      if ($this->checkCPAProduct($id_product) == 0) {
-        return '';
-      }
+      // $key_cache = $id_product . '_' . (int)$this->context->language->id . '_' . (int)$this->context->shop->id;
+      // $expire = time() + 43200;
 
-      $key_cache = $id_product . '_' . (int)$this->context->language->id . '_' . (int)$this->context->shop->id;
-      $expire = time() + 43200;
+      // $search_cache = 'SELECT * FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache 
+      //                   WHERE key_cache = "' . $key_cache . '" AND expire > ' . time();
 
-      $search_cache = 'SELECT * FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache 
-                        WHERE key_cache = "' . $key_cache . '" AND expire > ' . time();
-
-      $cache_found =  Db::getInstance()->getRow($search_cache);
-      if (is_array($cache_found)) {
-        if (sizeof($cache_found) > 0 && $cache_found['key_cache'] == $key_cache && $cache_found['expire'] > time()) {
-          $this->context->smarty->assign('template', $cache_found['content']);
-          return $this->display(__FILE__, 'views/hook/cpa_cache.tpl');
-        }
-      }
+      // $cache_found =  Db::getInstance()->getRow($search_cache);
+      // if (is_array($cache_found)) {
+      //   if (sizeof($cache_found) > 0 && $cache_found['key_cache'] == $key_cache && $cache_found['expire'] > time()) {
+      //     $this->context->smarty->assign('template', $cache_found['content']);
+      //     return $this->display(__FILE__, 'views/hook/cpa_cache.tpl');
+      //   }
+      // }
 
 
       $resultsfields = CpaProcessFields::init($id_product);
@@ -252,10 +244,10 @@ class CpaCustomizadorProdutosAluclass extends Module
       $template = $this->display(__FILE__, 'views/hook/cpa.tpl');
 
 
-      Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache WHERE key_cache = "' . $key_cache . '"');
+      // Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache WHERE key_cache = "' . $key_cache . '"');
 
-      $setCache = 'INSERT INTO ' . _DB_PREFIX_ . 'cpa_customization_field_cache (key_cache, content, expire) VALUES ("' . pSQL($key_cache) . '", "' . pSQL($template, true) . '", ' . $expire . ')';
-      Db::getInstance()->execute($setCache);
+      // $setCache = 'INSERT INTO ' . _DB_PREFIX_ . 'cpa_customization_field_cache (key_cache, content, expire) VALUES ("' . pSQL($key_cache) . '", "' . pSQL($template, true) . '", ' . $expire . ')';
+      // Db::getInstance()->execute($setCache);
 
       return $template;
     }

@@ -20,7 +20,7 @@ function setupFileValidation(inputName, allowedTypes, acceptAttr, textError) {
     });
 }
 function manageVisibility(selectedValue) {
- 
+
     $('.visivel-1, .visivel-2, .visivel-3, .visivel-4, .visivel-5, .visivel-6').closest('.form-group').hide();
 
     if (selectedValue == '1') {
@@ -35,6 +35,25 @@ function manageVisibility(selectedValue) {
         $('.visivel-5').closest('.form-group').show();
     } else if (selectedValue == '6') {
         $('.visivel-6').closest('.form-group').show();
+    }
+}
+
+
+function removeImgValueCPA( idfieldvalue,path) {
+
+ if (confirm(cpa_delete_img)) {
+    $.ajax({
+        type: 'POST',
+        url: ajaxRemoveImgUrl,
+        data: {
+            idfieldvalue: idfieldvalue,
+            path: path,
+        },
+        dataType: 'json', 
+        success: function (response) {
+          $('#cpa_img_'+idfieldvalue).remove();
+        }
+    });
     }
 }
 

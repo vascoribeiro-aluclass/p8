@@ -1,9 +1,9 @@
 $(document).ready(function() {
    
     manageVisibility(id_cpa_customization_field_type);
-    setupFileValidation('icon_file', ['image/png', 'image/webp'],'.png, .jpg, .jpeg, .webp',icon_file_text_error);
-    setupFileValidation('img_file', ['image/jpeg', 'image/webp'],'.png, .jpg, .jpeg, .webp',img_file_text_error);
-    setupFileValidation('preview_file', ['image/png', 'image/webp'],'.jpg, .jpeg, .webp',preview_file_text_error);
+    setupFileValidation('icon_file', ['image/jpeg'],'.jpg, .jpeg',icon_file_text_error);
+    setupFileValidation('img_file', ['image/jpeg', 'image/png'],'.png, .jpg, .jpeg',img_file_text_error);
+    setupFileValidation('preview_file', ['image/jpeg'],'.jpg, .jpeg',preview_file_text_error);
 
     if (typeof already_selected_exc_products !== 'undefined' && already_selected_exc_products.length) {
 
@@ -20,9 +20,11 @@ $(document).ready(function() {
             .replace(/(\..*?)\..*/g, '$1')
             .replace(/^(\d+)(\.\d{0,2})?.*$/, '$1$2');
     });
+
     $('.integer-field').on('input', function () {
         this.value = this.value.replace(/[^0-9]/g, ''); // permite só dígitos
     });
+
     $('.ajax-exc-product-search').select2({
         width: '100%',
         multiple: true,

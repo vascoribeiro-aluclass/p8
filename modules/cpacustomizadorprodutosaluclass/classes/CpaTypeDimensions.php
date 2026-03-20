@@ -35,8 +35,11 @@ class CpaTypeDimensions extends CpaFields
         $this->arrayAssign = [
             "fieldValues"    => $fieldValues,
             "position"       => $this->position,
+            "notice"         => $this->notice,
+            "tooltip"        => $this->tooltip,
             "order_position" => $this->order_position,
             "type_id"        => $this->type_id,
+            "isvisivel"      => $this->isvisivel,
             "required"       => $this->required,
             "id_cpa_customization_field" => $this->id_cpa_customization_field,
             "open_status"    => $this->open_status,
