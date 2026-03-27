@@ -25,7 +25,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
         if (!Tools::getValue('id_cpa_customization_field_type') && Tools::getValue('id_cpa_customization_field_value')) {
 
-            $sql = 'SELECT p.id_cpa_customization_field_type 
+            $sql = 'SELECT p.id_cpa_customization_field_type, p.id_cpa_customization_field 
             FROM ' . _DB_PREFIX_ . 'cpa_customization_field p 
             INNER JOIN ' . _DB_PREFIX_ . 'cpa_customization_field_value a 
             ON a.id_cpa_customization_field = p.id_cpa_customization_field
@@ -36,6 +36,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
             if ($result && count($result)) {
                 $this->id_cpa_customization_field_type = (int)$result[0]['id_cpa_customization_field_type'];
+                $this->id_cpa_customization_field = (int)$result[0]['id_cpa_customization_field'];
             }
         } else if (!Tools::getValue('id_cpa_customization_field_type') && Tools::getValue('id_cpa_customization_field')) {
 
@@ -108,6 +109,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
         $this->addJqueryPlugin('select2');
 
         $cpaProducts = [];
+        $cpafieldsInfluence = [];
 
         foreach ($this->getSavedExcProductsDetailed((int)Tools::getValue('id_cpa_customization_field_value')) as $row) {
             $cpaProducts[] = [
@@ -116,21 +118,31 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             ];
         }
 
+        foreach ($this->getInfluenceFieldCPA((int)Tools::getValue('id_cpa_customization_field_value')) as $row) {
+            $cpafieldsInfluence[] = [
+                'id' => (int)$row['id_cpa_customization_field'],
+                'text' => $row['admin_name']
+            ];
+        }
+
         Media::addJsDef([
             'ajaxExcProductUrl' => $this->context->link->getAdminLink('AdminCpaCustomizationValue', true, [], ['action' => 'SearchExcProductsCPA', 'ajax' => 1]),
             'ajaxRemoveImgUrl' => $this->context->link->getAdminLink('AdminCpaCustomizationValue', true, [], ['action' => 'RemoveImgCPA', 'ajax' => 1]),
+            'ajaxFieldsUrl' => $this->context->link->getAdminLink('AdminCpaCustomizationValue', true, [], ['action' => 'FieldsCPA', 'id_cpa_customization_field' => $this->id_cpa_customization_field, 'ajax' => 1]),
             'already_selected_exc_products' => $cpaProducts,
+            'already_selected_fields_influence' => $cpafieldsInfluence,
             'id_cpa_customization_field_type' => $this->id_cpa_customization_field_type,
+
             'select2_translations' => [
                 'inputTooShort' => $this->trans('Introduza pelo menos %d caracteres', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                 'noMatches' => $this->trans('Nenhum resultado encontrado', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                 'searching' => $this->trans('A pesquisar...', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                 'searchingProducts' => $this->trans('A pesquisar produtos...', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
             ],
-            'icon_file_text_error' => $this->trans('Formato inválido. Use apenas PNG, JPG, JPEG ou WebP.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            'img_file_text_error' => $this->trans('Formato inválido. Use apenas PNG, JPG, JPEG ou WebP.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            'preview_file_text_error' => $this->trans('Formato inválido. Use apenas JPG, JPEG ou WebP.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-              'cpa_delete_img' => $this->trans('Deseja eliminar imagem?', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+            'icon_file_text_error' => $this->trans('Formato inválido. Use apenas JPG ou JPEG.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+            'img_file_text_error' => $this->trans('Formato inválido. Use apenas JPG, JPEG.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+            'preview_file_text_error' => $this->trans('Formato inválido. Use apenas JPG ou JPEG  WebP.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+            'cpa_delete_img' => $this->trans('Deseja eliminar imagem?', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
 
         ]);
 
@@ -155,6 +167,43 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
         );
 
         return Db::getInstance()->executeS($sql);
+    }
+
+    public function getInfluenceFieldCPA($id_cpa_customization_field_value)
+    {
+        $sql = new DbQuery();
+        $sql->select('p.id_cpa_customization_field, p.admin_name');
+        $sql->from('cpa_customization_field', 'p');
+
+        $sql->innerJoin(
+            'cpa_customization_field_influences',
+            'cfv_inf',
+            'p.id_cpa_customization_field = cfv_inf.id_cpa_customization_field_influence AND cfv_inf.id_cpa_customization_field_value_show = ' . $id_cpa_customization_field_value
+        );
+
+        return Db::getInstance()->executeS($sql);
+    }
+
+    public function ajaxProcessFieldsCPA()
+    {
+        $id_cpa_customization_field = Tools::getValue('id_cpa_customization_field');
+        $q = Tools::getValue('q');
+
+        $sql = new DbQuery();
+        $sql->select('p.id_cpa_customization_field, p.admin_name');
+        $sql->from('cpa_customization_field', 'p');
+        $sql->innerJoin(
+            'cpa_customization_field_influences',
+            'cfi',
+            'cfi.id_cpa_customization_field_influence = p.id_cpa_customization_field and cfi.id_cpa_customization_field = ' . $id_cpa_customization_field
+        );
+        $sql->where('p.admin_name LIKE "%' . pSQL($q) . '%"');
+        $sql->limit(20);
+
+
+        $products = Db::getInstance()->executeS($sql);
+
+        die(json_encode($products));
     }
 
     public function ajaxProcessRemoveImgCPA()
@@ -192,6 +241,8 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             'message' => 'Imagem removida com sucesso'
         ]));
     }
+
+
 
     public function ajaxProcessSearchExcProductsCPA()
     {
@@ -266,12 +317,29 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
         return false;
     }
 
+    private function getBaseUrlWithoutVirtual()
+    {
+        $idShop = (int)$this->context->shop->id;
+
+        $row = Db::getInstance()->getRow('
+        SELECT domain, domain_ssl, physical_uri
+        FROM ' . _DB_PREFIX_ . 'shop_url
+        WHERE id_shop = ' . $idShop . ' AND main = 1
+    ');
+
+        $domain = Tools::usingSecureMode() ? $row['domain_ssl'] : $row['domain'];
+
+        return (Tools::usingSecureMode() ? 'https://' : 'http://')
+            . $domain
+            . $row['physical_uri'];
+    }
+
     private function getImageUrl($ext, $path)
     {
         $obj = $this->loadObject(true);
 
         if (!empty($obj->id)) {
-            return 'http://localhost/p8/img/scenes/' . $path . $obj->id . '.' . $ext;
+            return $this->getBaseUrlWithoutVirtual().'img/scenes/' . $path . $obj->id . '.' . $ext;
         }
 
         return false;
@@ -283,7 +351,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
         $obj = $this->loadObject(true);
 
         if (key_exists($path, $arrayImg)) {
-            $imghtml = '<div id="cpa_img_'.$obj->id.'"><picture>';
+            $imghtml = '<div id="cpa_img_' . $obj->id . '"><picture>';
 
             foreach ($arrayImg[$path] as $imgIconValue) {
                 if ($imgIconValue == 'webp') {
@@ -292,7 +360,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                     $imghtml .= '<source  src="' . $this->getImageUrl($imgIconValue, $path) . '" >';
                 }
             }
-            $imghtml .= '</picture><i class="material-icons " onclick="removeImgValueCPA(' . $obj->id . ',\''.$path.'\')"  title="" style="position: absolute; cursor: pointer;">
+            $imghtml .= '</picture><i class="material-icons " onclick="removeImgValueCPA(' . $obj->id . ',\'' . $path . '\')"  title="" style="position: absolute; cursor: pointer;">
 					disabled_by_default
 				</i></div>';
             return $imghtml;
@@ -303,7 +371,6 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
     public function renderForm()
     {
         $obj = $this->loadObject(true);
-        $id_shop = Context::getContext()->shop->id;
         $this->initFieldsForm();
         if (!($obj = $this->loadObject(true)))
             return;
@@ -313,7 +380,6 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
     public function initFieldsForm()
     {
-        $obj = $this->loadObject(true);
 
         $arrayImgTemp = $this->getAllImage();
         $arrayImg = [];
@@ -329,7 +395,6 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             $htmlImg = $this->getHtmlImg('cpa/img/', $arrayImg, $this->trans('Imagem do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'), 'max-width:250px;max-height:250px;');
             $htmlImgPreview = $this->getHtmlImg('cpa/preview/', $arrayImg, $this->trans('Preview campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'), 'max-width:250px;max-height:250px;');
         }
-
 
 
         $fields_form = [
@@ -360,6 +425,14 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                     'autoload_rte' => true,
                     'lang' => true,
                     'form_group_class' => 'visivel-2 visivel-3 visivel-4 visivel-5 visivel-6',
+                ],
+                [
+                    'type' => 'text',
+                    'label' => $this->trans('Mostra campos de influênciada :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'selected_cpa_fields',
+                    'class' => 'ajax-cpa-fields-search visivel-2 visivel-3',
+                    'desc' => $this->trans('Adiciona o campos que erá aprecer quando selecionado este valor, os campos pesquisados são adicionados nas nas influênciadas no campo pai deste valor', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+
                 ],
                 [
                     'type' => 'text',
@@ -447,14 +520,14 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                     'name' => 'img_file',
                     'desc' =>  $this->trans('Adicione aqui a imagem do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'class' => 'img-file-input',
-                    'form_group_class' => 'visivel-2 visivel-3',
+                    'form_group_class' => 'visivel-2 visivel-3 visivel-6',
                 ],
                 [
                     'type' => 'html',
                     'name' => 'img_preview',
                     'label' => $this->trans('Pré-visualização da imagem', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'html_content' => $htmlImg,
-                    'form_group_class' => 'visivel-2 visivel-3',
+                    'form_group_class' => 'visivel-2 visivel-3 visivel-6',
                 ],
                 [
                     'type' => 'file',
@@ -478,6 +551,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                 ],
             ],
         ];
+
         $this->fields_form = $fields_form;
     }
 
@@ -493,6 +567,8 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             $object->name[$lang['id_lang']] = Tools::getValue('name_' . $lang['id_lang']);
             $object->description[$lang['id_lang']] = Tools::getValue('description_' . $lang['id_lang']);
         }
+
+        $selected_cpa_fields    = Tools::getValue('selected_cpa_fields');
 
         $selected_exc_products = Tools::getValue('selected_exc_products');
         $object->colorpicker   = Tools::getValue('colorpicker');
@@ -527,6 +603,27 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                             'id_' . $this->table  => (int)$object->id,
                             'id_product' => (int)$product_id
                         ]
+                    );
+                }
+            }
+
+            Db::getInstance()->update(
+                'cpa_customization_field_influences',
+                [
+                    'id_cpa_customization_field_value_show' => 0
+                ],
+                'id_cpa_customization_field = ' . $object->id_cpa_customization_field . ' and id_cpa_customization_field_value_show = ' . (int)$object->id
+            );
+
+            if ($selected_cpa_fields) {
+                $selected_cpa_fields = explode(',', $selected_cpa_fields);
+                foreach ($selected_cpa_fields as $field_id) {
+                    Db::getInstance()->update(
+                        'cpa_customization_field_influences',
+                        [
+                            'id_cpa_customization_field_value_show' => (int)$object->id
+                        ],
+                        'id_cpa_customization_field = ' . $object->id_cpa_customization_field . ' and id_cpa_customization_field_influence = ' . (int)$field_id
                     );
                 }
             }

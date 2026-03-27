@@ -6,6 +6,7 @@ class CpaProcessProduct
 {
     private $id_product = 0;
     private $new_id_product = 0;
+    private $new_id_customization = 0;
     private $datacustom = [];
     private $id_lang;
     private $id_shop;
@@ -47,11 +48,12 @@ class CpaProcessProduct
     {
         $arrayFields = [];
         $arrayFieldsTemp = [];
-        
+        $cpaCustomValue  = [];
 
+        // Valida os campos e prepara para ser processados
         foreach ($this->datacustom as $custom) {
             $arrayCustom = explode('_', $custom);
-            if (!count($arrayCustom) == 4) {
+            if (count($arrayCustom) != 4) {
                 return false;
             }
 
@@ -82,63 +84,93 @@ class CpaProcessProduct
                 'price_type' => $resultInfField[0]['price_type'],
                 'fieldvaluename' => $resultInfField[0]['fieldvaluename'],
                 'field_qty' => $field_qty,
-                'price' => ($resultInfField[0]['price_type'] == 'amount' ? $resultInfField[0]['price'] : ($resultInfField[0]['price']/100)*$this->product->price)
+                'percent' => ($resultInfField[0]['price_type'] == 'amount' ? 0 : $resultInfField[0]['price']),
+                'price' => ($resultInfField[0]['price_type'] == 'amount' ? $resultInfField[0]['price'] : ($resultInfField[0]['price'] / 100) * $this->product->price)
             ];
         }
 
 
-
-        foreach ($arrayFieldsTemp as $arrayfieldstemp) {
+        // Reorganiza os campos e processa para ser inseridos no sistema de prestashop
+        foreach ($arrayFieldsTemp as $key => $valuefieldstemp) {
             $price = 0;
+            $percent = 0;
             $fieldname = '';
             $fieldvaluename = '';
-            switch ($arrayfieldstemp[0]['id_type']) {
+            switch ($valuefieldstemp[0]['id_type']) {
                 case 1:
-                    foreach ($arrayfieldstemp as $fieldstemp) {
-                        if ($fieldstemp['field_qty'] > 0) {
-                            $fieldvaluename = $fieldvaluename .  $fieldstemp['field_qty'] . " x ";
+                    if (count($valuefieldstemp) == 3) {
+                        foreach ($valuefieldstemp as $fieldstemp) {
+                            if ($fieldstemp['field_qty'] > 0) {
+                                $fieldvaluename = $fieldvaluename .  $fieldstemp['field_qty'] . " x ";
+                            }
                         }
+
+                        $fieldvaluename = substr($fieldvaluename, 0, -2) . 'mm';
+                        $fieldname = $fieldstemp['fieldname'];
+
+                        $price = $this->getPriceDimensions($valuefieldstemp[0]['field_qty'], $valuefieldstemp[1]['field_qty'], $valuefieldstemp[2]['field_qty']);
+                    } else {
+                        break;
                     }
-                    $fieldvaluename = substr($fieldvaluename, 0, -2) . 'mm';
-                    $fieldname = $fieldstemp['fieldname'];
-                    $price = $this->getPriceDimensions($arrayfieldstemp[0]['field_qty'], $arrayfieldstemp[1]['field_qty'], $arrayfieldstemp[2]['field_qty']);
+
                     break;
                 case 5:
-                    foreach ($arrayfieldstemp as $fieldstemp) {
+                    foreach ($valuefieldstemp as $fieldstemp) {
                         $fieldname = $fieldstemp['fieldname'];
                         $fieldvaluename = $fieldvaluename . " " . $fieldstemp['fieldvaluename'] . " x " . $fieldstemp['field_qty'];
                         $price += ($fieldstemp['field_qty'] * $fieldstemp['price']);
                     }
+                    $percent = $valuefieldstemp[0]['percent'];
+                    break;
+                case 6:
+                    foreach ($valuefieldstemp as $fieldstemp) {
+                        $fieldname = $fieldstemp['fieldname'];
+                        $fieldvaluename = $fieldvaluename . " " . $fieldstemp['fieldvaluename'] . " x " . $fieldstemp['field_qty'];
+                        $price += ($fieldstemp['field_qty'] * $fieldstemp['price']);
+                    }
+                    $percent = $valuefieldstemp[0]['percent'];
                     break;
                 default:
-                    $fieldname = $arrayfieldstemp[0]['fieldname'];
-                    $fieldvaluename = $fieldvaluename . " " . $arrayfieldstemp[0]['fieldvaluename'];
-                    $price += $arrayfieldstemp[0]['price'];
+                    $fieldname = $valuefieldstemp[0]['fieldname'];
+                    $fieldvaluename = $fieldvaluename . " " . $valuefieldstemp[0]['fieldvaluename'];
+                    $price += $valuefieldstemp[0]['price'];
+                    $percent = $valuefieldstemp[0]['percent'];
                     break;
             }
 
-            $arrayFields[] = [
-                'fieldname' => $fieldname,
-                'fieldvaluename' => $fieldvaluename,
-                'price' => $price
-            ];
+
+            if (!empty($fieldname) && !empty($fieldvaluename) ) {
+                $arrayFields[$key] = [
+                    'fieldname' => $fieldname,
+                    'fieldvaluename' => $fieldvaluename,
+                    'percent' => $percent,
+                    'price' => $price
+                ];
+            }
         }
 
+        // Aplica pergentagem de um campo em outro campo
+        foreach ($arrayFields as $key => &$valuefields) {
+            $valuefields['price'] = $this->getInfluencesPercentage($key, $valuefields['price'], $arrayFields);
+        }
+
+        // Cria o produto
         $this->new_id_product = $this->createProduct();
 
         if (!$this->new_id_product) {
             return false;
         }
 
+        $newCPACustomValue = [];
+        // Adiciona campos no sistema de custimização do prestashop
         foreach ($arrayFields as $field) {
             $this->addPrice += $field['price'];
-            $cpaCustomValue[] = array('index' => $this->createLabel($this->new_id_product, $field['fieldname'], 1, 0), 'value' => $field['fieldvaluename'] . ($field['price'] > 0 ? ' + ' . $this->getIVAPrice(round($field['price']),2) . ' €' : ''));
+            $cpaCustomValue[] = array('index' => $this->createLabel($this->new_id_product, $field['fieldname'], 1, 0), 'value' => $field['fieldvaluename'] . ($field['price'] > 0 ? ' + ' . $this->getIVAPrice(round($field['price']), 2) . ' €' : ''));
         }
 
         $this->updatePriceProduct();
 
-
-        $newCPACustomValue = array();
+        // Prepara a descição para inserir no produto no campo descrição curta.
         $indexed = [];
         foreach ($cpaCustomValue as $value) {
 
@@ -151,15 +183,41 @@ class CpaProcessProduct
         }
 
         foreach ($newCPACustomValue as $val) {
-            $this->addTextFieldToProduct($this->new_id_product, $val['index'], 1, $val['value']);
+            $this->new_id_customization = $this->addTextFieldToProduct($this->new_id_product, $val['index'], 1, $val['value']);
             $fieldLabel = Db::getInstance()->getRow('SELECT name FROM `' . _DB_PREFIX_ . 'customization_field_lang` WHERE `id_customization_field` = ' . (int)$val['index'] . ' AND `id_lang`= ' . (int)$this->id_lang);
             $this->description .= '<p><b>' . $fieldLabel['name'] . ' : </b>' . $val['value'] . '</p>';
         }
 
         $this->updateDescriptionProduct();
+
+        // Criar imagem custimizada
         $this->addImage();
 
-        return (int)$this->new_id_product;
+        $arraynewproduct = [];
+        $arraynewproduct['new_id_product'] = $this->new_id_product;
+        $arraynewproduct['new_id_customization'] =  $this->new_id_customization;
+
+        return $arraynewproduct;
+    }
+
+    private function getInfluencesPercentage($id_cpa_customization_field, $price, $arrayFields)
+    {
+        $priceAdd = 0;
+        $sqlfieldvalues = 'SELECT 
+                                cfi.id_cpa_customization_field
+                            FROM ' . _DB_PREFIX_ . 'cpa_customization_field_influences_percentage cfi
+                            WHERE cfi.id_cpa_customization_field_percentage = ' . (int)$id_cpa_customization_field . '';
+
+        $result = Db::getInstance()->executeS($sqlfieldvalues);
+
+        if (is_array($result)) {
+            foreach ($result as $value) {
+                if (array_key_exists($value['id_cpa_customization_field'], $arrayFields)) {
+                    $priceAdd += ($arrayFields[$value['id_cpa_customization_field']]['percent'] / 100) * $price;
+                }
+            }
+        }
+        return $priceAdd + $price;
     }
 
     private function getPriceDimensions($width, $height, $depth): float
@@ -273,7 +331,6 @@ class CpaProcessProduct
                             (int)$type['height']
                         );
                     }
-
                     $newImage->legend = $imageSource->legend;
                     $newImage->update();
                 }
@@ -463,11 +520,8 @@ class CpaProcessProduct
             $id_customization = Db::getInstance()->Insert_ID();
         }
 
-        /*$query = 'INSERT INTO `'._DB_PREFIX_.'customized_data` (`id_customization`, `type`, `index`, `value`)
-            VALUES ('.(int)$id_customization.', '.(int)$type.', '.(int)$index.', \''.pSQL($field).'\')';*/
-
         $query = 'INSERT INTO `' . _DB_PREFIX_ . 'customized_data` (`id_customization`, `type`, `index`, `value`)
-            VALUES (' . (int)$id_customization . ', ' . (int)$type . ', ' . (int)$index . ', \'' . addslashes(nl2br($field)) . '\')';
+            VALUES (' . (int)$id_customization . ', ' . (int)$type . ', ' . (int)$index . ', \'' . pSQL($field) . '\')';
 
         if (!Db::getInstance()->execute($query))
             return false;

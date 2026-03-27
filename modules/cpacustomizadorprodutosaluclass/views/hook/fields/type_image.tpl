@@ -1,4 +1,4 @@
-<div class="form-group cpaFieldItem " {if !$isvisivel} style="display: none;"{/if} data-orderposition="{$order_position}" data-typefield="{$type_id}"
+<div class="form-group cpa-disable-div cpaFieldItem {$influencesput}" data-influences="{$influencesmain}" {if !$isvisivel} style="display: none;"{/if} data-orderposition="{$order_position}" data-typefield="{$type_id}"
 	data-position="{$position}" data-field="{$id_cpa_customization_field}">
 	<label class="toggler {if $open_status == 1} active {/if}">
 		{$name} 
@@ -9,6 +9,7 @@
 				</i>
 			</span>
 		{/if}
+		<span id="progress-field-cpa-{$id_cpa_customization_field}" class="progress-field ">  </span>
 	</label>
 
 
@@ -18,12 +19,14 @@
 		{/if}
 
 		<div class="clearfix clear row mt-1 {if $required == 1} required_field{/if}" id="main-{$id_cpa_customization_field}" data-field="{$id_cpa_customization_field}" data-typefield="{$type_id}">
-			<input data-message=""  
-			       class="fromset pricecal" 
+			<input 
+			       class="fromset pricecal {if $required == 1} required_field{/if}" 
 				   data-price-type="{$price_type}" 
 				   id="cpafield_{$id_cpa_customization_field}" 
 				   type="hidden" 
 				   name="cpafield_{$id_cpa_customization_field}"
+				   data-field="{$id_cpa_customization_field}"
+				   data-influences-percentage="{$influencespercentage}"
 				   data-price="0" value="0_0_0" disabled />
 
 			{foreach from=$fieldValues item=value}
@@ -59,7 +62,7 @@
 								data-price="{$value.price|escape:'htmlall':'UTF-8'}"
 								data-id-value="{$value.id_cpa_customization_field_value}"
 								data-field="{$id_cpa_customization_field}" />
-						<picture>
+						</picture>
 					
 					
 					<center>

@@ -1,9 +1,9 @@
-$(document).ready(function() {
-   
+$(document).ready(function () {
+
     manageVisibility(id_cpa_customization_field_type);
-    setupFileValidation('icon_file', ['image/jpeg'],'.jpg, .jpeg',icon_file_text_error);
-    setupFileValidation('img_file', ['image/jpeg', 'image/png'],'.png, .jpg, .jpeg',img_file_text_error);
-    setupFileValidation('preview_file', ['image/jpeg'],'.jpg, .jpeg',preview_file_text_error);
+    setupFileValidation('icon_file', ['image/jpeg'], '.jpg, .jpeg', icon_file_text_error);
+    setupFileValidation('img_file', ['image/jpeg', 'image/png'], '.png, .jpg, .jpeg', img_file_text_error);
+    setupFileValidation('preview_file', ['image/jpeg'], '.jpg, .jpeg', preview_file_text_error);
 
     if (typeof already_selected_exc_products !== 'undefined' && already_selected_exc_products.length) {
 
@@ -12,6 +12,15 @@ $(document).ready(function() {
         });
 
         $('.ajax-exc-product-search').val(ids.join(','));
+    }
+
+    if (typeof already_selected_fields_influence !== 'undefined' && already_selected_fields_influence.length) {
+
+        var ids = $.map(already_selected_fields_influence, function (item) {
+            return item.id;
+        });
+
+        $('.ajax-cpa-fields-search').val(ids.join(','));
     }
 
     $('.float-field').on('input', function () {
@@ -23,6 +32,50 @@ $(document).ready(function() {
 
     $('.integer-field').on('input', function () {
         this.value = this.value.replace(/[^0-9]/g, ''); // permite só dígitos
+    });
+
+    $('.ajax-cpa-fields-search').select2({
+        width: '100%',
+        multiple: true,
+        placeholder: select2_translations.searchingProducts,
+        minimumInputLength: 3,
+        formatInputTooShort: function (input, min) {
+            return select2_translations.inputTooShort.replace('%d', min);
+        },
+
+        formatNoMatches: function () {
+            return select2_translations.noMatches;
+        },
+
+        formatSearching: function () {
+            return select2_translations.searching;
+        },
+
+        ajax: {
+            url: ajaxFieldsUrl,
+            dataType: 'json',
+            quietMillis: 250,
+            data: function (term) {
+                return {
+                    q: term
+                };
+            },
+            results: function (data) {
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            id: item.id_cpa_customization_field,
+                            text: item.admin_name
+                        };
+                    })
+                };
+            }
+        },
+        initSelection: function (element, callback) {
+            if (typeof already_selected_fields_influence !== 'undefined') {
+                callback(already_selected_fields_influence);
+            }
+        }
     });
 
     $('.ajax-exc-product-search').select2({

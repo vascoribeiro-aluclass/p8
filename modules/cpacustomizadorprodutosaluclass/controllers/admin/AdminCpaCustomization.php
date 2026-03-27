@@ -91,6 +91,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
 
         $cpaProducts = [];
         $cpafieldsInfluence = [];
+        $cpafieldsInfluencePercentage = [];
 
         foreach ($this->getSavedProductsDetailed((int)Tools::getValue('id_cpa_customization_field')) as $row) {
             $cpaProducts[] = [
@@ -106,12 +107,20 @@ class AdminCpaCustomizationController extends ModuleAdminController
             ];
         }
 
+        foreach ($this->getInfluencePercentageFieldCPA((int)Tools::getValue('id_cpa_customization_field')) as $row) {
+            $cpafieldsInfluencePercentage[] = [
+                'id' => (int)$row['id_cpa_customization_field'],
+                'text' => $row['admin_name']
+            ];
+        }
+
 
         Media::addJsDef([
             'ajaxProductUrl' => $this->context->link->getAdminLink('AdminCpaCustomization', true, [], ['action' => 'SearchProductsCPA', 'ajax' => 1]),
             'ajaxFieldsUrl' => $this->context->link->getAdminLink('AdminCpaCustomization', true, [], ['action' => 'FieldsCPA', 'ajax' => 1]),
             'already_selected_products' => $cpaProducts,
             'already_selected_fields_influence' => $cpafieldsInfluence,
+            'already_selected_fields_influence_percentage' => $cpafieldsInfluencePercentage,
             'select2_translations' => [
                 'inputTooShort' => $this->trans('Introduza pelo menos %d caracteres', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                 'noMatches' => $this->trans('Nenhum resultado encontrado', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
@@ -123,6 +132,21 @@ class AdminCpaCustomizationController extends ModuleAdminController
 
         $this->addJS($this->module->getPathUri() . 'views/js/admin/cpacustomizationadmin.js');
         $this->addJS($this->module->getPathUri() . 'views/js/admin/cpacustomization.js');
+    }
+
+    public function getInfluencePercentageFieldCPA($id_cpa_customization_field)
+    {
+        $sql = new DbQuery();
+        $sql->select('p.id_cpa_customization_field, p.admin_name');
+        $sql->from('cpa_customization_field', 'p');
+
+        $sql->innerJoin(
+            'cpa_customization_field_influences_percentage',
+            'cfv_inf',
+            'p.id_cpa_customization_field = cfv_inf.id_cpa_customization_field_percentage AND cfv_inf.id_cpa_customization_field = ' . $id_cpa_customization_field
+        );
+
+        return Db::getInstance()->executeS($sql);
     }
 
     public function getInfluenceFieldCPA($id_cpa_customization_field)
@@ -186,8 +210,8 @@ class AdminCpaCustomizationController extends ModuleAdminController
             'pl',
             'p.id_product = pl.id_product AND pl.id_lang = ' . (int)$this->context->language->id . ' AND pl.id_shop = ' . (int)$this->context->shop->id
         );
-        
-        $sql->where('pl.name LIKE "%' . pSQL($q) . '%" and p.id_category_default != '.(int)Configuration::get('CPA_CATEGORY'));
+
+        $sql->where('pl.name LIKE "%' . pSQL($q) . '%" and p.id_category_default != ' . (int)Configuration::get('CPA_CATEGORY'));
         $sql->limit(20);
 
         $products = Db::getInstance()->executeS($sql);
@@ -354,7 +378,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     'type' => 'select',
                     'label' => $this->trans('Tipo de preço :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'price_type',
-                    'class' => 'fixed-width-xs',
+                    'class' => 'fixed-width-xs visivel-2 visivel-3 visivel-5 visivel-6',
                     'required' => true,
                     'options' => [
                         'query' => $arraytypeprice,
@@ -362,6 +386,16 @@ class AdminCpaCustomizationController extends ModuleAdminController
                         'name' => 'name'
                     ],
                     'desc' => $this->trans('Escolha se o aumento do campo será em valor absoluto ou percentual.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+                ],
+
+
+                [
+                    'type' => 'text',
+                    'label' => $this->trans('Influência no preço nos outros campos :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'selected_cpa_fields_percentage',
+                    'class' => 'ajax-cpa-fields-percentage-search visivel-2 visivel-3',
+                    'desc' => $this->trans('Você pode especificar um campo para influenciá-lo de acordo com os valores atuais do campo de criação.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+
                 ],
                 [
                     'type' => 'switch',
@@ -421,7 +455,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
                 ],
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Produtos associados:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->trans('Produtos associados :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'selected_products',
                     'class' => 'ajax-product-search',
                     'desc' => $this->trans('Ative este campo para estes produtos.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
@@ -429,7 +463,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
 
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Influências com outros campos:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->trans('Influências com outros campos :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'selected_cpa_fields',
                     'class' => 'ajax-cpa-fields-search visivel-2 visivel-3',
                     'desc' => $this->trans('Você pode especificar um campo para influenciá-lo de acordo com os valores atuais do campo de criação.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
@@ -456,8 +490,6 @@ class AdminCpaCustomizationController extends ModuleAdminController
                         ]
                     ],
                 ],
-
-
 
                 [
                     'type' => 'text',
@@ -495,6 +527,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
 
         $selected_products      = Tools::getValue('selected_products');
         $selected_cpa_fields    = Tools::getValue('selected_cpa_fields');
+        $selected_cpa_fields_percentage    = Tools::getValue('selected_cpa_fields_percentage');
 
         $object->admin_name     = Tools::getValue('admin_name');
         $object->open_status    = Tools::getValue('open_status');
@@ -509,7 +542,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
 
 
         if ($object->save()) {
-            
+
             Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_cache');
 
             $shops = Tools::getValue('checkBoxShopAsso_' . $this->table, []);
@@ -538,27 +571,62 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     );
                 }
             }
+            
+            if ($selected_cpa_fields) {
+                Db::getInstance()->delete(
+                    $this->table . '_influences',
+                    'id_' . $this->table . ' = ' . (int)$object->id . ' and id_cpa_customization_field_influence NOT IN (' . $selected_cpa_fields . ')'
+                );
+            } else {
+                Db::getInstance()->delete(
+                    $this->table . '_influences',
+                    'id_' . $this->table . ' = ' . (int)$object->id
+                );
+            }
+
+
+            if ($selected_cpa_fields) {
+
+                $selected_cpa_fields = explode(',', $selected_cpa_fields);
+                foreach ($selected_cpa_fields as $field_id) {
+                    $exists = Db::getInstance()->getValue(
+                        'SELECT COUNT(*) 
+                        FROM `' . _DB_PREFIX_ . $this->table . '_influences`
+                        WHERE id_' . $this->table . ' = ' . (int)$object->id . '
+                        AND id_cpa_customization_field_influence = ' . (int)$field_id
+                    );
+
+                    if (!$exists) {
+                        Db::getInstance()->insert(
+                            $this->table . '_influences',
+                            [
+                                'id_' . $this->table  => (int)$object->id,
+                                'id_cpa_customization_field_influence' => (int)$field_id
+                            ]
+                        );
+                    }
+                }
+            }
 
             Db::getInstance()->delete(
-                $this->table . '_influences',
+                $this->table . '_influences_percentage',
                 'id_' . $this->table . ' = ' . (int)$object->id
             );
 
-            if ($selected_cpa_fields) {
-                $selected_cpa_fields = explode(',', $selected_cpa_fields);
-                foreach ($selected_cpa_fields as $field_id) {
+            if ($selected_cpa_fields_percentage) {
+                $selected_cpa_fields_percentage = explode(',', $selected_cpa_fields_percentage);
+                foreach ($selected_cpa_fields_percentage as $field_id) {
                     Db::getInstance()->insert(
-                        $this->table . '_influences',
+                        $this->table . '_influences_percentage',
                         [
                             'id_' . $this->table  => (int)$object->id,
-                            'id_cpa_customization_field_influence' => (int)$field_id
+                            'id_cpa_customization_field_percentage' => (int)$field_id
                         ]
                     );
                 }
             }
 
             if (!isset($_FILES['csv_file']) || empty($_FILES['csv_file']['tmp_name'])) {
-        
             } else {
                 $file = $_FILES['csv_file']['tmp_name'];
 

@@ -47,6 +47,9 @@ class CpaTypeAccessQty  extends CpaFields
             "is_visual"      => $this->is_visual,
             "isvisivel"      => $this->isvisivel,
             "position"       => $this->position,
+            "influencesmain" => $this->getInfluencesMain(),
+            "influencesput" => $this->getInfluencesPut(),
+            "influencespercentage" => $this->getInfluencesPercentage(),
             "order_position" => $this->order_position,
             "type_id"        => $this->type_id,
             "required"       => $this->required,
@@ -71,9 +74,8 @@ class CpaTypeAccessQty  extends CpaFields
         if (key_exists($path, $arrayImg)) {
 
             foreach ($arrayImg[$path] as $imgIconValue) {
-                $arrayImgLink[] =  'http://localhost/p8/img/scenes/' . $path . $id_cpa_customization_field_value . '.' . $imgIconValue;
+                $arrayImgLink[] =  $this->getBaseUrlWithoutVirtual().'img/scenes/' . $path . $id_cpa_customization_field_value . '.' . $imgIconValue;
             }
-            
         }
         return $arrayImgLink;
     }
@@ -90,7 +92,7 @@ class CpaTypeAccessQty  extends CpaFields
 
         $arrayImgTemp = Db::getInstance()->executeS($sqlImgvalues);
         $resultImgLink = [];
- 
+
         if (is_array($arrayImgTemp)) {
             if (count($arrayImgTemp) > 0) {
                 foreach ($arrayImgTemp as $valueImg) {

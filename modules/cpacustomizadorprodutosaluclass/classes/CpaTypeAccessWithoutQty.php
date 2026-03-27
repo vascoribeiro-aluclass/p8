@@ -1,5 +1,5 @@
 <?php
-class CpaTypeSelectorRadio extends CpaFields
+class CpaTypeAccessWithoutQty  extends CpaFields
 {
 
     protected $notice;
@@ -38,6 +38,7 @@ class CpaTypeSelectorRadio extends CpaFields
                 $value['preview'] = [];
             }
         }
+
         $this->arrayAssign = [
             "fieldValues"    => $fieldValues,
             "notice"         => $this->notice,
@@ -61,10 +62,9 @@ class CpaTypeSelectorRadio extends CpaFields
 
 
 
-
     public function getTemplate()
     {
-        return 'views/hook/fields/type_radio.tpl';
+        return 'views/hook/fields/type_accessory_no_quantity.tpl';
     }
 
     private function getHtmlImg($path, $arrayImg, $id_cpa_customization_field_value)
@@ -76,7 +76,6 @@ class CpaTypeSelectorRadio extends CpaFields
             foreach ($arrayImg[$path] as $imgIconValue) {
                 $arrayImgLink[] =  $this->getBaseUrlWithoutVirtual().'img/scenes/' . $path . $id_cpa_customization_field_value . '.' . $imgIconValue;
             }
-            
         }
         return $arrayImgLink;
     }
@@ -93,7 +92,7 @@ class CpaTypeSelectorRadio extends CpaFields
 
         $arrayImgTemp = Db::getInstance()->executeS($sqlImgvalues);
         $resultImgLink = [];
- 
+
         if (is_array($arrayImgTemp)) {
             if (count($arrayImgTemp) > 0) {
                 foreach ($arrayImgTemp as $valueImg) {

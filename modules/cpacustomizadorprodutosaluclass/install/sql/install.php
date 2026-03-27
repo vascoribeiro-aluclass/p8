@@ -73,6 +73,19 @@ class installCPASQL
 					[
 						['name' => 'id_cpa_customization_field_influence', 'opts' => 'int(10) NOT NULL'],
 						['name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_cpa_customization_field_value_show', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+
+					]
+				],
+
+				[
+					'name' => 'cpa_customization_field_influences_percentage',
+					'index' => ['id_cpa_customization_field', 'id_cpa_customization_field_percentage'],
+					'primary' => '',
+					'cols' =>
+					[
+						['name' => 'id_cpa_customization_field_percentage', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL'],
 
 					]
 				],

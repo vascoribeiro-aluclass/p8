@@ -1,4 +1,4 @@
-<div class="form-group cpaFieldItem " {if !$isvisivel} style="display: none;" {/if}
+<div class="form-group cpa-disable-div cpaFieldItem {$influencesput}" data-influences="{$influencesmain}"  {if !$isvisivel} style="display: none;" {/if}
 	data-orderposition="{$order_position}" data-typefield="{$type_id}" data-position="{$position}"
 	data-field="{$id_cpa_customization_field}">
 	<label class="toggler {if $open_status == 1} active {/if}">
@@ -10,6 +10,7 @@
 				</i>
 			</span>
 		{/if}
+		<span id="progress-field-cpa-{$id_cpa_customization_field}" class="progress-field ">  </span>
 	</label>
 
 
@@ -21,14 +22,14 @@
 		<div class="clearfix clear row mt-1 {if $required == 1} required_field{/if}"
 			id="main-{$id_cpa_customization_field}" data-field="{$id_cpa_customization_field}"
 			data-typefield="{$type_id}">
-			<input data-message="" class="pricecal" id="cpafield_{$id_cpa_customization_field}" type="hidden"
-				name="cpafield_{$id_cpa_customization_field}" data-price="0" disabled />
+			<input data-message="" class="pricecal" id="cpafield_{$id_cpa_customization_field}" type="hidden" data-price-type="{$price_type}"
+				name="cpafield_{$id_cpa_customization_field}" data-price="0" data-influences-percentage="{$influencespercentage}" disabled />
 
 			{foreach from=$fieldValues item=value}
 
 				<div data-id-value="{$value.id_cpa_customization_field_value}" {if !$value.isvisivel} style="display: none;"
 					{/if} class="col-md-12 mt-1" data-root="{$id_cpa_customization_field}">
-					<input data-message="" class="fromset {if !$value.isvisivel}select-value{/if}"
+					<input data-message="" class="fromset {if $required == 1} required_field{/if} {if !$value.isvisivel}select-value{/if}"
 						id="cpafield_value_{$value.id_cpa_customization_field_value}" type="hidden"
 						name="cpafield_value_{$value.id_cpa_customization_field_value}" {if !$value.isvisivel}
 							value="{$type_id}_{$id_cpa_customization_field}_{$value.id_cpa_customization_field_value}_{$value.min_dimensions}"
@@ -42,6 +43,7 @@
 						class="form-control cpa_dimension_text dimension_text_{$value.coor} dimension_text_{$value.id_cpa_customization_field_value} "
 						data-id-value="{$value.id_cpa_customization_field_value}" data-field="{$id_cpa_customization_field}"
 						min="{$value.min_dimensions}" max="{$value.max_dimensions}" size="8" />
+						<span id="error-dimension-{$value.id_cpa_customization_field_value}" style="display: none;" class="error-dimension">{l s='Medida fora dos valores premitidos' mod='cpacustomizadorprodutosaluclass'}</span>
 				</div>
 
 			{/foreach}

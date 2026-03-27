@@ -1,4 +1,4 @@
-<div class="form-group cpaFieldItem " data-orderposition="{$order_position}" {if !$isvisivel} style="display: none;"
+<div class="form-group cpa-disable-div cpaFieldItem {$influencesput}" data-influences="{$influencesmain}" data-orderposition="{$order_position}" {if !$isvisivel} style="display: none;"
 	{/if} data-typefield="{$type_id}" data-position="{$position}" data-field="{$id_cpa_customization_field}">
 	<label class="toggler {if $open_status == 1} active {/if}">
 		{$name}
@@ -19,13 +19,12 @@
 
 		<ul class="cpa-accessory-list" id="main-{$id_cpa_customization_field}"
 			data-field="{$id_cpa_customization_field}" data-typefield="{$type_id}">
-
-
 			{foreach from=$fieldValues item=value}
 				<li class="cpa-accessory-item row" data-id-value="{$value.id_cpa_customization_field_value}"
 					{if !$value.isvisivel} style="display: none;" {/if} data-root="{$id_cpa_customization_field}">
-					<div id="tooltipPreview_{$value.id_cpa_customization_field_value}" class="tooltipPreview"></div>
+					
 					<div class="col-md-4">
+					<div id="tooltipPreview_{$value.id_cpa_customization_field_value}" class="tooltipPreview"></div>
 						<picture>
 							{if $value.thumbs|@count > 1}
 								<source src="{$value.thumbs[1]}">
@@ -44,7 +43,7 @@
 								<div class="input-group bootstrap-touchspin">
 									<span class="input-group-addon bootstrap-touchspin-prefix"
 										style="display: none;"></span>
-									<input class="fromset pricecal" data-price-type="{$price_type}"  data-message=""
+									<input class="fromset pricecal " data-price-type="{$price_type}"   data-influences-percentage="{$influencespercentage}"
 										id="cpafield_value_{$value.id_cpa_customization_field_value}" type="hidden"
 										name="cpafield_value_{$value.id_cpa_customization_field_value}" data-price="0"
 										value="0_0_0" disabled />

@@ -31,16 +31,19 @@ class CpaTypeDimensions extends CpaFields
             $fieldValues[2]["max_dimensions"] = $arraydimensions[0]["max_depth"];
         }
 
-
         $this->arrayAssign = [
             "fieldValues"    => $fieldValues,
             "position"       => $this->position,
             "notice"         => $this->notice,
+            "influencesmain" => $this->getInfluencesMain(),
+            "influencesput" => $this->getInfluencesPut(),
+            "influencespercentage" => $this->getInfluencesPercentage(),
             "tooltip"        => $this->tooltip,
             "order_position" => $this->order_position,
             "type_id"        => $this->type_id,
             "isvisivel"      => $this->isvisivel,
             "required"       => $this->required,
+            "price_type"     => $this->price_type,
             "id_cpa_customization_field" => $this->id_cpa_customization_field,
             "open_status"    => $this->open_status,
             "name"           => $this->name,
@@ -54,7 +57,6 @@ class CpaTypeDimensions extends CpaFields
 
     private function getDimension()
     {
-
         $sqldimensions = 'SELECT 
                                 MIN(width) AS min_width,
                                 MAX(width) AS max_width,

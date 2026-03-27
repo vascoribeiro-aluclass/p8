@@ -1,34 +1,3 @@
-// function ActiveFieldNDK(obj) {
-//   var position = $(obj).closest('[data-position]');
-//   next_position = position.data('position') + 1;
-//   $(".form-group[data-position='" + next_position + "']").removeClass("aluclass-disable-div");
-//   var iteration = $(obj).closest('[data-iteration]');
-//   next_iteration = iteration.data('iteration') + 1;
-//   $(".form-group[data-iteration='" + next_iteration + "']").removeClass("aluclass-disable-div");
-//   var rposition = $(obj).closest('[data-rposition]');
-//   next_rposition = rposition.data('rposition') + 1;
-//   $(".form-group[data-rposition='" + next_rposition + "']").removeClass("aluclass-disable-div");
-// }
-
-//########################### INICIO - mensagem de erro ###########################
-// Mostra erro no próprio campo NDK [idfield = id do campo CPA; message = messagem a ser mostada]
-function ShowCPAFieldError(idfield, message) {
-
-    $(".form-group[data-field='" + idfield + "']").css('background', '#F2DEDE').focus();
-    $("#error-" + idfield).html(message);
-    $("#error-" + idfield).show();
-    if (!$(".form-group[data-field='" + idfield + "'] > .toggler").hasClass('active')) {
-        $(".form-group[data-field='" + idfield + "'] > .toggler").trigger('click');
-    }
-}
-
-// Remove erro no próprio campo NDK [idfield = id do campo CPA]
-function HideCPAFieldError(idfield) {
-    $(".form-group[data-field='" + idfield + "']").css('background', '#ffffff').focus();
-    $("#error-" + idfield).html('');
-    $("#error-" + idfield).hide();
-}
-//########################### FIM - mensagem de erro ###########################
 
 //########################### INICIO - Abrir e campo ###########################
 $('[data-toggle="tooltip"]').tooltip();
@@ -91,37 +60,74 @@ $(".cpafieldvalue-preview-img").on("mouseleave", function () {
 
 //########################### FIM - Preview Imagem ###########################
 
-$(document).on('click', '.cpafieldvalue', function () {
-    var field = $(this).attr('data-field');
-    HideCPAFieldError(field);
 
-    $('[data-field="' + field + '"]').removeClass('select-value');
 
-    $(this).addClass('select-value');
+$(document).on('change', '.cpa_dimension_text', function () {
+    ActiveFieldCPA(this);
 });
 
-$(document).on('click', '.cpafieldvalue.is_visual', function () {
-      var dataSrc = $(this).attr('data-src');
+$(document).on('change', '.cpafieldvalue-qty', function () {
+    ActiveFieldCPA(this);
+});
+
+$(document).on('click', '.cpafieldvalue.is_visual, img.cpafieldvalue-qty.is_visual ', function () {
+    var dataSrc = $(this).attr('data-src');
     if (dataSrc) {
         var srcArray = dataSrc.split(";");
         var zindex = $(this).attr('data-zindex');
         var field = $(this).attr('data-field');
+        var ishasClass = $(this).hasClass('select-value');
 
         $('#visual_' + field).remove();
+        if (!ishasClass) {
+            var newHtml = '<picture data-group="' + field + '"' +
+                'data-zindex="' + zindex + '"' +
+                'id="visual_' + field + '"' +
+                'class=" group-' + field + ' ">';
+            if (srcArray.length > 1) {
+                newHtml += '<source src="' + srcArray[1] + '">';
+            }
 
-        var newHtml = '<picture data-group="' + field + '"' +
-            'data-zindex="' + zindex + '"' +
-            'id="visual_' + field + '"' +
-            'class=" group-' + field + ' ">';
-        if (srcArray.length > 1) {
-            newHtml += '<source src="' + srcArray[1] + '">';
+            newHtml += '<img class="absolute-visu  absolute-img " ' + 'style="z-index:' + zindex + ' ; "' + ' src="' + srcArray[0] + '">';
+            newHtml += '</picture>';
+
+            $('.js-qv-product-cover').closest('.product-cover').append(newHtml);
         }
-
-        newHtml += '<img class="absolute-visu  absolute-img " ' + 'style="z-index:' + zindex + ' ; "' + ' src="' + srcArray[0] + '">';
-
-        newHtml += '</picture>';
-        $('.js-qv-product-cover').closest('.product-cover').append(newHtml);
     }
+});
+
+$(document).on('click', 'img.cpafieldvalue-qty', function () {
+    var ishasClass = $(this).hasClass('select-value');
+
+    if (!ishasClass) {
+        $(this).addClass('select-value');
+        ProccessPriceCPAFieldWithoutQty(this, 1);
+    } else {
+        $(this).removeClass('select-value');
+        ProccessPriceCPAFieldWithoutQty(this, 0);
+    }
+
+    ActiveFieldCPA(this);
+});
+
+$(document).on('click', '.cpafieldvalue ', function () {
+    var field = $(this).attr('data-field');
+    var idvalue = $(this).attr('data-id-value');
+    var ishasClass = $(this).hasClass('select-value');
+
+    HideCPAFieldError(field);
+
+    $('[data-field="' + field + '"]').removeClass('select-value');
+    if (!ishasClass) {
+        $(this).addClass('select-value');
+        MarkField(field, true);
+    } else {
+        MarkField(field, false);
+    }
+
+    ProccessPriceCPAFieldValue(this);
+    ControlInfluences(field, idvalue);
+    ActiveFieldCPA(this);
 });
 
 //########################### INICIO - cpa Submit Produto ###########################
@@ -142,7 +148,15 @@ $.fn.cpaSubmit = function (event) {
                     hasError = true;
                     return false;
                 }
+                break;
             case '2':
+                if ($(this).find('.select-value').length == 0) {
+                    ShowCPAFieldError($(this).attr('data-field'), "Error");
+                    hasError = true;
+                    return false;
+                }
+                break;
+            case '3':
                 if ($(this).find('.select-value').length == 0) {
                     ShowCPAFieldError($(this).attr('data-field'), "Error");
                     hasError = true;
@@ -153,21 +167,22 @@ $.fn.cpaSubmit = function (event) {
 
     });
 
+    $('.alert-danger-cpa').each(function () {
+        hasError = true;
+    });
+
     if (hasError) {
         $('#cpaloader').fadeOut().remove();
         return false;
     }
 
-
     var dataArray = $(".fromset").serializeArray();
-
     var datacustom = {};
 
     datacustom['cpafields'] = {};
     dataArray.forEach(function (item) {
         datacustom['cpafields'][item.name] = item.value;
     });
-
 
     datacustom['id_product'] = $('#cpafields-block').attr('data-key');
 
@@ -184,17 +199,21 @@ $.fn.cpaSubmit = function (event) {
                 console.log('Produto inválido, não foi adicionado ao carrinho.');
                 return;
             }
+            console.log(response.data.new_id_product);
+            console.log(response.data.new_id_customization);
             $.post(prestashop.urls.pages.cart, {
                 ajax: true,
                 action: 'update',
                 add: 1,
-                id_product: response.data,
+                id_product: response.data.new_id_product,
+                id_customization: response.data.new_id_customization,
                 qty: 1
             }).then(function (resp) {
                 $('#cpaloader').fadeOut().remove();
                 prestashop.emit('updateCart', {
                     reason: {
-                        idProduct: response.data,
+                        idProduct: response.data.new_id_product,
+                        idCustomization: response.data.new_id_customization,
                         linkAction: 'add-to-cart'
                     },
                     resp: resp
@@ -217,3 +236,68 @@ $(document).on('hidden.bs.modal', '#blockcart-modal', function () {
 })
 
 //########################### FIM - cpa Submit Produto ###########################
+
+$(window).on("load", function () {
+    $(".form-group[data-position='1']").removeClass("cpa-disable-div");
+
+    $(".cpaFieldItem").each(function () {
+        var dataInfluences = $(this).attr('data-influences');
+        var id_cpa_customization_field_value_show = 0;
+        if (dataInfluences != '') {
+            var influencesobj = JSON.parse(dataInfluences);
+            influencesobj.forEach(function (item) {
+                if (id_cpa_customization_field_value_show == 0) {
+                    id_cpa_customization_field_value_show = item.id_cpa_customization_field_value_show;
+                    $('.disabled_value_by_' + item.id_cpa_customization_field_value_show).removeClass('disabled_value_by_' + item.id_cpa_customization_field_value_show);
+                } else if (id_cpa_customization_field_value_show == item.id_cpa_customization_field_value_show) {
+                    $('.disabled_value_by_' + item.id_cpa_customization_field_value_show).removeClass('disabled_value_by_' + item.id_cpa_customization_field_value_show);
+                }
+            });
+        }
+    });
+
+
+    if (
+        navigator.userAgent.match(
+            /Mobile|Windows Phone|Lumia|Android|webOS|iPhone|iPod|Blackberry|PlayBook|BB10|Opera Mini|\bCrMo\/|Opera Mobi/i
+        )
+    ) {
+        $(window).scroll(function () {
+            if ($("#productprogressbarfluid").length == 1) {
+                var pos1pro = $(window).scrollTop();
+                var pos2pro = $("#productprogressbarfluid").offset().top;
+                var pos3pro = $("#submitCpafields").offset().top;
+
+                if (pos1pro + 37 >= pos2pro + 37) {
+                    if (pos1pro + 150 < pos3pro) {
+                        widthndk = $("#cpafields").width();
+                        $("#productprogressbar").addClass("progress-scroll");
+                        $("#productprogressbar").show();
+                        $("#productprogressbar").css({ width: widthndk + "px" });
+                    } else $("#productprogressbar").hide();
+                } else {
+                    $("#productprogressbar").removeClass("progress-scroll");
+                }
+            }
+        });
+    } else {
+        $(window).scroll(function () {
+            if ($("#productprogressbarfluid").length == 1) {
+                var pos1pro = $(window).scrollTop();
+                var pos2pro = $("#productprogressbarfluid").offset().top;
+                var pos3pro = $("#submitCpafields").offset().top;
+
+                if (pos1pro + 37 >= pos2pro + 37) {
+                    if (pos1pro + 150 < pos3pro) {
+                        widthndk = $("#cpafields").width();
+                        $("#productprogressbar").addClass("progress-scroll");
+                        $("#productprogressbar").show();
+                        $("#productprogressbar").css({ width: widthndk + "px" });
+                    } else $("#productprogressbar").hide();
+                } else {
+                    $("#productprogressbar").removeClass("progress-scroll");
+                }
+            }
+        });
+    }
+});

@@ -11,6 +11,8 @@ require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeS
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeSelectorRadio.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeAccessQty.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeDimensions.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeAccessWithoutQty.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeText.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCf.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCfv.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/install.php';
@@ -117,7 +119,8 @@ class CpaCustomizadorProdutosAluclass extends Module
       $id_product = (int)Tools::getValue('id_product');
 
       Media::addJsDef(array(
-        'url_ajax_cpacustomizadorprodutosaluclass' => $this->context->link->getModuleLink('cpacustomizadorprodutosaluclass', 'ajax')
+        'url_ajax_cpacustomizadorprodutosaluclass' => $this->context->link->getModuleLink('cpacustomizadorprodutosaluclass', 'ajax'),
+        'text_progress' => $this->trans('Progresso', [], 'Modules.Cpacustomizadorprodutosaluclass.Front')
       ));
 
       $this->context->controller->registerStylesheet(
@@ -129,6 +132,22 @@ class CpaCustomizadorProdutosAluclass extends Module
         ]
       );
 
+      $product = new Product($id_product, false, (int)$this->context->language->id, (int)$this->context->shop->id);
+      $tax_rate = Tax::getProductTaxRate($product->id);
+
+      Media::addJsDef([
+        'ivaProduct' => $tax_rate,
+      ]);
+      $this->context->controller->registerJavascript(
+        'module-cpa-functions-js',
+        'modules/' . $this->name . '/views/js/front/functions.js',
+        [
+          'position' => 'bottom',
+          'priority' => 500,
+        ]
+      );
+
+
       $this->context->controller->registerJavascript(
         'module-cpa-theme-js',
         'modules/' . $this->name . '/views/js/front/theme.js',
@@ -138,16 +157,11 @@ class CpaCustomizadorProdutosAluclass extends Module
         ]
       );
 
-      $product = new Product($id_product, false, (int)$this->context->language->id, (int)$this->context->shop->id);
-      $tax_rate = Tax::getProductTaxRate($product->id);
 
-      Media::addJsDef([
-        'ivaProduct' => $tax_rate,
-      ]);
 
       $this->context->controller->registerJavascript(
         'module-cpa-calculeprice-js',
-        'modules/' . $this->name . '/views/js/front/calculeprice.js',
+        'modules/' . $this->name . '/views/js/front/proccessprice.js',
         [
           'position' => 'bottom',
           'priority' => 850,
@@ -225,8 +239,22 @@ class CpaCustomizadorProdutosAluclass extends Module
             $htmlFields .= $this->display(__FILE__, $fieldObj->getTemplate());
 
             break;
+          case "cpatypeaccessnoquant":
+            $fieldObj = new CpaTypeAccessWithoutQty($field, $id_product);
+
+            $this->context->smarty->assign($fieldObj->getAssign());
+            $htmlFields .= $this->display(__FILE__, $fieldObj->getTemplate());
+
+            break;
           case "cpatypedimensions":
             $fieldObj = new CpaTypeDimensions($field, $id_product);
+
+            $this->context->smarty->assign($fieldObj->getAssign());
+            $htmlFields .= $this->display(__FILE__, $fieldObj->getTemplate());
+
+            break;
+          case "cpatypetext":
+            $fieldObj = new CpaTypeText($field, $id_product);
 
             $this->context->smarty->assign($fieldObj->getAssign());
             $htmlFields .= $this->display(__FILE__, $fieldObj->getTemplate());

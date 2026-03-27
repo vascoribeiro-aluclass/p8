@@ -1,4 +1,4 @@
-<div class="form-group cpaFieldItem " data-orderposition="{$order_position}" data-typefield="{$type_id}"
+<div class="form-group cpa-disable-div cpaFieldItem  {$influencesput}" data-influences="{$influencesmain}" data-orderposition="{$order_position}" data-typefield="{$type_id}"
   data-position="{$position}" data-field="{$id_cpa_customization_field}">
 	<label class="toggler {if $open_status == 1} active {/if}">
 		{$name} 
@@ -9,17 +9,22 @@
 				</i>
 			</span>
 		{/if}
+    <span id="progress-field-cpa-{$id_cpa_customization_field}" class="progress-field ">  </span>
 	</label>
-
 
   <div class="fieldPane clearfix" {if $open_status == 0}style="display: none;" {/if}>
     {if $notice !=''}
       <div class="field_notice clearfix clear">{$notice nofilter}</div>
     {/if}
 
-    <div class="clearfix clear row mt-1 {if $required == 1} required_field{/if}" id="main-{$id_cpa_customization_field}"
+    <div class="clearfix clear row mt-1  {if $required == 1} required_field{/if}" id="main-{$id_cpa_customization_field}"
       data-field="{$id_cpa_customization_field}" data-typefield="{$type_id}">
-      <input class="fromset pricecal" data-message="" data-price-type="{$price_type}"  id="cpafield_{$id_cpa_customization_field}" type="hidden"
+      <input class="fromset pricecal {if $required == 1} required_field{/if}" 
+        data-influences-percentage="{$influencespercentage}" 
+        data-price-type="{$price_type}"  
+        data-field="{$id_cpa_customization_field}"
+        id="cpafield_{$id_cpa_customization_field}" 
+        type="hidden"
         name="cpafield_{$id_cpa_customization_field}" data-price="0" value="0_0_0" disabled />
 
       {foreach from=$fieldValues item=value}
@@ -29,7 +34,7 @@
           <span class="radio">
             <input id="radio_{$value.id_cpa_customization_field_value}" 
               type="radio"
-              class="cpafieldvalueradio cpafieldvalue {if count($value.preview) > 0 }cpafieldvalue-preview-img {/if} {if $is_visual == 1}is_visual{/if}" 
+              class=" cpafieldvalueradio cpafieldvalue {if count($value.preview) > 0 } cpafieldvalue-preview-img {/if} {if $is_visual == 1}is_visual{/if}" 
               {if count($value.img) > 0 }
 								data-src="{$value.img[0]};{$value.img[1]}" 
 							{/if}

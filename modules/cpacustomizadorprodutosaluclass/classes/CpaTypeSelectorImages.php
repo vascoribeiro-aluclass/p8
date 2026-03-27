@@ -45,6 +45,9 @@ class CpaTypeSelectorImages extends CpaFields
             "notice"         => $this->notice,
             "tooltip"        => $this->tooltip,
             "zindex"         => $this->zindex,
+            "influencesmain" => $this->getInfluencesMain(),
+            "influencesput" => $this->getInfluencesPut(),
+            "influencespercentage" => $this->getInfluencesPercentage(),
             "is_visual"      => $this->is_visual,
             "isvisivel"      => $this->isvisivel,
             "position"       => $this->position,
@@ -72,7 +75,7 @@ class CpaTypeSelectorImages extends CpaFields
         if (key_exists($path, $arrayImg)) {
 
             foreach ($arrayImg[$path] as $imgIconValue) {
-                $arrayImgLink[] =  'http://localhost/p8/img/scenes/' . $path . $id_cpa_customization_field_value . '.' . $imgIconValue;
+                $arrayImgLink[] =  $this->getBaseUrlWithoutVirtual().'img/scenes/' . $path . $id_cpa_customization_field_value . '.' . $imgIconValue;
             }
             
         }
