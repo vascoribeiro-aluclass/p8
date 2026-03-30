@@ -22,13 +22,11 @@
 		<div class="clearfix clear row mt-1 {if $required == 1} required_field{/if}"
 			id="main-{$id_cpa_customization_field}" data-field="{$id_cpa_customization_field}"
 			data-typefield="{$type_id}">
-			<input data-message="" class="pricecal" id="cpafield_{$id_cpa_customization_field}" type="hidden" data-price-type="{$price_type}"
-				name="cpafield_{$id_cpa_customization_field}" data-price="0" data-influences-percentage="{$influencespercentage}" disabled />
 
 			{foreach from=$fieldValues item=value}
 
 				<div data-id-value="{$value.id_cpa_customization_field_value}" {if !$value.isvisivel} style="display: none;"
-					{/if} class="col-md-12 mt-1" data-root="{$id_cpa_customization_field}">
+					{/if} class="col-md-12 " data-root="{$id_cpa_customization_field}">
 					<input data-message="" class="fromset {if $required == 1} required_field{/if} {if !$value.isvisivel}select-value{/if}"
 						id="cpafield_value_{$value.id_cpa_customization_field_value}" type="hidden"
 						name="cpafield_value_{$value.id_cpa_customization_field_value}" {if !$value.isvisivel}
@@ -38,11 +36,11 @@
 					<label
 						class="clear clearfix field_text_{$value.id_cpa_customization_field_value}">{$value.name}</label>
 					<input id="field_text_{$value.id_cpa_customization_field_value}"
-						placeholder="{$value.name}" name="cpafield_{$value.id_cpa_customization_field_value}" type="number"
+						placeholder="{$value.name}" name="cpafield_{$value.id_cpa_customization_field_value}" type="text"
 						data-typefield="{$type_id}"
 						class="form-control cpa_field_text  field_text_{$value.id_cpa_customization_field_value} "
 						data-id-value="{$value.id_cpa_customization_field_value}" data-field="{$id_cpa_customization_field}"
-						 size="8" />
+						 size="20" />
 						<span id="error-dimension-{$value.id_cpa_customization_field_value}" style="display: none;" class="error-dimension">{l s='Medida fora dos valores premitidos' mod='cpacustomizadorprodutosaluclass'}</span>
 				</div>
 

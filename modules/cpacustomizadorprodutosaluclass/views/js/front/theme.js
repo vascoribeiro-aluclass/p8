@@ -130,6 +130,23 @@ $(document).on('click', '.cpafieldvalue ', function () {
     ActiveFieldCPA(this);
 });
 
+$(document).on('change', 'input.cpa_field_text', function () {
+    var field = $(this).attr('data-field');
+    
+    var idvalue = $(this).attr('data-id-value');
+    var type = $(this).attr('data-typefield');
+    var qty = $(this).val();
+
+    $('#cpafield_value_' + idvalue).val(type + '_' + field + '_' + idvalue + '_' + qty);
+    if (qty != '') {
+        $('#cpafield_value_' + idvalue).prop('disabled', false);
+    } else {
+        $('#cpafield_value_' + idvalue).prop('disabled', true);
+    }
+    ActiveFieldCPA(this);
+});
+
+
 //########################### INICIO - cpa Submit Produto ###########################
 $('#submitCpafields, .submitCpafields').off('click').on('click', function (event) {
     $('#cpafields').cpaSubmit(event);

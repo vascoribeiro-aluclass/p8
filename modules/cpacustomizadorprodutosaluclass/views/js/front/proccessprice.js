@@ -30,8 +30,6 @@ $(document).on('change', '.cpa_dimension_text', function () {
 });
 
 
-
-
 $(document).on('change', 'input.cpafieldvalue-qty', function () {
     var field = $(this).attr('data-field');
     var price = $(this).attr('data-price');

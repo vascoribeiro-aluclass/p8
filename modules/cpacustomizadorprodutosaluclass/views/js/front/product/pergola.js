@@ -1,0 +1,1 @@
+// Ficheiro JS criado automaticamente

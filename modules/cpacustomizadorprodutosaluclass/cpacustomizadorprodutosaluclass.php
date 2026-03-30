@@ -15,6 +15,7 @@ require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeA
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeText.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCf.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCfv.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaProduct.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/install.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/uninstall.php';
 class CpaCustomizadorProdutosAluclass extends Module
@@ -120,7 +121,8 @@ class CpaCustomizadorProdutosAluclass extends Module
 
       Media::addJsDef(array(
         'url_ajax_cpacustomizadorprodutosaluclass' => $this->context->link->getModuleLink('cpacustomizadorprodutosaluclass', 'ajax'),
-        'text_progress' => $this->trans('Progresso', [], 'Modules.Cpacustomizadorprodutosaluclass.Front')
+        'text_error_progress' => $this->trans('Erro crítico na comunicação com o servidor.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+        'text_error_nothing' => $this->trans('Falta o nome do ficheiro.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
       ));
 
       $this->context->controller->registerStylesheet(

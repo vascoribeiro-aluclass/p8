@@ -66,6 +66,10 @@ class CpaProcessProduct
                 if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 0) {
                     return false;
                 }
+            } else if ($id_type == 4) {
+                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 ) {
+                    return false;
+                }
             } else {
                 if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 1) {
                     return false;
@@ -114,6 +118,13 @@ class CpaProcessProduct
                     }
 
                     break;
+
+                case 4:
+                    foreach ($valuefieldstemp as $fieldstemp) {
+                        $fieldname = $fieldstemp['fieldname'];
+                        $fieldvaluename = $fieldvaluename . " " . $fieldstemp['fieldvaluename'] . " : " . $fieldstemp['field_qty'];
+                    }
+                    break;
                 case 5:
                     foreach ($valuefieldstemp as $fieldstemp) {
                         $fieldname = $fieldstemp['fieldname'];
@@ -139,7 +150,7 @@ class CpaProcessProduct
             }
 
 
-            if (!empty($fieldname) && !empty($fieldvaluename) ) {
+            if (!empty($fieldname) && !empty($fieldvaluename)) {
                 $arrayFields[$key] = [
                     'fieldname' => $fieldname,
                     'fieldvaluename' => $fieldvaluename,

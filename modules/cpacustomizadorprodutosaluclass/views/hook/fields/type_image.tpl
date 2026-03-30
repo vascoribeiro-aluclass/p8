@@ -58,6 +58,7 @@
 								{/if}
 								data-zindex="{$zindex|escape:'htmlall':'UTF-8'}"
 								data-qty="1" 
+								data-color="{$value.colorpicker}"
 								data-typefield="{$type_id}"
 								data-price="{$value.price|escape:'htmlall':'UTF-8'}"
 								data-id-value="{$value.id_cpa_customization_field_value}"
