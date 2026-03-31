@@ -29,7 +29,7 @@
 
 				<div data-id-value="{$value.id_cpa_customization_field_value}" {if !$value.isvisivel} style="display: none;"
 					{/if} class="col-md-12 mt-1" data-root="{$id_cpa_customization_field}">
-					<input data-message="" class="fromset {if $required == 1} required_field{/if} {if !$value.isvisivel}select-value{/if}"
+					<input data-message="" class="fromset {if $required == 1 && $value.isvisivel} required_field{/if} {if !$value.isvisivel}select-value{/if}"
 						id="cpafield_value_{$value.id_cpa_customization_field_value}" type="hidden"
 						name="cpafield_value_{$value.id_cpa_customization_field_value}" {if !$value.isvisivel}
 							value="{$type_id}_{$id_cpa_customization_field}_{$value.id_cpa_customization_field_value}_{$value.min_dimensions}"
@@ -38,10 +38,13 @@
 					<label
 						class="clear clearfix dimension_text_{$value.coor}_{$value.id_cpa_customization_field_value}">{$value.name}</label>
 					<input id="dimension_text_{$value.coor}_{$value.id_cpa_customization_field_value}"
-						placeholder="{$value.name}" name="cpafield_{$value.id_cpa_customization_field_value}" type="number"
+						placeholder="{$value.name}" name="cpafield_{$value.id_cpa_customization_field_value}" 
+						type="number"
 						data-typefield="{$type_id}"
-						class="form-control cpa_dimension_text dimension_text_{$value.coor} dimension_text_{$value.id_cpa_customization_field_value} "
-						data-id-value="{$value.id_cpa_customization_field_value}" data-field="{$id_cpa_customization_field}"
+						class="form-control cpa_dimension_text dimension_text_{$value.coor}
+						 dimension_text_{$value.id_cpa_customization_field_value} "
+						data-id-value="{$value.id_cpa_customization_field_value}" 
+						data-field="{$id_cpa_customization_field}"
 						min="{$value.min_dimensions}" max="{$value.max_dimensions}" size="8" />
 						<span id="error-dimension-{$value.id_cpa_customization_field_value}" style="display: none;" class="error-dimension">{l s='Medida fora dos valores premitidos' mod='cpacustomizadorprodutosaluclass'}</span>
 				</div>

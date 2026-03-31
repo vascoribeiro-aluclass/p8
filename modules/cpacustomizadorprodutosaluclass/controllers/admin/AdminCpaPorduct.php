@@ -57,8 +57,10 @@ class AdminCpaPorductController extends ModuleAdminController
 
         Media::addJsDef([
             'ajaxFileUrl' => $this->context->link->getAdminLink('AdminCpaPorduct', true, [], ['action' => 'CreateFileCPA', 'ajax' => 1]),
-            'text_error_progress' => $this->trans('algo falhou.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            'text_error_nothing' => $this->trans('Falta criar o nome do ficheiro.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+            'ajaxUploadFbxUrl' => $this->context->link->getAdminLink('AdminCpaPorduct', true, [], ['action' => 'UploadFbx', 'ajax' => 1]),
+            'text_error_progress' => $this->trans('Erro crítico na comunicação com o servidor.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+            'text_error_nothing' => $this->trans('Falta o nome do ficheiro.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+            'text_error_filefbx' => $this->trans('Só são permitidos ficheiros FBX..', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
         ]);
 
 
@@ -95,6 +97,27 @@ class AdminCpaPorductController extends ModuleAdminController
         die(json_encode($arrayrespond));
     }
 
+    public function ajaxProcessUploadFbx()
+    {
+        $arrayrespond = ['success' => false, 'msn' => ''];
+        if (isset($_FILES['fbx_file'])) {
+            $file = $_FILES['fbx_file'];
+
+            $targetDir = _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/views/js/front/3d/product/';
+            $targetFile = $targetDir . basename($file['name']);
+
+            if (move_uploaded_file($file['tmp_name'], $targetFile)) {
+                $arrayrespond['msn'] = $this->trans('Ficheiro %s enviado com sucesso.', [$file['name']], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+                $arrayrespond['success'] = true;
+            } else {
+                $arrayrespond['msn'] = $this->trans('Erro ao enviar ficheiro %s.', [$file['name']], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+                $arrayrespond['success'] = false;
+            }
+        }
+
+        die(json_encode($arrayrespond));
+    }
+
 
     public function renderList()
     {
@@ -122,7 +145,7 @@ class AdminCpaPorductController extends ModuleAdminController
 
         return parent::renderForm();
     }
-    private function Getfiles($folder,$namefield)
+    private function Getfiles($folder, $namefield)
     {
         $files = scandir($folder);
         $arrayfile = [];
@@ -132,7 +155,7 @@ class AdminCpaPorductController extends ModuleAdminController
                     $inf = pathinfo($file);
                     $name = $inf['filename'];
                     $ext = $inf['extension'] ?? '';
-                    $arrayfile[] = [$namefield => $name .'.' . $ext, 'name' => $name];
+                    $arrayfile[] = [$namefield => $name . '.' . $ext, 'name' => $name . '.' . $ext];
                 }
             }
         }
@@ -176,17 +199,27 @@ class AdminCpaPorductController extends ModuleAdminController
             ],
             'input' => [
                 [
+                    'type' => 'file',
+                    'label' => $this->trans('Ficheiro FBX :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'fbx_file',
+                    'desc' =>  $this->trans('Adicione aqui os ficheiros FBX de modelos 3D', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'attr' => [
+                        'id' => 'fbx_file'
+                    ],
+                ],
+                [
                     'type' => 'html',
                     'name' => 'custom_js_input',
-                    'label' => 'Novo ficheiro JS',
+                    'label' => $this->trans('Novo ficheiro JS :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'html_content' => '
                         <div class="form-inline">
-                            <input type="text" id="js_filename" name="js_filename" placeholder="Nome do ficheiro..." class="form-control fixed-width-lg" />
+                            <input type="text" id="js_filename" name="js_filename" placeholder="' . $this->trans('Nome do ficheiro...', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin') . '" class="form-control fixed-width-lg" />
                             <div id="create_js_file" class="btn btn-default">
                                 <i class="icon-plus-sign"></i> Criar
                             </div>
                         </div>
-                    '
+                    ',
+                    'desc' =>  $this->trans('Adicione nome do ficheiro JS', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                 ],
                 [
                     'type' => 'select',
@@ -197,8 +230,8 @@ class AdminCpaPorductController extends ModuleAdminController
                     'desc' => $this->trans('Produto.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'options' => [
                         'query' => $products_array,
-                        'id' => 'id_product',
-                        'name' => 'product_name'
+                        'id'    => 'id_product',
+                        'name'  => 'product_name'
                     ],
                 ],
                 [
@@ -206,7 +239,6 @@ class AdminCpaPorductController extends ModuleAdminController
                     'label' => $this->trans('Ficheiro :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'filescript',
                     'class' => 'fixed-width-xs ',
-                    'required' => true,
                     'options' => [
                         'query' => $arrayfile,
                         'id' => 'filescript',
@@ -219,7 +251,6 @@ class AdminCpaPorductController extends ModuleAdminController
                     'label' => $this->trans('Ficheiro 3D:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'filesthreed',
                     'class' => 'fixed-width-xs ',
-                    'required' => true,
                     'options' => [
                         'query' => $arrayfilethreed,
                         'id' => 'filethreed',

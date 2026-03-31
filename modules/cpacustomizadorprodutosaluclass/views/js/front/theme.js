@@ -132,7 +132,7 @@ $(document).on('click', '.cpafieldvalue ', function () {
 
 $(document).on('change', 'input.cpa_field_text', function () {
     var field = $(this).attr('data-field');
-    
+
     var idvalue = $(this).attr('data-id-value');
     var type = $(this).attr('data-typefield');
     var qty = $(this).val();
@@ -255,7 +255,16 @@ $(document).on('hidden.bs.modal', '#blockcart-modal', function () {
 //########################### FIM - cpa Submit Produto ###########################
 
 $(window).on("load", function () {
+
+    if (is3dshow) {
+        $(".product-cover").prepend('<div style="position: absolute;zindex: 998;z-index: 998; right: 5px;top: 5px;"  class="btn btn-primary" onclick="show3D()">Ver 3D</div>');
+    }
+
     $(".form-group[data-position='1']").removeClass("cpa-disable-div");
+
+    if (GetSelectProgressBar() == 0) {
+        $("#productprogressbarfluid").hide();
+    }
 
     $(".cpaFieldItem").each(function () {
         var dataInfluences = $(this).attr('data-influences');
@@ -287,10 +296,10 @@ $(window).on("load", function () {
 
                 if (pos1pro + 37 >= pos2pro + 37) {
                     if (pos1pro + 150 < pos3pro) {
-                        widthndk = $("#cpafields").width();
+                        widthcpa = $("#cpafields").width();
                         $("#productprogressbar").addClass("progress-scroll");
                         $("#productprogressbar").show();
-                        $("#productprogressbar").css({ width: widthndk + "px" });
+                        $("#productprogressbar").css({ width: widthcpa + "px" });
                     } else $("#productprogressbar").hide();
                 } else {
                     $("#productprogressbar").removeClass("progress-scroll");
@@ -306,10 +315,10 @@ $(window).on("load", function () {
 
                 if (pos1pro + 37 >= pos2pro + 37) {
                     if (pos1pro + 150 < pos3pro) {
-                        widthndk = $("#cpafields").width();
+                        widthcpa = $("#cpafields").width();
                         $("#productprogressbar").addClass("progress-scroll");
                         $("#productprogressbar").show();
-                        $("#productprogressbar").css({ width: widthndk + "px" });
+                        $("#productprogressbar").css({ width: widthcpa + "px" });
                     } else $("#productprogressbar").hide();
                 } else {
                     $("#productprogressbar").removeClass("progress-scroll");

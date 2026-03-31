@@ -42,7 +42,7 @@
 							{if $value.thumbs|@count > 1}
 								<source src="{$value.thumbs[1]}">
 							{/if}
-							<img loading="lazy" class="cpafieldvalue img-value {if count($value.preview) > 0 }cpafieldvalue-preview-img {/if} {if $is_visual == 1}is_visual{/if}"
+							<img loading="lazy" class="cpafieldvalue img-value {if count($value.preview) > 0 }cpafieldvalue-preview-img {/if} {if $is_visual == 1}is_visual treed{/if}"
 								data-value="{$value.name|escape:'htmlall':'UTF-8'}" 
 								title="{$value.name|escape:'htmlall':'UTF-8'}"
 								{if count($value.img) > 0 }

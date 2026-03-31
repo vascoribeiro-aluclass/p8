@@ -1,3 +1,4 @@
+
 <div class="block " id="cpafields-block" data-key="{$id_product}">
     <div id="productprogressbarfluid" style="height: 88px;">
         <div id="productprogressbar" style="height: 88px; background: rgb(255, 255, 255);">

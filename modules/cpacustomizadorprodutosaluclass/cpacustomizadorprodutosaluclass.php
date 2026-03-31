@@ -121,8 +121,7 @@ class CpaCustomizadorProdutosAluclass extends Module
 
       Media::addJsDef(array(
         'url_ajax_cpacustomizadorprodutosaluclass' => $this->context->link->getModuleLink('cpacustomizadorprodutosaluclass', 'ajax'),
-        'text_error_progress' => $this->trans('Erro crítico na comunicação com o servidor.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-        'text_error_nothing' => $this->trans('Falta o nome do ficheiro.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+        'text_progress' => $this->trans('Progressão.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
       ));
 
       $this->context->controller->registerStylesheet(
@@ -134,12 +133,36 @@ class CpaCustomizadorProdutosAluclass extends Module
         ]
       );
 
+      $is3dshow = false;
+      $name3dshow = false;
+      $resultScript = $this->checkCPAProductScript($id_product);
+
+      if ($resultScript && $resultScript['filesthreed']) {
+        $is3dshow = true;
+        $name3dshow = $resultScript['filesthreed'];
+      }
+
       $product = new Product($id_product, false, (int)$this->context->language->id, (int)$this->context->shop->id);
       $tax_rate = Tax::getProductTaxRate($product->id);
 
       Media::addJsDef([
         'ivaProduct' => $tax_rate,
+        'is3dshow' => $is3dshow,
+        'name3dshow' => $name3dshow,
+        'modulePath' => $this->_path,
       ]);
+
+      if ($resultScript && $resultScript['filescript']) {
+        $this->context->controller->registerJavascript(
+          'module-cpa-scriptproduct-js',
+          $resultScript['filescript'],
+          [
+            'position' => 'bottom',
+            'priority' => 851,
+          ]
+        );
+      }
+
       $this->context->controller->registerJavascript(
         'module-cpa-functions-js',
         'modules/' . $this->name . '/views/js/front/functions.js',
@@ -169,6 +192,21 @@ class CpaCustomizadorProdutosAluclass extends Module
           'priority' => 850,
         ]
       );
+
+
+      if ($is3dshow) {
+        // 3D SCRIPTS
+        $this->context->controller->registerJavascript('module-cpa-3dheaderScreen-js', 'modules/' . $this->name . '/views/js/front/3d/headerScreen.js', ['position' => 'bottom', 'priority' => 950,]);
+        $this->context->controller->registerJavascript('module-cpa-3dthree-js', 'modules/' . $this->name . '/views/js/front/3d/threejs/three.js', ['position' => 'bottom', 'priority' => 951,]);
+        $this->context->controller->registerJavascript('module-cpa-3dOrbitControls-js', 'modules/' . $this->name . '/views/js/front/3d/controls/OrbitControls.js', ['position' => 'bottom', 'priority' => 952,]);
+        $this->context->controller->registerJavascript('module-cpa-NURBSCurve-js', 'modules/' . $this->name . '/views/js/front/3d/curves/NURBSCurve.js.js', ['position' => 'bottom', 'priority' => 953,]);
+        $this->context->controller->registerJavascript('module-cpa-NURBSUtils-js', 'modules/' . $this->name . '/views/js/front/3d/curves/NURBSUtils.js', ['position' => 'bottom', 'priority' => 954,]);
+        $this->context->controller->registerJavascript('module-cpa-FBXLoader-js', 'modules/' . $this->name . '/views/js/front/3d/loaders/FBXLoader.js', ['position' => 'bottom', 'priority' => 955,]);
+        $this->context->controller->registerJavascript('module-cpa-Detector-js', 'modules/' . $this->name . '/views/js/front/3d/Detector.js', ['position' => 'bottom', 'priority' => 956,]);
+        $this->context->controller->registerJavascript('module-cpa-inflate-js', 'modules/' . $this->name . '/views/js/front/3d/libs/inflate.min.js', ['position' => 'bottom', 'priority' => 957,]);
+        $this->context->controller->registerJavascript('module-cpa-stats-js', 'modules/' . $this->name . '/views/js/front/3d/libs/stats.min.js', ['position' => 'bottom', 'priority' => 958,]);
+        $this->context->controller->registerJavascript('module-cpa-3dproduct-js', 'modules/' . $this->name . '/views/js/front/3d/3dshow.js', ['position' => 'bottom', 'priority' => 999,]);
+      }
     }
   }
 
@@ -283,15 +321,18 @@ class CpaCustomizadorProdutosAluclass extends Module
     }
   }
 
-  private function checkCPAProduct($idProduct)
+  private function checkCPAProductScript($idProduct)
   {
-
-    return Db::getInstance()->getValue(
-      (new DbQuery())
-        ->select('COUNT(id_cpa_customization_field)')
-        ->from('cpa_customization_field_product')
-        ->where('id_product = ' . (int)$idProduct)
-    );
+    $db = Db::getInstance();
+    $query = new DbQuery();
+    $query->select('filescript,filesthreed');
+    $query->from('cpa_customization_product');
+    $query->where('id_product = ' . (int)$idProduct);
+    $results = $db->executeS($query);
+    if (is_array($results) && count($results) > 0) {
+      return $results[0];
+    }
+    return false;
   }
 
   private function createCPACategory(): bool

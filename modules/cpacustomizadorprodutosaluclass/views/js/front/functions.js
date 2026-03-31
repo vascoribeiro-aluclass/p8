@@ -11,8 +11,7 @@ function ActiveFieldCPA(obj) {
 
 function GetRequiredProgressBar() {
     var requiredcount = 0;
-
-    $(".fromset.required_field").each(function () {
+    $("input.fromset.required_field").each(function () {
         if (!$(this).is(":disabled")) {
             requiredcount++;
         }
@@ -21,10 +20,9 @@ function GetRequiredProgressBar() {
     return requiredcount;
 }
 
-
 function GetSelectProgressBar() {
     var selectcount = 0;
-    $(".fromset.required_field").each(function () {
+    $("input.fromset.required_field").each(function () {
         selectcount++;
     });
 
@@ -43,6 +41,54 @@ function MarkField(field, isMark) {
     }
 }
 
+function show3D() {
+    var productCover = $(".product-cover");
+    var container;
+    let exists = $(".3dshow").length > 0;
+
+    if (!exists) {
+        console.log("Criando div #3dshow...");
+        var container = $("<div>", {
+            id: "3dshow",
+            class: "3dshow",
+            css: {
+                width: "100%",
+                height: "100%",
+                backgroundColor: "red",
+                position: "absolute",
+                zIndex: 998
+            }
+        });
+        productCover.prepend(container);
+
+        let colordefaut = $('.img-value.is_visual.treed.select-value').data('color');
+        if (!colordefaut) {
+            colordefaut = '#383E42';
+        }
+
+        init(colordefaut);
+        animate();
+
+        $('.img-value.is_visual.treed').off('click').on('click', function () {
+            var color = $(this).data('color');
+            if (!color) {
+                color = '#383E42';
+            } else {
+                toggleMaterial(color);
+            }
+
+        });
+
+    } else {
+        console.log("Div #3dshow já existe!");
+        console.log("ANTES:", $(".3dshow").length);
+        $(".3dshow").remove();
+        console.log("DEPOIS:", $(".3dshow").length);
+        $('.img-value.is_visual.treed').off('click');
+    }
+
+}
+
 //  progressBar
 function ProgressBar() {
     var requiredcount = 0;
@@ -50,6 +96,13 @@ function ProgressBar() {
 
     requiredcount = GetRequiredProgressBar();
     selectcount = GetSelectProgressBar();
+
+    if (selectcount > 0) {
+        $("#productprogressbarfluid").show();
+    } else {
+        $("#productprogressbarfluid").hide();
+    }
+
     progress = (requiredcount / selectcount) * 100;
 
     if (parseInt(progress) >= 0 && parseInt(progress) < 20) {
@@ -119,7 +172,6 @@ function ControlInfluences(field, idvalue) {
 function PriceFormat(price) {
 
     price_with_iva = price + (price * ivaProduct / 100);
-
     return new Intl.NumberFormat('pt-PT', {
         style: 'currency',
         currency: 'EUR'
@@ -239,7 +291,7 @@ function ProccessPriceCPAFieldValue(element) {
     ProgressBar();
 }
 
-function ProccessPriceCPAFieldWithoutQty(element,qty) {
+function ProccessPriceCPAFieldWithoutQty(element, qty) {
     var field = $(element).attr('data-field');
     var price = $(element).attr('data-price');
     var idvalue = $(element).attr('data-id-value');
