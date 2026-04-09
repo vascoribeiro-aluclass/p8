@@ -89,6 +89,11 @@ class CpaCf extends ObjectModel
       'id_cpa_customization_field = ' . (int)$id_cpa_customization_field
     );
 
+    Db::getInstance()->delete(
+      'cpa_customization_field_csv_selection',
+      'id_cpa_customization_field = ' . (int)$id_cpa_customization_field
+    );
+
     foreach ($customizationValues as $customizationValue) {
       $id_cpa_customization_field_value = (int)$customizationValue['id_cpa_customization_field_value'];
 

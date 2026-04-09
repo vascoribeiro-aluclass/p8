@@ -240,6 +240,8 @@ class AdminCpaCustomizationController extends ModuleAdminController
         if ($recordCF) {
             $newID = $recordCF[$id] ?? 0;
             $this->duplicateItem('cpa_customization_field_lang', $id, 'id_cpa_customization_field', 'id_cpa_customization_field', $newID);
+            $this->duplicateItem('cpa_customization_field_csv', $id, 'id_cpa_customization_field', 'id_cpa_customization_field', $newID);
+            $this->duplicateItem('cpa_customization_field_csv_selection', $id, 'id_cpa_customization_field', 'id_cpa_customization_field', $newID);
             $recordsCFV = $this->duplicateItem('cpa_customization_field_value', $id, 'id_cpa_customization_field_value', 'id_cpa_customization_field', $newID);
 
             if ($recordsCFV) {
