@@ -213,37 +213,23 @@ class installCPASQL
 					[
 						['name' => 'id_cpa_customization_field_csv', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
 						['name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
-						['name' => 'width', 'opts' => 'varchar(255) NOT NULL'],
-						['name' => 'height', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
-						['name' => 'depth', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
+						['name' => 'width', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'height', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'depth', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
 						['name' => 'price', 'opts' => 'float NOT NULL DEFAULT 0'],
 					]
 				],
-				[
-					'name' => 'cpa_customization_field_csv_selection',
-					'primary' => 'id_cpa_customization_field_csv_selection',
-					'cols' =>
-					[
-						['name' => 'id_cpa_customization_field_csv_selection', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
-						['name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
-						['name' => 'width', 'opts' => 'varchar(255) NOT NULL'],
-						['name' => 'height', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
-						['name' => 'depth', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
-						['name' => 'price', 'opts' => 'float NOT NULL DEFAULT 0'],
-					]
-				],
-
 				[
 					'name' => 'cpa_customization_field_csv_selection_lang',
-					'index' => ['id_cpa_customization_field_csv_selection', 'id_lang'],
+					'index' => ['id_cpa_customization_field', 'id_lang', 'type', 'value'],
 					'primary' => '',
 					'cols' =>
 					[
-						['name' => 'id_cpa_customization_field_csv_selection', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
+						['name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL '],
 						['name' => 'id_lang', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
-						['name' => 'name_width', 'opts' => 'varchar(255) NOT NULL'],
-						['name' => 'name_height', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
-						['name' => 'name_depth', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
+						['name' => 'name', 'opts' => 'varchar(255) NOT NULL'],
+						['name' => 'type', 'opts' => 'varchar(255) NOT NULL '],
+						['name' => 'value', 'opts' => 'int(10) NOT NULL '],
 					]
 				],
 
@@ -282,9 +268,9 @@ class installCPASQL
 
 				//check if col exists
 				$sqlCheck = 'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
-		WHERE table_name = "' . $prefix . $table['name'] . '" 
-		AND table_schema = "' . _DB_NAME_ . '" 
-		AND column_name = "' . $col['name'] . '" ';
+								WHERE table_name = "' . $prefix . $table['name'] . '" 
+								AND table_schema = "' . _DB_NAME_ . '" 
+								AND column_name = "' . $col['name'] . '" ';
 
 				$check = Db::getInstance()->executeS($sqlCheck);
 
