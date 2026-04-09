@@ -219,6 +219,33 @@ class installCPASQL
 						['name' => 'price', 'opts' => 'float NOT NULL DEFAULT 0'],
 					]
 				],
+				[
+					'name' => 'cpa_customization_field_csv_selection',
+					'primary' => 'id_cpa_customization_field_csv_selection',
+					'cols' =>
+					[
+						['name' => 'id_cpa_customization_field_csv_selection', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
+						['name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'width', 'opts' => 'varchar(255) NOT NULL'],
+						['name' => 'height', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
+						['name' => 'depth', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
+						['name' => 'price', 'opts' => 'float NOT NULL DEFAULT 0'],
+					]
+				],
+
+				[
+					'name' => 'cpa_customization_field_csv_selection_lang',
+					'index' => ['id_cpa_customization_field_csv_selection', 'id_lang'],
+					'primary' => '',
+					'cols' =>
+					[
+						['name' => 'id_cpa_customization_field_csv_selection', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
+						['name' => 'id_lang', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'name_width', 'opts' => 'varchar(255) NOT NULL'],
+						['name' => 'name_height', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
+						['name' => 'name_depth', 'opts' => 'varchar(255) NOT NULL DEFAULT 0'],
+					]
+				],
 
 				[
 					'name' => 'cpa_customization_field_cache',
@@ -307,7 +334,7 @@ class installCPASQL
 		$sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (4,'Texto','cpatypetext')";
 		$sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (5,'Acessórios Quantidade','cpatypeaccessquant')";
 		$sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (6,'Acessórios Sem Quantidade','cpatypeaccessnoquant')";
-
+		$sqlinsert[] = "INSERT INTO `" . $prefix . "cpa_customization_field_type` (id_cpa_customization_field_type,name,class) VALUES (7,'Dimensões por Seleção','cpatypedimensionsselection')";
 
 		foreach ($sqlinsert as $query)
 			if (Db::getInstance()->execute($query) == false)

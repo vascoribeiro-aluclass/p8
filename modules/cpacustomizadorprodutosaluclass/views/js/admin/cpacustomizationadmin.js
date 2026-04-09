@@ -21,7 +21,7 @@ function setupFileValidation(inputName, allowedTypes, acceptAttr, textError) {
 }
 function manageVisibility(selectedValue) {
 
-    $('.visivel-1, .visivel-2, .visivel-3, .visivel-4, .visivel-5, .visivel-6').closest('.form-group').hide();
+    $('.visivel-1, .visivel-2, .visivel-3, .visivel-4, .visivel-5, .visivel-6, .visivel-7').closest('.form-group').hide();
 
     if (selectedValue == '1') {
         $('.visivel-1').closest('.form-group').show();
@@ -35,6 +35,8 @@ function manageVisibility(selectedValue) {
         $('.visivel-5').closest('.form-group').show();
     } else if (selectedValue == '6') {
         $('.visivel-6').closest('.form-group').show();
+    } else if (selectedValue == '7') {
+        $('.visivel-7').closest('.form-group').show();
     }
 }
 
@@ -59,6 +61,6 @@ function removeImgValueCPA( idfieldvalue,path) {
 
 $(document).ready(function () {
 
-    $('.visivel-1, .visivel-2, .visivsel-3, .visivel-4, .visivel-5, .visivel-6').closest('.form-group').hide();
+    $('.visivel-1, .visivel-2, .visivsel-3, .visivel-4, .visivel-5, .visivel-6, .visivel-7').closest('.form-group').hide();
 
 });

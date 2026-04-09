@@ -22,7 +22,7 @@ class cpacustomizadorprodutosaluclassajaxModuleFrontController extends ModuleFro
                 $dimensions  = Tools::getValue('dimensions');
 
                 $price = Db::getInstance()->getValue("SELECT price
-                        FROM palu.ps_cpa_customization_field_csv
+                        FROM ". _DB_PREFIX_ ."cpa_customization_field_csv
                         WHERE 
                             width  >= " . (int)$dimensions['width'] . " AND
                             height >= " . (int)$dimensions['height'] . " AND

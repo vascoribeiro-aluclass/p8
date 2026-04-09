@@ -52,6 +52,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
             ],
             'type_name' => [
                 'title' => $this->trans('Tipo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'filter_key' => 'ct!name',
             ],
             'required' => [
                 'title' => $this->trans('Requisito', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
@@ -118,6 +119,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
         Media::addJsDef([
             'ajaxProductUrl' => $this->context->link->getAdminLink('AdminCpaCustomization', true, [], ['action' => 'SearchProductsCPA', 'ajax' => 1]),
             'ajaxFieldsUrl' => $this->context->link->getAdminLink('AdminCpaCustomization', true, [], ['action' => 'FieldsCPA', 'ajax' => 1]),
+            'ajaxDuplicateUrl' => $this->context->link->getAdminLink('AdminCpaCustomization', true, [], ['action' => 'DuplicateItem', 'ajax' => 1]),
             'already_selected_products' => $cpaProducts,
             'already_selected_fields_influence' => $cpafieldsInfluence,
             'already_selected_fields_influence_percentage' => $cpafieldsInfluencePercentage,
@@ -182,6 +184,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
 
         return Db::getInstance()->executeS($sql);
     }
+
     public function ajaxProcessFieldsCPA()
     {
         $q = Tools::getValue('q');
@@ -194,8 +197,77 @@ class AdminCpaCustomizationController extends ModuleAdminController
 
         $products = Db::getInstance()->executeS($sql);
 
-
         die(json_encode($products));
+    }
+
+    public function duplicateItem($table, $IDFieldDuplicate, $deletefield, $field = 'id', $newIDField = false)
+    {
+        $db = Db::getInstance();
+        $newID = [];
+
+        $records = $db->executeS("SELECT * FROM " . _DB_PREFIX_ . $table . " WHERE " . $field . " = " . (int)$IDFieldDuplicate);
+
+        if (!$records) {
+            return false;
+        }
+
+        foreach ($records as $record) {
+            $oldIDField = $record[$deletefield];
+            unset($record[$deletefield]);
+
+            if ($newIDField) {
+                $record[$field] = $newIDField;
+            }
+            $db->insert($table, $record);
+
+            if ($newIDField && $field == $deletefield)
+                $newID[$oldIDField] = $newIDField;
+            else
+                $newID[$oldIDField] = $db->Insert_ID();
+        }
+
+        return $newID;
+    }
+
+    public function ajaxProcessDuplicateItem()
+    {
+
+        $newID = [];
+        $newIDvalue = [];
+        $id = (int)Tools::getValue('id_cpa_customization_field');
+        $recordCF = $this->duplicateItem('cpa_customization_field', $id, 'id_cpa_customization_field', 'id_cpa_customization_field');
+
+        if ($recordCF) {
+            $newID = $recordCF[$id] ?? 0;
+            $this->duplicateItem('cpa_customization_field_lang', $id, 'id_cpa_customization_field', 'id_cpa_customization_field', $newID);
+            $recordsCFV = $this->duplicateItem('cpa_customization_field_value', $id, 'id_cpa_customization_field_value', 'id_cpa_customization_field', $newID);
+
+            if ($recordsCFV) {
+                foreach ($recordsCFV as $oldIDField => $newIDvalue) {
+                    $this->duplicateItem('cpa_customization_field_value_lang', $oldIDField, 'id_cpa_customization_field_value', 'id_cpa_customization_field_value', $newIDvalue);
+                    $recordsCFVI = $this->duplicateItem('cpa_customization_field_value_img', $oldIDField, 'id_cpa_customization_field_value', 'id_cpa_customization_field_value', $newIDvalue);
+                    if ($recordsCFVI) {
+                        foreach ($recordsCFVI as $oldIDFieldimg => $newIDFieldimg) {
+                            $newRecords = Db::getInstance()->executeS("SELECT * FROM " . _DB_PREFIX_ . "cpa_customization_field_value_img WHERE id_cpa_customization_field_value = " . (int)$newIDvalue);
+                            if ($newRecords) {
+                                foreach ($newRecords as $newRecord) {
+                                    $newImg = $newIDFieldimg . '.' . $newRecord['ext'];
+                                    $oldImg = $oldIDFieldimg . '.' . $newRecord['ext'];
+                                    $destination = _PS_IMG_DIR_ . 'scenes/' . $newRecord['type'];
+                                    copy($destination . $oldImg, $destination . $newImg);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        die(json_encode([
+            'success' => $newID ? true : false,
+            'msn' => $newID ? 'Duplicado com sucesso!' : 'Erro ao duplicar'
+        ]));
     }
 
     public function ajaxProcessSearchProductsCPA()
@@ -251,19 +323,25 @@ class AdminCpaCustomizationController extends ModuleAdminController
         $this->addRowAction('edit');
         $this->addRowAction('delete');
         $this->addRowAction('details');
+        $this->addRowAction('double');
         return parent::renderList();
     }
 
     public function displayDetailsLink($token, $id)
     {
-        $link = $this->context->link->getAdminLink('AdminCpaCustomizationValue')
-            . '&id_cpa_customization_field=' . (int)$id;
+        $link = $this->context->link->getAdminLink('AdminCpaCustomizationValue') . '&id_cpa_customization_field=' . (int)$id;
 
         return '<a href="' . $link . '" title="' . $this->trans('Ver Valores', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin') . '">
                 <i class="icon-eye"></i>' . $this->trans('Ver Valores', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin') . '
             </a>';
     }
 
+    public function displayDoubleLink($token, $id)
+    {
+        return '<a href="#" class="duplicate-item" data-id="' . (int)$id . '" title="' . $this->trans('Duplicar', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin') . '">
+            <i class="icon-copy"></i> ' . $this->trans('Duplicar', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin') . '
+        </a>';
+    }
 
     public function init()
     {
@@ -505,6 +583,13 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     'name' => 'csv_file',
                     'desc' =>  $this->trans('Adicione aqui os ficheiros CSV de preços', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'form_group_class' => 'visivel-1',
+                ],
+                [
+                    'type' => 'file',
+                    'label' => $this->trans('Ficheiro CSV Seleção:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'name' => 'csv_sel_file',
+                    'desc' =>  $this->trans('Adicione aqui os ficheiros CSV Seleção de preços', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'form_group_class' => 'visivel-7',
                 ]
 
 
@@ -571,7 +656,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     );
                 }
             }
-            
+
             if ($selected_cpa_fields) {
                 Db::getInstance()->delete(
                     $this->table . '_influences',
@@ -630,10 +715,19 @@ class AdminCpaCustomizationController extends ModuleAdminController
             } else {
                 $file = $_FILES['csv_file']['tmp_name'];
 
-
-                require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCfv.php';
-
                 $importer = new CpaCsvImporter($object->id);
+                if (!$importer->importCSV($file)) {
+                    $this->errors = array_merge($this->errors, $importer->getErrors());
+                    return;
+                }
+            }
+
+            
+           if (!isset($_FILES['csv_sel_file']) || empty($_FILES['csv_sel_file']['tmp_name'])) {
+            } else {
+                $file = $_FILES['csv_sel_file']['tmp_name'];
+
+                $importer = new CpaCsvSelImporter($object->id);
                 if (!$importer->importCSV($file)) {
                     $this->errors = array_merge($this->errors, $importer->getErrors());
                     return;

@@ -474,7 +474,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                     'label' => $this->trans('Visível :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
                     'name' => 'isvisivel',
                     'is_bool' => true,
-                    'form_group_class' => 'visivel-2 visivel-3',
+                    'form_group_class' => 'visivel-1 visivel-2 visivel-3 visivel-7',
                     'values' => [
                         [
                             'id' => 'is_visivel_on',

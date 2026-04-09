@@ -6,6 +6,7 @@ $(document).on('change', '.cpa_dimension_text', function () {
     var idvalue = $(this).attr('data-id-value');
     var type = $(this).attr('data-typefield');
     var qty = $(this).val();
+    console.log(qty);
 
     var min = parseInt($(this).attr('min'));
     var max = parseInt($(this).attr('max'));

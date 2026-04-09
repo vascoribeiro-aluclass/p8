@@ -10,8 +10,8 @@ class CpaCsvImporter
     private $isheader = false;
 
     private $depth = 0;
-    private $width = 0;
-    private $arrayheight = [];
+    private $height = 0;
+    private $arraywidth = [];
 
     private $depthMax = 0;
     private $widthMax = 0;
@@ -71,25 +71,28 @@ class CpaCsvImporter
                 continue;
             }
 
-            $this->width = $row[0] ?? null;
-            if ($this->width > $this->widthMax) {
-                $this->widthMax = $this->width;
+           
+            $this->setheight($row[0]);
+
+            if ($this->height > $this->heightMax) {
+                $this->heightMax = $this->height;
             }
 
-            if ($this->widthMin > $this->width) {
-                $this->widthMin = $this->width;
+            if ($this->heightMin > $this->height) {
+                $this->heightMin = $this->height;
             }
 
             $arrayprice = [];
             $arrayprice = array_slice($row, 1);
-
-            foreach ($this->arrayheight as $key => $width) {
+         
+            foreach ($this->arraywidth as $key => $width) {
                 $price = 0;
                 $price  = round(str_replace(',', '.', $arrayprice[$key]),6);
                 if (!$this->SetRowCSV($price, $width)) {
                     $this->errors[] = $translator->trans('Erro ao inserir na base de dados', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
                 }
             }
+           
         }
 
         fclose($handle);
@@ -97,8 +100,8 @@ class CpaCsvImporter
         $this->dimensionsUpdate($this->countrow > 1 && $this->countheader > 0 ? 3 : ($this->countrow > 1 || $this->countheader > 0 ? 2 : 1));
 
         if (!$this->checkTableValueCustomizationField()) {
-            $this->setCpaCustomizationValue(1, "Largura (min " . $this->widthMin . " mm - max " . $this->widthMax . " mm)", true);
-            $this->setCpaCustomizationValue(2, "Altura (min " . $this->heightMin . " mm - max " . $this->heightMax . " mm)", ($this->countrow > 1 ? true : false));
+            $this->setCpaCustomizationValue(1, "Altura (min " . $this->heightMin . " mm - max " . $this->heightMax . " mm)", true);
+            $this->setCpaCustomizationValue(2, "Largura (min " . $this->widthMin . " mm - max " . $this->widthMax . " mm)", ($this->countrow > 1 ? true : false));
             $this->setCpaCustomizationValue(3, "Profundidade (min " . $this->depthMin . " mm - max " . $this->depthMax . " mm)", ($this->countheader > 0 ? true : false));
         }
 
@@ -172,12 +175,12 @@ class CpaCsvImporter
         if ($this->depthMin > $this->depth) {
             $this->depthMin = $this->depth;
         }
-        $this->arrayheight = array_slice($row, 1);
+        $this->arraywidth = array_slice($row, 1);
     }
 
-    public function setWidth($width)
+    public function setheight($height)
     {
-        $this->width = $width;
+        $this->height = $height;
     }
 
 
@@ -201,22 +204,22 @@ class CpaCsvImporter
         );
     }
 
-    public function SetRowCSV($price, $height)
+    public function SetRowCSV($price, $width)
     {
 
-        if ($height > $this->heightMax) {
-            $this->heightMax = $height;
+        if ($width > $this->widthMax) {
+            $this->widthMax = $width;
         }
 
-        if ($this->heightMin > $height) {
-            $this->heightMin = $height;
+        if ($this->widthMin > $width) {
+            $this->widthMin = $width;
         }
         return Db::getInstance()->insert(
             'cpa_customization_field_csv',
             [
                 'id_cpa_customization_field' => (int)$this->id_cpa_customization_field,
-                'width'  => (int)$this->width,
-                'height' => (int)$height,
+                'height'  => (int)$this->height,
+                'width' => (int)$width,
                 'depth'  => (int)$this->depth,
                 'price'  => (float)$price,
             ]

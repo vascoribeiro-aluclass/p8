@@ -170,3 +170,26 @@ $(document).ready(function () {
     });
 
 });
+
+
+$(document).on('click', '.duplicate-item', function(e) {
+    e.preventDefault();
+
+    let id = $(this).data('id');
+
+    $.ajax({
+        url: ajaxDuplicateUrl,
+        method: 'POST',
+        data: {
+            id_cpa_customization_field: id
+        },
+        success: function(response) {
+            if (response.success) {
+                showSuccessMessage(response.msn);
+                location.reload();
+            } else {
+              showErrorMessage(response.msn);
+            }
+        }
+    });
+});

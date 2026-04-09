@@ -29,7 +29,7 @@ abstract class CpaFields
         $this->type_name      = $arrayCustomizationField['type_name'];
         $this->type_id        = $arrayCustomizationField['type_id'];
         $this->id_product     = $id_product;
-        $this->context     = Context::getContext();
+        $this->context        = Context::getContext();
     }
 
     abstract public function getTemplate();

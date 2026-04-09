@@ -59,6 +59,23 @@ function show3D() {
                 zIndex: 998
             }
         });
+        // Cria o botão dentro do container
+        var btn3D = $("<div>", {
+            class: "btn btn-primary",
+            text: "Mudar ambiente",
+            css: {
+                position: "absolute",
+                left: "5px",
+                top: "5px",
+                zIndex: 999 // botão acima do container
+            },
+            click: function () {
+                changeBackground(); // chama a função ao clicar
+            }
+        });
+
+        // Adiciona o botão dentro do container
+        container.append(btn3D);
         productCover.prepend(container);
 
         let colordefaut = $('.img-value.is_visual.treed.select-value').data('color');
@@ -76,15 +93,28 @@ function show3D() {
             } else {
                 toggleMaterial(color);
             }
-
         });
 
+        $('.cpa_dimension_text').off('change').on('change', function () {
+            var idfield = $(this).data('field');
+            var widthMin = parseInt($('input[data-field="' + idfield + '"].dimension_text_width').attr('min'));
+            var heightMin = parseInt($('input[data-field="' + idfield + '"].dimension_text_height').attr('min'));
+            var depthMin = parseInt($('input[data-field="' + idfield + '"].dimension_text_depth').attr('min'));
+            var widthMax = parseInt($('input[data-field="' + idfield + '"].dimension_text_width').attr('max'));
+            var heightMax = parseInt($('input[data-field="' + idfield + '"].dimension_text_height').attr('max'));
+            var depthMax = parseInt($('input[data-field="' + idfield + '"].dimension_text_depth').attr('max'));
+            var width = parseInt($('input[data-field="' + idfield + '"].dimension_text_width').val()) || widthMin;
+            var height = parseInt($('input[data-field="' + idfield + '"].dimension_text_height').val()) || heightMin;
+            var depth = parseInt($('input[data-field="' + idfield + '"].dimension_text_depth').val()) || depthMin;
+
+            toggleSize(width, widthMin, widthMax, height, heightMin, heightMax, depth, depthMin, depthMax);
+        });
+
+
     } else {
-        console.log("Div #3dshow já existe!");
-        console.log("ANTES:", $(".3dshow").length);
         $(".3dshow").remove();
-        console.log("DEPOIS:", $(".3dshow").length);
         $('.img-value.is_visual.treed').off('click');
+        $('.cpa_dimension_text').off('change');
     }
 
 }
@@ -221,16 +251,21 @@ function getCustomerPricedimensions(element) {
 
     var field = $(element).attr('data-field');
 
-    var minWidth = parseInt($('input[data-field="' + field + '"].dimension_text_width').attr('min'));
-    var maxWidth = parseInt($('input[data-field="' + field + '"].dimension_text_width').attr('max'));
-    var minHeight = parseInt($('input[data-field="' + field + '"].dimension_text_height').attr('min'));
-    var maxHeight = parseInt($('input[data-field="' + field + '"].dimension_text_height').attr('max'));
-    var minDepth = parseInt($('input[data-field="' + field + '"].dimension_text_depth').attr('min'));
-    var maxDepth = parseInt($('input[data-field="' + field + '"].dimension_text_depth').attr('max'));
+    var minWidth = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_width').attr('min'));
+    var maxWidth = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_width').attr('max'));
+    var minHeight = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_height').attr('min'));
+    var maxHeight = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_height').attr('max'));
+    var minDepth = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_depth').attr('min'));
+    var maxDepth = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_depth').attr('max'));
 
-    var valWidth = parseInt($('input[data-field="' + field + '"].dimension_text_width').val()) || 0;
-    var valHeight = parseInt($('input[data-field="' + field + '"].dimension_text_height').val()) || 0;
-    var valDepth = parseInt($('input[data-field="' + field + '"].dimension_text_depth').val()) || 0;
+    var valWidth = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_width').val()) || 0;
+    var valHeight = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_height').val()) || 0;
+    var valDepth = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_depth').val()) || 0;
+
+    console.log('Width: ' + valWidth + ' Height: ' + valHeight + ' Depth: ' + valDepth);
+    console.log('Width Min: ' + minWidth + ' Width Max: ' + maxWidth);
+    console.log('Height Min: ' + minHeight + ' Height Max: ' + maxHeight);
+    console.log('Depth Min: ' + minDepth + ' Depth Max: ' + maxDepth);
 
     if (valWidth >= minWidth && valWidth <= maxWidth && valHeight >= minHeight && valHeight <= maxHeight && valDepth >= minDepth && valDepth <= maxDepth) {
         var datadimensions = {

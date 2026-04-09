@@ -37,7 +37,7 @@
 						{/if} />
 					<label
 						class="clear clearfix dimension_text_{$value.coor}_{$value.id_cpa_customization_field_value}">{$value.name}</label>
-					<input id="dimension_text_{$value.coor}_{$id_cpa_customization_field}"
+					<select id="dimension_text_{$value.coor}_{$id_cpa_customization_field}"
 						placeholder="{$value.name}" name="cpafield_{$value.id_cpa_customization_field_value}" 
 						type="number"
 						data-typefield="{$type_id}"
@@ -45,7 +45,11 @@
 						 dimension_text_{$value.id_cpa_customization_field_value} "
 						data-id-value="{$value.id_cpa_customization_field_value}" 
 						data-field="{$id_cpa_customization_field}"
-						min="{$value.min_dimensions}" max="{$value.max_dimensions}" size="8" />
+						min="{$value.min_dimensions}" max="{$value.max_dimensions}" >
+						{foreach from=$value.select item=valueselect}
+						 	<option value="{$valueselect.value}">{$valueselect.name}</option>
+						 {/foreach}
+						</select>
 						<span id="error-dimension-{$value.id_cpa_customization_field_value}" style="display: none;" class="error-dimension">{l s='Medida fora dos valores premitidos' mod='cpacustomizadorprodutosaluclass'}</span>
 				</div>
 

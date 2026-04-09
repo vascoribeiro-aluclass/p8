@@ -3,7 +3,7 @@ if (!defined('_PS_VERSION_')) {
   exit;
 }
 
-require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaCsvImporter.php';
+
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaFields.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaProcessFields.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaProcessProduct.php';
@@ -11,10 +11,13 @@ require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeS
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeSelectorRadio.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeAccessQty.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeDimensions.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeDimensionsSelect.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeAccessWithoutQty.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaTypeText.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCf.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaCfv.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaCsvImporter.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaCsvSelImporter.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaProduct.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/install.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/uninstall.php';
@@ -288,6 +291,13 @@ class CpaCustomizadorProdutosAluclass extends Module
             break;
           case "cpatypedimensions":
             $fieldObj = new CpaTypeDimensions($field, $id_product);
+
+            $this->context->smarty->assign($fieldObj->getAssign());
+            $htmlFields .= $this->display(__FILE__, $fieldObj->getTemplate());
+
+            break;
+          case "cpatypedimensionsselection":
+            $fieldObj = new CpaTypeDimensionsSelect($field, $id_product);
 
             $this->context->smarty->assign($fieldObj->getAssign());
             $htmlFields .= $this->display(__FILE__, $fieldObj->getTemplate());

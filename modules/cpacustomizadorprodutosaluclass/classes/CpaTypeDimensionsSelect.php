@@ -1,5 +1,5 @@
 <?php
-class CpaTypeDimensions extends CpaFields
+class CpaTypeDimensionsSelect extends CpaFields
 {
 
     protected $notice;
@@ -20,6 +20,9 @@ class CpaTypeDimensions extends CpaFields
         $fieldValues[0]["coor"] = 'height';
         $fieldValues[1]["coor"] = 'width';
         $fieldValues[2]["coor"] = 'depth';
+        $fieldValues[0]["select"] = $this->getDimensionSelect('height');
+        $fieldValues[1]["select"] = $this->getDimensionSelect('width');
+        $fieldValues[2]["select"] = $this->getDimensionSelect('depth');
 
         $arraydimensions = $this->getDimension();
         if (count($arraydimensions) > 0) {
@@ -52,7 +55,7 @@ class CpaTypeDimensions extends CpaFields
 
     public function getTemplate(): string
     {
-        return 'views/hook/fields/type_dimension_text.tpl';
+        return 'views/hook/fields/type_dimension_select.tpl';
     }
 
     private function getDimension()
@@ -66,6 +69,17 @@ class CpaTypeDimensions extends CpaFields
                                 MAX(`depth`) AS max_depth
                             FROM ' . _DB_PREFIX_ . 'cpa_customization_field_csv 
                             where id_cpa_customization_field = ' . $this->id_cpa_customization_field;
+
+
+        $result = Db::getInstance()->executeS($sqldimensions);
+        return $result ?: [];
+    }
+
+    private function getDimensionSelect($size)
+    {
+        $sqldimensions = "SELECT name,value
+                          FROM " . _DB_PREFIX_ . "cpa_customization_field_csv_selection_lang
+                          WHERE type = '" . $size . "' and id_lang = " . (int)Context::getContext()->language->id . " and id_cpa_customization_field = " . $this->id_cpa_customization_field;
 
 
         $result = Db::getInstance()->executeS($sqldimensions);

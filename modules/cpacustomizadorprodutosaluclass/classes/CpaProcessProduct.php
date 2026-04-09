@@ -16,24 +16,27 @@ class CpaProcessProduct
     private $addPrice = 0;
     private $description = '';
     private $product;
+    private $context;
+    private $arrayimg = [];
 
     public function __construct($id_product, $datacustom)
     {
-        $context = Context::getContext();
+        $this->context = Context::getContext();
 
         $this->id_product = $id_product;
         $this->datacustom = $datacustom;
-        $this->id_lang    = (int)$context->language->id;
-        $this->id_shop    = (int)$context->shop->id;
-        $this->cart       = $context->cart;
+        $this->id_lang    = (int)$this->context->language->id;
+        $this->id_shop    = (int)$this->context->shop->id;
+        $this->cart       = $this->context->cart;
+        $this->arrayimg   = [];
 
         if (!$this->cart->id) {
             $this->cart->id_shop =  (int)$this->id_shop;
             $this->cart->id_lang = (int)$this->id_lang;
-            $this->cart->id_currency = (int)$context->currency->id;
-            $this->cart->id_customer = (int)$context->customer->id;
+            $this->cart->id_currency = (int)$this->context->currency->id;
+            $this->cart->id_customer = (int)$this->context->customer->id;
             $this->cart->add();
-            $context->cookie->id_cart = (int)$this->cart->id;
+            //$context->cookie->id_cart = (int)$this->cart->id;
             $this->id_cart    = (int)$this->cart->id;
         } else {
             $this->id_cart    = (int)$this->cart->id;
@@ -50,6 +53,11 @@ class CpaProcessProduct
         $arrayFieldsTemp = [];
         $cpaCustomValue  = [];
 
+        $cover = Image::getCover($this->id_product);
+        $idImageSource = (int)$cover['id_image'];
+        $imageSource = new Image($idImageSource);
+        $sourceImgProduct = _PS_PROD_IMG_DIR_ . $imageSource->getExistingImgPath() . '.jpg';
+        $this->arrayimg[] = $sourceImgProduct;
         // Valida os campos e prepara para ser processados
         foreach ($this->datacustom as $custom) {
             $arrayCustom = explode('_', $custom);
@@ -62,12 +70,12 @@ class CpaProcessProduct
             $id_field_value = $arrayCustom[2];
             $field_qty      = $arrayCustom[3];
 
-            if ($id_type == 1) {
+            if ($id_type == 1 || $id_type == 7) {
                 if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 0) {
                     return false;
                 }
             } else if ($id_type == 4) {
-                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 ) {
+                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1) {
                     return false;
                 }
             } else {
@@ -76,10 +84,22 @@ class CpaProcessProduct
                 }
             }
 
+
             $resultInfField = $this->getInfField($id_type, $id_field, $id_field_value);
 
             if (!$resultInfField) {
                 return false;
+            }
+
+
+            if ($resultInfField[0]['is_visual'] == 1) {
+                $resultimg = $this->getImg($resultInfField[0]['id_field_value']);
+                if ($resultimg) {
+                    foreach ($resultimg as $img) {
+                        $imagem = _PS_ROOT_DIR_ . '/img/scenes/' . $img['type'] . $resultInfField[0]['id_field_value'] . '.' . $img['ext'];
+                        $this->arrayimg[] = $imagem;
+                    }
+                }
             }
 
             $arrayFieldsTemp[$resultInfField[0]['id_field']][] = [
@@ -102,6 +122,7 @@ class CpaProcessProduct
             $fieldvaluename = '';
             switch ($valuefieldstemp[0]['id_type']) {
                 case 1:
+
                     if (count($valuefieldstemp) == 3) {
                         foreach ($valuefieldstemp as $fieldstemp) {
                             if ($fieldstemp['field_qty'] > 0) {
@@ -110,6 +131,28 @@ class CpaProcessProduct
                         }
 
                         $fieldvaluename = substr($fieldvaluename, 0, -2) . 'mm';
+                        $fieldname = $fieldstemp['fieldname'];
+
+                        $price = $this->getPriceDimensions($valuefieldstemp[0]['field_qty'], $valuefieldstemp[1]['field_qty'], $valuefieldstemp[2]['field_qty']);
+                    } else {
+                        break;
+                    }
+
+                    break;
+
+
+                case 7:
+
+                    if (count($valuefieldstemp) == 3) {
+                        $countfield =0;
+                        foreach ($valuefieldstemp as  $fieldstemp) {
+                             $countfield ++;
+                            if ($fieldstemp['field_qty'] > 0) {
+                                $fieldvaluename = $fieldvaluename .   $this->getSelectDimensions($fieldstemp['field_qty'], $key, ($countfield == 1 ? 'height': ($countfield == 2 ? 'width':'depth') ) ). " x ";
+                            }
+                        }
+
+                        $fieldvaluename = substr($fieldvaluename, 0, -2);
                         $fieldname = $fieldstemp['fieldname'];
 
                         $price = $this->getPriceDimensions($valuefieldstemp[0]['field_qty'], $valuefieldstemp[1]['field_qty'], $valuefieldstemp[2]['field_qty']);
@@ -211,6 +254,7 @@ class CpaProcessProduct
         return $arraynewproduct;
     }
 
+
     private function getInfluencesPercentage($id_cpa_customization_field, $price, $arrayFields)
     {
         $priceAdd = 0;
@@ -231,10 +275,25 @@ class CpaProcessProduct
         return $priceAdd + $price;
     }
 
-    private function getPriceDimensions($width, $height, $depth): float
+    private function getSelectDimensions($value, $id_cpa_customization_field, $type)
     {
+
+        return  Db::getInstance()->getValue("SELECT name
+                        FROM " . _DB_PREFIX_ . "cpa_customization_field_csv_selection_lang
+        
+                        WHERE 
+                            value  = " . (int)$value . " AND
+                            id_cpa_customization_field = " . (int)$id_cpa_customization_field . " AND
+                            type  = '" . $type . "' AND
+                            id_lang = " . (int)$this->id_lang . "
+                        ");
+    }
+
+    private function getPriceDimensions($height, $width, $depth): float
+    {
+
         return  Db::getInstance()->getValue("SELECT price
-                        FROM palu.ps_cpa_customization_field_csv
+                        FROM " . _DB_PREFIX_ . "cpa_customization_field_csv
                         WHERE 
                             width  >= " . (int)$width . " AND
                             height >= " . (int)$height . " AND
@@ -250,105 +309,99 @@ class CpaProcessProduct
 
     private function getIVAPrice($price)
     {
-        $tax_rate = Tax::getProductTaxRate($this->id_product, null, Context::getContext());
+        $tax_rate = Tax::getProductTaxRate($this->id_product, null, $this->context);
         $price_with_iva = $price + ($price * $tax_rate / 100);
 
         return $price_with_iva;
     }
-    // private function createImage($imagens)
-    // {
-    //     // $imagens = [
-    //     //     'img1.png',
-    //     //     'img2.png',
-    //     //     'img3.png',
-    //     //     'img4.png'
-    //     // ];
 
-    //     // primeira imagem será a base
-    //     $base = imagecreatefrompng($imagens[0]);
 
-    //     $width = imagesx($base);
-    //     $height = imagesy($base);
-
-    //     // sobrepor as restantes
-    //     for ($i = 1; $i < count($imagens); $i++) {
-    //         $overlay = imagecreatefrompng($imagens[$i]);
-    //         imagecopy($base, $overlay, 0, 0, 0, 0, $width, $height);
-    //         imagedestroy($overlay);
-    //     }
-
-    //     // guardar resultado
-    //     imagepng($base, 'resultado.png');
-    //     imagedestroy($base);
-    // }
-    // private function addImage()
-    // {
-    //     $imagePath = '/caminho/para/imagem.jpg';
-    //     $image = new Image();
-    //     $image->id_product = (int)$this->new_id_product;
-    //     $image->position = Image::getHighestPosition($this->new_id_product) + 1;
-    //     $image->cover = true; // se for a imagem principal
-    //     $image->add();
-
-    //     $path = $image->getPathForCreation();
-
-    //     ImageManager::resize(
-    //         $imagePath,
-    //         _PS_PROD_IMG_DIR_ . $path . '.jpg'
-    //     );
-
-    //     // gerar thumbnails
-    //     $imagesTypes = ImageType::getImagesTypes('products');
-    //     foreach ($imagesTypes as $imageType) {
-    //         ImageManager::resize(
-    //             $imagePath,
-    //             _PS_PROD_IMG_DIR_ . $path . '-' . stripslashes($imageType['name']) . '.jpg',
-    //             $imageType['width'],
-    //             $imageType['height']
-    //         );
-    //     }
-    // }
-    // codigo provisório ***************************************************
-    private function addImage()
+    private function createImage($img)
     {
-        $id_product_source = $this->id_product;
-        $id_product_dest = $this->new_id_product;
+        $fileType = exif_imagetype($img);
 
-        $cover = Image::getCover($id_product_source);
-        if ($cover) {
-            $idImageSource = (int)$cover['id_image'];
-            $imageSource = new Image($idImageSource);
-            $sourceFile = _PS_PROD_IMG_DIR_ . $imageSource->getExistingImgPath() . '.jpg';
+        switch ($fileType) {
+            case 2:
+                $sourceImage = imagecreatefromjpeg($img);
+                break;
+            case 3:
+                $sourceImage = imagecreatefrompng($img);
+                break;
+            case 18:
+                $sourceImage = imagecreatefromwebp($img);
+                break;
+            default:
+                return false;
+        }
 
-            if (file_exists($sourceFile)) {
+        return $sourceImage;
+    }
 
-                $newImage = new Image();
-                $newImage->id_product = (int)$id_product_dest;
-                $newImage->position = Image::getHighestPosition($id_product_dest) + 1;
-                $newImage->cover = true; // Define como capa
+    private function joinImage()
+    {
+        $path = _PS_ROOT_DIR_ . '/img/scenes/cpa/';
 
-                if ($newImage->add()) {
-                    $targetPath = $newImage->getPathForCreation();
-                    ImageManager::resize($sourceFile, $targetPath . '.jpg');
+        $mainImg = imagecreatetruecolor(400, 400);
+        $white = imagecolorallocate($mainImg, 255, 255, 255);
+        imagefill($mainImg, 0, 0, $white);
 
-                    $types = ImageType::getImagesTypes('products');
-                    foreach ($types as $type) {
-                        $destination = $targetPath . '-' . stripslashes($type['name']) . '.jpg';
+        foreach ($this->arrayimg as $img) {
 
-                        ImageManager::resize(
-                            $sourceFile,
-                            $destination,
-                            (int)$type['width'],
-                            (int)$type['height']
-                        );
-                    }
-                    $newImage->legend = $imageSource->legend;
-                    $newImage->update();
-                }
+            $sourceImage = $this->createImage($img);
+            if ($sourceImage) {
+                $secImgX = imagesx($sourceImage);
+                $secImgY = imagesy($sourceImage);
+                imagecopyresized($mainImg, $sourceImage, 0, 0, 0, 0, 400, 400, $secImgX, $secImgY);
             }
         }
+        $filemainImg = $path . $this->new_id_product . '.jpg';
+
+        imagejpeg($mainImg, $filemainImg);
+
+        $mainImg = null;
+        $sourceImage = null;
+        return $filemainImg;
     }
-    // FIm codigo provisório ***************************************************
+
+    private function addImage()
+    {
+        $filemainImg = $this->joinImage();
+        $newImage = new Image();
+        $newImage->id_product = (int)$this->new_id_product;
+        $newImage->position = Image::getHighestPosition($this->new_id_product) + 1;
+        $newImage->cover = true;
+
+        if ($newImage->add()) {
+            $targetPath = $newImage->getPathForCreation();
+            ImageManager::resize($filemainImg, $targetPath . '.jpg');
+
+            $types = ImageType::getImagesTypes('products');
+            foreach ($types as $type) {
+                $destination = $targetPath . '-' . stripslashes($type['name']) . '.jpg';
+
+                ImageManager::resize(
+                    $filemainImg,
+                    $destination,
+                    (int)$type['width'],
+                    (int)$type['height']
+                );
+            }
+            $newImage->legend =  ' CPA Customization Image ';
+            $newImage->update();
+            unlink($filemainImg);
+        }
+    }
+
+    private function getImg($id_field_value, $type = 'cpa/img/')
+    {
+        $sqlimg = "SELECT 
+                        fvi.ext,
+                        fvi.type
+                    FROM " . _DB_PREFIX_ . "cpa_customization_field_value_img fvi
+                    WHERE fvi.id_cpa_customization_field_value = " . (int)$id_field_value . " and fvi.ext != 'webp' and fvi.type = '" . $type . "'";
+
+        return Db::getInstance()->executeS($sqlimg);
+    }
 
     private function getInfField($id_type, $id_field, $id_field_value)
     {
@@ -358,7 +411,9 @@ class CpaProcessProduct
                         cf.price_type as price_type, 
                         cfl.name as fieldname, 
                         cfvl.name as fieldvaluename, 
-                        cfv.price
+                        cfv.price,
+                        cf.is_visual,
+                        cfv.id_cpa_customization_field_value as id_field_value
                     FROM ' . _DB_PREFIX_ . 'cpa_customization_field cf
                     INNER JOIN ' . _DB_PREFIX_ . 'cpa_customization_field_lang cfl on cfl.id_cpa_customization_field = cf.id_cpa_customization_field and cfl.id_lang = ' . (int)$this->id_lang . '
                     INNER JOIN ' . _DB_PREFIX_ . 'cpa_customization_field_shop cfs on cfs.id_cpa_customization_field = cf.id_cpa_customization_field and cfs.id_shop = ' . (int)$this->id_shop . '
