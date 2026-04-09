@@ -180,6 +180,13 @@ $.fn.cpaSubmit = function (event) {
                     return false;
                 }
                 break;
+            case '7':
+                if ($(this).find('.select-value').length < 3) {
+                    ShowCPAFieldError($(this).attr('data-field'), "Error");
+                    hasError = true;
+                    return false;
+                }
+                break;
         }
 
     });

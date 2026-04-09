@@ -503,7 +503,7 @@ class AdminCpaCustomizationController extends ModuleAdminController
                     'name' => 'required',
                     'is_bool' => true,
                     'desc' => $this->trans('Se o campo é obrigatório', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                    'form_group_class' => 'visivel-1 visivel-2 visivel-3',
+                    'form_group_class' => 'visivel-1 visivel-2 visivel-3 visivel-7',
                     'values' => [
                         [
                             'id' => 'required_on',

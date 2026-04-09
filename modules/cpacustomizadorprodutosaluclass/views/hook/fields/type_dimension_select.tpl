@@ -46,6 +46,7 @@
 						data-id-value="{$value.id_cpa_customization_field_value}" 
 						data-field="{$id_cpa_customization_field}"
 						min="{$value.min_dimensions}" max="{$value.max_dimensions}" >
+						<option value="0">--</option>
 						{foreach from=$value.select item=valueselect}
 						 	<option value="{$valueselect.value}">{$valueselect.name}</option>
 						 {/foreach}

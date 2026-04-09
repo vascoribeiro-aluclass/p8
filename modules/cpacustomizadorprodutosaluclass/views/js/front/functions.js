@@ -97,15 +97,15 @@ function show3D() {
 
         $('.cpa_dimension_text').off('change').on('change', function () {
             var idfield = $(this).data('field');
-            var widthMin = parseInt($('input[data-field="' + idfield + '"].dimension_text_width').attr('min'));
-            var heightMin = parseInt($('input[data-field="' + idfield + '"].dimension_text_height').attr('min'));
-            var depthMin = parseInt($('input[data-field="' + idfield + '"].dimension_text_depth').attr('min'));
-            var widthMax = parseInt($('input[data-field="' + idfield + '"].dimension_text_width').attr('max'));
-            var heightMax = parseInt($('input[data-field="' + idfield + '"].dimension_text_height').attr('max'));
-            var depthMax = parseInt($('input[data-field="' + idfield + '"].dimension_text_depth').attr('max'));
-            var width = parseInt($('input[data-field="' + idfield + '"].dimension_text_width').val()) || widthMin;
-            var height = parseInt($('input[data-field="' + idfield + '"].dimension_text_height').val()) || heightMin;
-            var depth = parseInt($('input[data-field="' + idfield + '"].dimension_text_depth').val()) || depthMin;
+            var widthMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').attr('min'));
+            var heightMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').attr('min'));
+            var depthMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').attr('min'));
+            var widthMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').attr('max'));
+            var heightMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').attr('max'));
+            var depthMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').attr('max'));
+            var width = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').val()) || widthMin;
+            var height = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').val()) || heightMin;
+            var depth = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').val()) || depthMin;
 
             toggleSize(width, widthMin, widthMax, height, heightMin, heightMax, depth, depthMin, depthMax);
         });
@@ -261,11 +261,6 @@ function getCustomerPricedimensions(element) {
     var valWidth = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_width').val()) || 0;
     var valHeight = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_height').val()) || 0;
     var valDepth = parseInt($('.cpa_dimension_text[data-field="' + field + '"].dimension_text_depth').val()) || 0;
-
-    console.log('Width: ' + valWidth + ' Height: ' + valHeight + ' Depth: ' + valDepth);
-    console.log('Width Min: ' + minWidth + ' Width Max: ' + maxWidth);
-    console.log('Height Min: ' + minHeight + ' Height Max: ' + maxHeight);
-    console.log('Depth Min: ' + minDepth + ' Depth Max: ' + maxDepth);
 
     if (valWidth >= minWidth && valWidth <= maxWidth && valHeight >= minHeight && valHeight <= maxHeight && valDepth >= minDepth && valDepth <= maxDepth) {
         var datadimensions = {

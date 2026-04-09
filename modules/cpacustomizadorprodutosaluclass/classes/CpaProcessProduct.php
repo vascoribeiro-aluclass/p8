@@ -36,20 +36,23 @@ class CpaProcessProduct
             $this->cart->id_currency = (int)$this->context->currency->id;
             $this->cart->id_customer = (int)$this->context->customer->id;
             $this->cart->add();
-            //$context->cookie->id_cart = (int)$this->cart->id;
-            $this->id_cart    = (int)$this->cart->id;
+
+            $this->context->cookie->id_cart = (int)$this->cart->id;
+            $this->context->cookie->write();
+
+            $this->id_cart = (int)$this->cart->id;
         } else {
             $this->id_cart    = (int)$this->cart->id;
         }
 
-        $this->languages  = Language::getLanguages(true, $this->id_shop);
+        $this->languages = Language::getLanguages(true);
         $this->product = new Product($this->id_product, false, $this->id_lang, $this->id_shop);
     }
 
 
     public function init()
     {
-        $arrayFields = [];
+        $arrayFields     = [];
         $arrayFieldsTemp = [];
         $cpaCustomValue  = [];
 
@@ -58,6 +61,7 @@ class CpaProcessProduct
         $imageSource = new Image($idImageSource);
         $sourceImgProduct = _PS_PROD_IMG_DIR_ . $imageSource->getExistingImgPath() . '.jpg';
         $this->arrayimg[] = $sourceImgProduct;
+
         // Valida os campos e prepara para ser processados
         foreach ($this->datacustom as $custom) {
             $arrayCustom = explode('_', $custom);
@@ -84,13 +88,11 @@ class CpaProcessProduct
                 }
             }
 
-
             $resultInfField = $this->getInfField($id_type, $id_field, $id_field_value);
 
             if (!$resultInfField) {
                 return false;
             }
-
 
             if ($resultInfField[0]['is_visual'] == 1) {
                 $resultimg = $this->getImg($resultInfField[0]['id_field_value']);
@@ -122,7 +124,6 @@ class CpaProcessProduct
             $fieldvaluename = '';
             switch ($valuefieldstemp[0]['id_type']) {
                 case 1:
-
                     if (count($valuefieldstemp) == 3) {
                         foreach ($valuefieldstemp as $fieldstemp) {
                             if ($fieldstemp['field_qty'] > 0) {
@@ -137,18 +138,14 @@ class CpaProcessProduct
                     } else {
                         break;
                     }
-
                     break;
-
-
                 case 7:
-
                     if (count($valuefieldstemp) == 3) {
-                        $countfield =0;
+                        $countfield = 0;
                         foreach ($valuefieldstemp as  $fieldstemp) {
-                             $countfield ++;
+                            $countfield++;
                             if ($fieldstemp['field_qty'] > 0) {
-                                $fieldvaluename = $fieldvaluename .   $this->getSelectDimensions($fieldstemp['field_qty'], $key, ($countfield == 1 ? 'height': ($countfield == 2 ? 'width':'depth') ) ). " x ";
+                                $fieldvaluename = $fieldvaluename .   $this->getSelectDimensions($fieldstemp['field_qty'], $key, ($countfield == 1 ? 'height' : ($countfield == 2 ? 'width' : 'depth'))) . " x ";
                             }
                         }
 
@@ -291,7 +288,6 @@ class CpaProcessProduct
 
     private function getPriceDimensions($height, $width, $depth): float
     {
-
         return  Db::getInstance()->getValue("SELECT price
                         FROM " . _DB_PREFIX_ . "cpa_customization_field_csv
                         WHERE 
@@ -302,8 +298,7 @@ class CpaProcessProduct
                             POW(width - " . (int)$width . ",2) +
                             POW(height - " . (int)$height . ",2) +
                             POW(depth - " . (int)$depth . ",2)
-                        ASC
-                        ");
+                        ASC");
     }
 
 
