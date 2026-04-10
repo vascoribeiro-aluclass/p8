@@ -155,10 +155,11 @@ class CpaCustomizadorProdutosAluclass extends Module
         'modulePath' => $this->_path,
       ]);
 
+
       if ($resultScript && $resultScript['filescript']) {
         $this->context->controller->registerJavascript(
           'module-cpa-scriptproduct-js',
-          $resultScript['filescript'],
+           'modules/' . $this->name . '/views/js/front/product/' . $resultScript['filescript'],
           [
             'position' => 'bottom',
             'priority' => 851,

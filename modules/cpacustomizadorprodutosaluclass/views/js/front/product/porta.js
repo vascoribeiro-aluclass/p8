@@ -1,1 +1,1 @@
-console.log("porta.js carregado");
+console.log("porta.js carregado fffffffffffffffffffffffffffff");

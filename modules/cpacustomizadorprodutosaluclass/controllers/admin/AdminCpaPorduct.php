@@ -169,7 +169,11 @@ class AdminCpaPorductController extends ModuleAdminController
         $arrayfilethreed = [];
 
         $arrayfile = $this->Getfiles(_PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/views/js/front/product', 'filescript');
+                $empty_refp = array('filescript' => '', 'name' => '--');
+        array_push($arrayfile, $empty_refp);
         $arrayfilethreed = $this->Getfiles(_PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/views/js/front/3d/product', 'filethreed');
+        $empty_refp = array('filethreed' => '', 'name' => '--');
+        array_push($arrayfilethreed, $empty_refp);
 
         $products_array = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS('
         SELECT p.id_product, CONCAT ( \'#\', p.id_product, \' - \',  pl.name, \' (ref:\', p.reference, \')\') AS product_name
@@ -181,13 +185,13 @@ class AdminCpaPorductController extends ModuleAdminController
         $empty_refp = array('id_product' => 0, 'product_name' => '--');
         array_push($products_array, $empty_refp);
 
-        $type_array = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS('
-                            SELECT ct.`id_cpa_customization_field_type`, ct.`name`
-                            FROM `' . _DB_PREFIX_ . 'cpa_customization_field_type` ct
-                            ORDER BY ct.`id_cpa_customization_field_type`');
+        // $type_array = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS('
+        //                     SELECT ct.`id_cpa_customization_field_type`, ct.`name`
+        //                     FROM `' . _DB_PREFIX_ . 'cpa_customization_field_type` ct
+        //                     ORDER BY ct.`id_cpa_customization_field_type`');
 
-        $empty_refc = ['id_cpa_customization_field_type' => 0, 'name' => '--'];
-        array_push($type_array, $empty_refc);
+        // $empty_refc = ['id_cpa_customization_field_type' => 0, 'name' => '--'];
+        // array_push($type_array, $empty_refc);
 
 
         $fields_form = [
