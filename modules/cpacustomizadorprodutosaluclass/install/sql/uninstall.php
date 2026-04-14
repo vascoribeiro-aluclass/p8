@@ -25,7 +25,7 @@ class uninstallCPASQL
 
 		// tabelas de produtos presonalizados
 		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_field_configuration`";
-		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_field_configuration_lang`";
+		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_field_configuration_value`";
 		// tabela medidas
 		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_field_csv`";
 		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_field_csv_selection_lang`";

@@ -18,13 +18,17 @@ class CpaProcessProduct
     private $product;
     private $context;
     private $arrayimg = [];
+    private $tokencpa = false;
+    private $iseditcpa = false;
+    private $idproducteditcpa = false;
 
-    public function __construct($id_product, $datacustom)
+    public function __construct($id_product, $datacustom, $tokencpa)
     {
         $this->context = Context::getContext();
 
         $this->id_product = $id_product;
         $this->datacustom = $datacustom;
+        $this->tokencpa  = $tokencpa;
         $this->id_lang    = (int)$this->context->language->id;
         $this->id_shop    = (int)$this->context->shop->id;
         $this->cart       = $this->context->cart;
@@ -55,6 +59,24 @@ class CpaProcessProduct
         $arrayFields     = [];
         $arrayFieldsTemp = [];
         $cpaCustomValue  = [];
+
+        if ($this->tokencpa) {
+
+            $sql = "SELECT cfc.id_product_customization
+            FROM `" . _DB_PREFIX_ . "cpa_customization_field_configuration` cfc
+            WHERE cfc.`token`  = '" . pSQL($this->tokencpa) . "' and cfc.id_product_main = " . $this->id_product . " and cfc.id_lang_default = " . $this->id_lang . " and cfc.id_shop_default = " . $this->id_shop;
+
+            $editResult = Db::getInstance()->getValue($sql);
+
+            if ($editResult) {
+                $this->iseditcpa = true;
+                $this->idproducteditcpa = $editResult;
+            } else {
+                $this->tokencpa = false;
+            }
+        }
+
+
 
         $cover = Image::getCover($this->id_product);
         $idImageSource = (int)$cover['id_image'];
@@ -206,7 +228,13 @@ class CpaProcessProduct
         }
 
         // Cria o produto
-        $this->new_id_product = $this->createProduct();
+        if ($this->iseditcpa) {
+            $this->new_id_product = $this->idproducteditcpa;
+            $this->resetCustomization();
+        } else {
+            $this->new_id_product = $this->createProduct();
+        }
+
 
         if (!$this->new_id_product) {
             return false;
@@ -244,6 +272,8 @@ class CpaProcessProduct
         // Criar imagem custimizada
         $this->addImage();
 
+        $this->newCustomizationField();
+
         $arraynewproduct = [];
         $arraynewproduct['new_id_product'] = $this->new_id_product;
         $arraynewproduct['new_id_customization'] =  $this->new_id_customization;
@@ -251,6 +281,90 @@ class CpaProcessProduct
         return $arraynewproduct;
     }
 
+    private function resetCustomization()
+    {
+
+        $images = Image::getImages($this->id_lang, $this->new_id_product);
+
+        foreach ($images as $img) {
+            $image = new Image($img['id_image']);
+            $image->delete();
+        }
+
+        $resultCPAcustomizationfieldconfiguration = Db::getInstance()->executeS(
+            'SELECT `cpa_customization_field_configuration_id`
+                    FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration
+                    WHERE id_product_customization = ' . (int)$this->new_id_product
+        );
+
+        foreach ($resultCPAcustomizationfieldconfiguration as $idcustomizationfieldconfiguration) {
+            Db::getInstance()->execute(
+                'DELETE
+                        FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration
+                        WHERE cpa_customization_field_configuration_id = ' . (int)$idcustomizationfieldconfiguration['cpa_customization_field_configuration_id']
+            );
+
+            Db::getInstance()->execute(
+                'DELETE
+                        FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration_value
+                        WHERE id_cpa_customization_field_configuration = ' . (int)$idcustomizationfieldconfiguration['cpa_customization_field_configuration_id']
+            );
+        }
+
+        $resultcustomizationfield = Db::getInstance()->executeS(
+            'SELECT `id_customization_field`
+                    FROM ' . _DB_PREFIX_ . 'customization_field
+                    WHERE id_product = ' . (int)$this->new_id_product
+        );
+
+        foreach ($resultcustomizationfield as $idcustomizationfield) {
+            Db::getInstance()->execute(
+                'DELETE
+                        FROM ' . _DB_PREFIX_ . 'customization_field
+                        WHERE id_customization_field = ' . (int)$idcustomizationfield['id_customization_field']
+            );
+
+            Db::getInstance()->execute(
+                'DELETE
+                        FROM ' . _DB_PREFIX_ . 'customization_field_lang
+                        WHERE id_customization_field = ' . (int)$idcustomizationfield['id_customization_field']
+            );
+        }
+
+        $resultcustomizationdata = Db::getInstance()->executeS(
+            'SELECT `id_customization`
+                    FROM ' . _DB_PREFIX_ . 'customization
+                    WHERE id_product = ' . (int)$this->new_id_product .' and   id_cart = ' . (int)$this->id_cart . ' and in_cart = 1'
+        );
+
+        foreach ($resultcustomizationdata as $idcustomizationdata) {
+
+            Db::getInstance()->execute(
+                'DELETE
+                        FROM ' . _DB_PREFIX_ . 'customized_data
+                        WHERE id_customization = ' . (int)$idcustomizationdata['id_customization']
+            );
+        }
+
+    }
+
+    private function newCustomizationField()
+    {
+        $token = bin2hex(random_bytes(32));
+        Db::getInstance()->execute('
+            INSERT INTO `' . _DB_PREFIX_ . 'cpa_customization_field_configuration` (`id_lang_default`, `id_shop_default`, `id_product_customization`, `id_product_main`, `id_customization`,`token`)
+            VALUES (' . (int)$this->id_lang . ', ' . (int)$this->id_shop . ', ' . (int)$this->new_id_product . ', ' . (int)$this->id_product . ', ' . (int)$this->new_id_customization . ', "' . pSQL($token) . '")');
+        $id_customization_field_configuration = (int)Db::getInstance()->Insert_ID();
+
+        foreach ($this->datacustom as $custom) {
+            $arrayCustom = explode('_', $custom);
+            $id_field       = $arrayCustom[1];
+            $id_field_value = $arrayCustom[2];
+            Db::getInstance()->execute("
+            INSERT INTO `" . _DB_PREFIX_ . "cpa_customization_field_configuration_value` (`id_cpa_customization_field_configuration`, `id_cpa_customization_field`, `value`, `id_cpa_customization_field_value`)
+            VALUES (" . (int)$id_customization_field_configuration . ", " . (int)$id_field . ", '" . pSQL($custom) . "', " . (int)$id_field_value . ")");
+        }
+    }
 
     private function getInfluencesPercentage($id_cpa_customization_field, $price, $arrayFields)
     {
@@ -425,7 +539,7 @@ class CpaProcessProduct
     private function updatePriceProduct()
     {
         $product = new Product($this->new_id_product, false, $this->id_lang, $this->id_shop);
-        $product->price = $product->price + $this->addPrice;
+        $product->price = $this->product->price + $this->addPrice;
         return $product->update();
     }
 
@@ -455,7 +569,6 @@ class CpaProcessProduct
                 $customProd->description_short[$lang['id_lang']] = '';
                 $customProd->description[$lang['id_lang']] = '';
             }
-
 
             $customProd->reference = Tools::str2url('custom-' . $this->product->id);
 
@@ -510,7 +623,6 @@ class CpaProcessProduct
             return false;
         }
 
-
         // Multilingual label name creation
         $values = '';
 
@@ -546,33 +658,17 @@ class CpaProcessProduct
     private function _addCustomization($id_product, $id_product_attribute, $index, $type, $field, $quantity)
     {
 
-        $exising_customization = Db::getInstance()->executeS(
+        $exising_customization = Db::getInstance()->getValue(
             '
-            SELECT cu.`id_customization`, cd.`index`, cd.`value`, cd.`type` FROM `' . _DB_PREFIX_ . 'customization` cu
-            LEFT JOIN `' . _DB_PREFIX_ . 'customized_data` cd
-            ON cu.`id_customization` = cd.`id_customization`
+            SELECT `id_customization`
+            FROM `' . _DB_PREFIX_ . 'customization` cu
             WHERE cu.id_cart = ' . (int)$this->id_cart . '
             AND cu.id_product = ' . (int)$id_product . '
-            AND in_cart = 0'
+            AND cu.in_cart = 1'
         );
 
         if ($exising_customization) {
-            // If the customization field is alreay filled, delete it
-            foreach ($exising_customization as $customization) {
-                if ($customization['type'] == $type && $customization['index'] == $index) {
-                    Db::getInstance()->execute('
-                     DELETE FROM `' . _DB_PREFIX_ . 'customized_data`
-                     WHERE id_customization = ' . (int)$customization['id_customization'] . '
-                     AND type = ' . (int)$customization['type'] . '
-                     AND `index` = ' . (int)$customization['index']);
-                    if ($type == Product::CUSTOMIZE_FILE) {
-                        @unlink(_PS_UPLOAD_DIR_ . $customization['value']);
-                        @unlink(_PS_UPLOAD_DIR_ . $customization['value'] . '_small');
-                    }
-                    break;
-                }
-            }
-            $id_customization = $exising_customization[0]['id_customization'];
+            $id_customization = $exising_customization;
         } else {
             Db::getInstance()->execute(
                 'INSERT INTO `' . _DB_PREFIX_ . 'customization` (`id_cart`, `id_product`, `id_product_attribute`, `quantity`)

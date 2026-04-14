@@ -1,4 +1,7 @@
 <?php
+
+use SebastianBergmann\Environment\Console;
+
 if (!defined('_PS_VERSION_')) {
   exit;
 }
@@ -21,6 +24,8 @@ require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaCsvSe
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaProduct.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/install.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/uninstall.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/TCPDF/tcpdf.php';
+
 class CpaCustomizadorProdutosAluclass extends Module
 {
 
@@ -62,6 +67,7 @@ class CpaCustomizadorProdutosAluclass extends Module
       && $this->registerHook('displayProductPriceBlock')
       && $this->registerHook('actionProductSave')
       && $this->registerHook('actionProductUpdate')
+      && $this->registerHook('displayCartExtraProductActions')
       && $this->installModuleTab('AdminCpaPorduct', array((int)$this->context->language->id => 'Produtos Customizados'), $id_tab)
       && $this->installModuleTab('AdminCpaCustomization', array((int)$this->context->language->id => 'Gerir Campos Customizados'), $id_tab)
       && $this->installModuleTab('AdminCpaCustomizationValue', array((int)$this->context->language->id => 'Gerir Valores Campos Customizados'), -1)
@@ -122,9 +128,33 @@ class CpaCustomizadorProdutosAluclass extends Module
     if (Tools::getValue('controller') == 'product') {
       $id_product = (int)Tools::getValue('id_product');
 
+      $actioncpa = Tools::getValue('actioncpa');
+      $cpacustomizationfield = false;
+      $tokencpa = false;
+
+      switch ($actioncpa) {
+        case 'edit':
+          $tokencpa = Tools::getValue('tokencpa');
+
+          $sql = "SELECT cfcv.value
+            FROM `" . _DB_PREFIX_ . "cpa_customization_field_configuration` cfc
+            INNER JOIN `" . _DB_PREFIX_ . "cpa_customization_field_configuration_value` cfcv ON  cfcv.`id_cpa_customization_field_configuration` = cfc.`cpa_customization_field_configuration_id`
+            WHERE cfc.`token`  = '" . pSQL($tokencpa)."' and cfc.id_product_main = ".$id_product." and cfc.id_lang_default = ".$this->context->language->id." and cfc.id_shop_default = ".$this->context->shop->id;
+
+          $tokenResult = Db::getInstance()->executeS($sql);
+
+          if($tokenResult){
+            $cpacustomizationfield = json_encode($tokenResult);
+          }
+          
+          break;
+      }
+
       Media::addJsDef(array(
         'url_ajax_cpacustomizadorprodutosaluclass' => $this->context->link->getModuleLink('cpacustomizadorprodutosaluclass', 'ajax'),
-        'text_progress' => $this->trans('Progressão.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+        'text_progress' => $this->trans('Progressão.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+        'cpacustomizationfield' => $cpacustomizationfield,
+        'tokencpa' =>  $tokencpa 
       ));
 
       $this->context->controller->registerStylesheet(
@@ -159,7 +189,7 @@ class CpaCustomizadorProdutosAluclass extends Module
       if ($resultScript && $resultScript['filescript']) {
         $this->context->controller->registerJavascript(
           'module-cpa-scriptproduct-js',
-           'modules/' . $this->name . '/views/js/front/product/' . $resultScript['filescript'],
+          'modules/' . $this->name . '/views/js/front/product/' . $resultScript['filescript'],
           [
             'position' => 'bottom',
             'priority' => 851,
@@ -233,6 +263,41 @@ class CpaCustomizadorProdutosAluclass extends Module
         return $this->display(__FILE__, 'views/hook/price.tpl');
       }
     }
+  }
+
+  public function hookDisplayCartExtraProductActions($params)
+  {
+
+    $product = $params['product'];
+
+    $id_product = is_array($product)
+      ? (int)$product['id_product']
+      : (int)$product->id_product;
+
+    $sql = 'SELECT token,id_product_main 
+            FROM `' . _DB_PREFIX_ . 'cpa_customization_field_configuration`
+            WHERE id_product_customization = ' . (int)$id_product;
+
+    $tokenResult = Db::getInstance()->executeS($sql);
+
+
+    if ($tokenResult) {
+      $token = $tokenResult[0]['token'];
+      $idproductMain = $tokenResult[0]['id_product_main'];
+    } else {
+      return;
+    }
+
+
+    $link = $this->context->link->getProductLink(
+      $idproductMain
+    );
+    $link .= '?actioncpa=edit&tokencpa=' . $token;
+    $this->context->smarty->assign([
+      'linkcustomization' => $link
+    ]);
+
+    return $this->display(__FILE__, 'views/hook/shipping_cart.tpl');
   }
 
   public function hookDisplayReassurance($params)
@@ -320,6 +385,7 @@ class CpaCustomizadorProdutosAluclass extends Module
           'htmlFields' => $htmlFields
         ]
       );
+
       $template = $this->display(__FILE__, 'views/hook/cpa.tpl');
 
 

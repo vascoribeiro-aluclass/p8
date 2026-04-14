@@ -208,6 +208,11 @@ $.fn.cpaSubmit = function (event) {
         datacustom['cpafields'][item.name] = item.value;
     });
 
+    if (tokencpa !== false && cpacustomizationfield !== false) {
+        datacustom['tokencpa'] = tokencpa;
+    }
+
+
     datacustom['id_product'] = $('#cpafields-block').attr('data-key');
 
     $.ajax({
@@ -223,29 +228,44 @@ $.fn.cpaSubmit = function (event) {
                 console.log('Produto inválido, não foi adicionado ao carrinho.');
                 return;
             }
-            console.log(response.data.new_id_product);
-            console.log(response.data.new_id_customization);
-            $.post(prestashop.urls.pages.cart, {
-                ajax: true,
-                action: 'update',
-                add: 1,
-                id_product: response.data.new_id_product,
-                id_customization: response.data.new_id_customization,
-                qty: 1
-            }).then(function (resp) {
-                $('#cpaloader').fadeOut().remove();
-                prestashop.emit('updateCart', {
-                    reason: {
-                        idProduct: response.data.new_id_product,
-                        idCustomization: response.data.new_id_customization,
-                        linkAction: 'add-to-cart'
-                    },
-                    resp: resp
-                });
+            $('#cpaloader').fadeOut().remove();
 
-            });
+            if (tokencpa !== false && cpacustomizationfield !== false) {
+                      prestashop.emit('updateCart', {
+                        reason: {
+                            idProduct: response.data.new_id_product,
+                            idCustomization: response.data.new_id_customization,
+                            linkAction: 'add-to-cart'
+                        },
+                        resp: response
+                    });
+
+            } else {
+
+                $.post(prestashop.urls.pages.cart, {
+                    ajax: true,
+                    action: 'update',
+                    add: 1,
+                    id_product: response.data.new_id_product,
+                    id_customization: response.data.new_id_customization,
+                    qty: 1
+                }).then(function (resp) {
+
+                    prestashop.emit('updateCart', {
+                        reason: {
+                            idProduct: response.data.new_id_product,
+                            idCustomization: response.data.new_id_customization,
+                            linkAction: 'add-to-cart'
+                        },
+                        resp: resp
+                    });
+
+                });
+            }
+
         },
         error: function (xhr) {
+            $('#cpaloader').fadeOut().remove();
             console.log('Erro:', xhr);
         }
     });
@@ -333,4 +353,57 @@ $(window).on("load", function () {
             }
         });
     }
+
+    if (cpacustomizationfield !== false) {
+        $('body').append('<div class="cpa-loader" id="cpaloader"><div class="sk-folding-ball"><div class="sk-ball1 sk-ball"></div><div class="sk-ball2 sk-ball"></div><div class="sk-ball4 sk-ball"></div><div class="sk-ball3 sk-ball"></div></div></div>');
+        console.log(typeof cpacustomizationfield);
+        data = JSON.parse(cpacustomizationfield);
+        data.forEach(function (item, index) {
+            setTimeout(function () {
+
+                let result = item.value.split("_");
+
+                let type = result[0];
+                let field = result[1];
+                let idvalue = result[2];
+                let qty = result[3];
+
+                switch (type) {
+                    case '1':
+                        $('input[data-id-value="' + idvalue + '"]').val(qty);
+                        $('input[data-id-value="' + idvalue + '"]').trigger('change');
+                        break;
+                    case '2':
+                        $('img[data-id-value="' + idvalue + '"]').trigger('click');
+                        break;
+                    case '3':
+                        $('img[data-id-value="' + idvalue + '"]').trigger('click');
+                        break;
+                    case '4':
+                        $('img[data-id-value="' + idvalue + '"]').trigger('click');
+                        break;
+                    case '5':
+                        $('input[data-id-value="' + idvalue + '"]').val(qty);
+                        $('input[data-id-value="' + idvalue + '"]').trigger('change');
+                        break;
+                    case '6':
+                        $('input[data-id-value="' + idvalue + '"]').val(qty);
+                        $('input[data-id-value="' + idvalue + '"]').trigger('change');
+                        break;
+                    case '7':
+                        $('select[data-id-value="' + idvalue + '"]').val(qty);
+                        $('select[data-id-value="' + idvalue + '"]').trigger('change');
+                        break;
+                }
+
+                if (index === data.length - 1) {
+                    $('#cpaloader').fadeOut(function () {
+                        $(this).remove();
+                    });
+                }
+            }, index * 350);
+        });
+
+    }
+
 });

@@ -184,24 +184,25 @@ class installCPASQL
 					'primary' => 'cpa_customization_field_configuration',
 					'cols' =>
 					[
-						['name' => 'cpa_customization_field_configuration', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
-						['name' => 'id_user', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'cpa_customization_field_configuration_id', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
 						['name' => 'id_lang_default', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
-						['name' => 'id_product', 'opts' => 'int(10) NOT NULL'],
-						['name' => 'id_customization', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
-						['name' => 'price', 'opts' => 'float NOT NULL'],
-						['name' => 'json_values', 'opts' => 'text NOT NULL'],
+						['name' => 'id_shop_default', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'id_product_main', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_customization', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_product_customization', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'token', 'opts' => 'varchar(100) NOT NULL']
 					]
 				],
 				[
-					'name' => 'cpa_customization_field_configuration_lang',
-					'index' => ['id_cpa_customization_field_configuration', 'id_lang'],
+					'name' => 'cpa_customization_field_configuration_value',
+					'index' => ['id_cpa_customization_field_configuration', 'id_cpa_customization_field', 'id_cpa_customization_field_value'],
 					'primary' => '',
 					'cols' =>
 					[
 						['name' => 'id_cpa_customization_field_configuration', 'opts' => 'int(10) NOT NULL'],
-						['name' => 'id_lang', 'opts' => 'int(10) NOT NULL'],
-						['name' => 'name', 'opts' => 'varchar(255) NOT NULL'],
+						['name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'value', 'opts' => 'varchar(255) NOT NULL'],
+						['name' => 'id_cpa_customization_field_value', 'opts' => 'int(10) NOT NULL'],
 
 					]
 				],

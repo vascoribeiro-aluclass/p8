@@ -42,9 +42,13 @@ class cpacustomizadorprodutosaluclassajaxModuleFrontController extends ModuleFro
                 break;
 
             case 'ProcessCPAProduct':
-                $datacustom  = Tools::getValue('datacustom');
+                $datacustom = Tools::getValue('datacustom');
 
-                $cpaProcessProduct = new CpaProcessProduct($datacustom['id_product'], $datacustom['cpafields']);
+                $tokencpa = false;
+
+                $tokencpa = (array_key_exists('tokencpa',$datacustom) ?$datacustom['tokencpa'] : false  );
+
+                $cpaProcessProduct = new CpaProcessProduct($datacustom['id_product'], $datacustom['cpafields'],$tokencpa );
                 $resultproduct = $cpaProcessProduct->init();
 
                 $result = [
