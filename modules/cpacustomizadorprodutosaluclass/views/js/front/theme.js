@@ -155,65 +155,8 @@ $('#submitCpafields, .submitCpafields').off('click').on('click', function (event
 $.fn.cpaSubmit = function (event) {
     $('body').append('<div class="cpa-loader" id="cpaloader"><div class="sk-folding-ball"><div class="sk-ball1 sk-ball"></div><div class="sk-ball2 sk-ball"></div><div class="sk-ball4 sk-ball"></div><div class="sk-ball3 sk-ball"></div></div></div>');
     event.preventDefault();
-    var required = $(".form-group.cpaFieldItem:not([class*='disabled_value_by'])").find('.required_field');
-    var hasError = false;
-    required.each(function () {
-        switch ($(this).attr('data-typefield')) {
-            case '1':
-                if ($(this).find('.select-value').length < 3) {
-                    ShowCPAFieldError($(this).attr('data-field'), "Error");
-                    hasError = true;
-                    return false;
-                }
-                break;
-            case '2':
-                if ($(this).find('.select-value').length == 0) {
-                    ShowCPAFieldError($(this).attr('data-field'), "Error");
-                    hasError = true;
-                    return false;
-                }
-                break;
-            case '3':
-                if ($(this).find('.select-value').length == 0) {
-                    ShowCPAFieldError($(this).attr('data-field'), "Error");
-                    hasError = true;
-                    return false;
-                }
-                break;
-            case '7':
-                if ($(this).find('.select-value').length < 3) {
-                    ShowCPAFieldError($(this).attr('data-field'), "Error");
-                    hasError = true;
-                    return false;
-                }
-                break;
-        }
 
-    });
-
-    $('.alert-danger-cpa').each(function () {
-        hasError = true;
-    });
-
-    if (hasError) {
-        $('#cpaloader').fadeOut().remove();
-        return false;
-    }
-
-    var dataArray = $(".fromset").serializeArray();
-    var datacustom = {};
-
-    datacustom['cpafields'] = {};
-    dataArray.forEach(function (item) {
-        datacustom['cpafields'][item.name] = item.value;
-    });
-
-    if (tokencpa !== false && cpacustomizationfield !== false) {
-        datacustom['tokencpa'] = tokencpa;
-    }
-
-
-    datacustom['id_product'] = $('#cpafields-block').attr('data-key');
+    datacustom = Checkfields();
 
     $.ajax({
         type: 'POST',
@@ -231,14 +174,14 @@ $.fn.cpaSubmit = function (event) {
             $('#cpaloader').fadeOut().remove();
 
             if (tokencpa !== false && cpacustomizationfield !== false) {
-                      prestashop.emit('updateCart', {
-                        reason: {
-                            idProduct: response.data.new_id_product,
-                            idCustomization: response.data.new_id_customization,
-                            linkAction: 'add-to-cart'
-                        },
-                        resp: response
-                    });
+                prestashop.emit('updateCart', {
+                    reason: {
+                        idProduct: response.data.new_id_product,
+                        idCustomization: response.data.new_id_customization,
+                        linkAction: 'add-to-cart'
+                    },
+                    resp: response
+                });
 
             } else {
 
@@ -263,6 +206,39 @@ $.fn.cpaSubmit = function (event) {
                 });
             }
 
+        },
+        error: function (xhr) {
+            $('#cpaloader').fadeOut().remove();
+            console.log('Erro:', xhr);
+        }
+    });
+
+};
+
+//########################### INICIO - cpa budget Produto ###########################
+$('#submitCpabudget, .submitCpabudget').off('click').on('click', function (event) {
+    $('#cpafields').cpaSubmitBudget(event);
+});
+
+$.fn.cpaSubmitBudget = function (event) {
+    $('body').append('<div class="cpa-loader" id="cpaloader"><div class="sk-folding-ball"><div class="sk-ball1 sk-ball"></div><div class="sk-ball2 sk-ball"></div><div class="sk-ball4 sk-ball"></div><div class="sk-ball3 sk-ball"></div></div></div>');
+
+    event.preventDefault();
+
+    datacustom = Checkfields();
+
+    $.ajax({
+        type: 'POST',
+        url: url_ajax_cpacustomizadorprodutosaluclass,
+        data: {
+            ajax: true,
+            action: 'ProcessCPABudget',
+            datacustom: datacustom
+        },
+        success: function (response) {
+            $('#cpaloader').fadeOut().remove();
+            console.log(response.data);
+            window.open(response.data, '_blank');
         },
         error: function (xhr) {
             $('#cpaloader').fadeOut().remove();
@@ -377,7 +353,7 @@ $(window).on("load", function () {
                         $('img[data-id-value="' + idvalue + '"]').trigger('click');
                         break;
                     case '3':
-                        $('img[data-id-value="' + idvalue + '"]').trigger('click');
+                        $('input[data-id-value="' + idvalue + '"]').trigger('click');
                         break;
                     case '4':
                         $('img[data-id-value="' + idvalue + '"]').trigger('click');

@@ -22,7 +22,7 @@ class cpacustomizadorprodutosaluclassajaxModuleFrontController extends ModuleFro
                 $dimensions  = Tools::getValue('dimensions');
 
                 $price = Db::getInstance()->getValue("SELECT price
-                        FROM ". _DB_PREFIX_ ."cpa_customization_field_csv
+                        FROM " . _DB_PREFIX_ . "cpa_customization_field_csv
                         WHERE 
                             width  >= " . (int)$dimensions['width'] . " AND
                             height >= " . (int)$dimensions['height'] . " AND
@@ -43,13 +43,28 @@ class cpacustomizadorprodutosaluclassajaxModuleFrontController extends ModuleFro
 
             case 'ProcessCPAProduct':
                 $datacustom = Tools::getValue('datacustom');
+                $resultproduct = [];
 
                 $tokencpa = false;
 
-                $tokencpa = (array_key_exists('tokencpa',$datacustom) ?$datacustom['tokencpa'] : false  );
+                $tokencpa = (array_key_exists('tokencpa', $datacustom) ? $datacustom['tokencpa'] : false);
 
-                $cpaProcessProduct = new CpaProcessProduct($datacustom['id_product'], $datacustom['cpafields'],$tokencpa );
+                $cpaProcessProduct = new CpaProcessProduct($datacustom['id_product'], $datacustom['cpafields'], $tokencpa);
                 $resultproduct = $cpaProcessProduct->init();
+
+                $result = [
+                    'success' => true,
+                    'message' => 'Success',
+                    'data' => $resultproduct
+                ];
+                break;
+
+            case 'ProcessCPABudget':
+                $datacustom = Tools::getValue('datacustom');
+                $resultproduct = [];
+
+                $cpaProcessBudget = new CpaProcessBudget($datacustom['id_product'], $datacustom['cpafields']);
+                $resultproduct = $cpaProcessBudget->init();
 
                 $result = [
                     'success' => true,

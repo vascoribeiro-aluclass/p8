@@ -41,6 +41,69 @@ function MarkField(field, isMark) {
     }
 }
 
+function Checkfields() {
+ var required = $(".form-group.cpaFieldItem:not([class*='disabled_value_by'])").find('.required_field');
+    var hasError = false;
+    required.each(function () {
+        switch ($(this).attr('data-typefield')) {
+            case '1':
+                if ($(this).find('.select-value').length < 3) {
+                    ShowCPAFieldError($(this).attr('data-field'), "Error");
+                    hasError = true;
+                    return false;
+                }
+                break;
+            case '2':
+                if ($(this).find('.select-value').length == 0) {
+                    ShowCPAFieldError($(this).attr('data-field'), "Error");
+                    hasError = true;
+                    return false;
+                }
+                break;
+            case '3':
+                if ($(this).find('.select-value').length == 0) {
+                    ShowCPAFieldError($(this).attr('data-field'), "Error");
+                    hasError = true;
+                    return false;
+                }
+                break;
+            case '7':
+                if ($(this).find('.select-value').length < 3) {
+                    ShowCPAFieldError($(this).attr('data-field'), "Error");
+                    hasError = true;
+                    return false;
+                }
+                break;
+        }
+
+    });
+
+    $('.alert-danger-cpa').each(function () {
+        hasError = true;
+    });
+
+    if (hasError) {
+        $('#cpaloader').fadeOut().remove();
+        return false;
+    }
+
+    var dataArray = $(".fromset").serializeArray();
+    var datacustom = {};
+
+    datacustom['cpafields'] = {};
+    dataArray.forEach(function (item) {
+        datacustom['cpafields'][item.name] = item.value;
+    });
+
+    if (tokencpa !== false && cpacustomizationfield !== false) {
+        datacustom['tokencpa'] = tokencpa;
+    }
+
+
+    datacustom['id_product'] = $('#cpafields-block').attr('data-key');
+    return datacustom;
+}
+
 function show3D() {
     var productCover = $(".product-cover");
     var container;

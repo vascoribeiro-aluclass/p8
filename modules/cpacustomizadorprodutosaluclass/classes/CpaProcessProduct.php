@@ -7,17 +7,17 @@ class CpaProcessProduct
     private $id_product = 0;
     private $new_id_product = 0;
     private $new_id_customization = 0;
-    private $datacustom = [];
-    private $id_lang;
-    private $id_shop;
-    private $id_cart;
-    private $cart;
-    private $languages = [];
-    private $addPrice = 0;
-    private $description = '';
-    private $product;
-    private $context;
-    private $arrayimg = [];
+    protected $datacustom = [];
+    protected $id_lang;
+    protected $id_shop;
+    protected $id_cart;
+    protected $cart;
+    protected $languages = [];
+    protected $addPrice = 0;
+    protected $description = '';
+    protected $product;
+    protected $context;
+    protected $arrayimg = [];
     private $tokencpa = false;
     private $iseditcpa = false;
     private $idproducteditcpa = false;
@@ -53,91 +53,16 @@ class CpaProcessProduct
         $this->product = new Product($this->id_product, false, $this->id_lang, $this->id_shop);
     }
 
-
-    public function init()
+    protected function getImageCover()
     {
-        $arrayFields     = [];
-        $arrayFieldsTemp = [];
-        $cpaCustomValue  = [];
-
-        if ($this->tokencpa) {
-
-            $sql = "SELECT cfc.id_product_customization
-            FROM `" . _DB_PREFIX_ . "cpa_customization_field_configuration` cfc
-            WHERE cfc.`token`  = '" . pSQL($this->tokencpa) . "' and cfc.id_product_main = " . $this->id_product . " and cfc.id_lang_default = " . $this->id_lang . " and cfc.id_shop_default = " . $this->id_shop;
-
-            $editResult = Db::getInstance()->getValue($sql);
-
-            if ($editResult) {
-                $this->iseditcpa = true;
-                $this->idproducteditcpa = $editResult;
-            } else {
-                $this->tokencpa = false;
-            }
-        }
-
-
-
         $cover = Image::getCover($this->id_product);
         $idImageSource = (int)$cover['id_image'];
         $imageSource = new Image($idImageSource);
-        $sourceImgProduct = _PS_PROD_IMG_DIR_ . $imageSource->getExistingImgPath() . '.jpg';
-        $this->arrayimg[] = $sourceImgProduct;
+        return _PS_PROD_IMG_DIR_ . $imageSource->getExistingImgPath() . '.jpg';
+    }
 
-        // Valida os campos e prepara para ser processados
-        foreach ($this->datacustom as $custom) {
-            $arrayCustom = explode('_', $custom);
-            if (count($arrayCustom) != 4) {
-                return false;
-            }
-
-            $id_type        = $arrayCustom[0];
-            $id_field       = $arrayCustom[1];
-            $id_field_value = $arrayCustom[2];
-            $field_qty      = $arrayCustom[3];
-
-            if ($id_type == 1 || $id_type == 7) {
-                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 0) {
-                    return false;
-                }
-            } else if ($id_type == 4) {
-                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1) {
-                    return false;
-                }
-            } else {
-                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 1) {
-                    return false;
-                }
-            }
-
-            $resultInfField = $this->getInfField($id_type, $id_field, $id_field_value);
-
-            if (!$resultInfField) {
-                return false;
-            }
-
-            if ($resultInfField[0]['is_visual'] == 1) {
-                $resultimg = $this->getImg($resultInfField[0]['id_field_value']);
-                if ($resultimg) {
-                    foreach ($resultimg as $img) {
-                        $imagem = _PS_ROOT_DIR_ . '/img/scenes/' . $img['type'] . $resultInfField[0]['id_field_value'] . '.' . $img['ext'];
-                        $this->arrayimg[] = $imagem;
-                    }
-                }
-            }
-
-            $arrayFieldsTemp[$resultInfField[0]['id_field']][] = [
-                'id_type' => $resultInfField[0]['id_type'],
-                'fieldname' => $resultInfField[0]['fieldname'],
-                'price_type' => $resultInfField[0]['price_type'],
-                'fieldvaluename' => $resultInfField[0]['fieldvaluename'],
-                'field_qty' => $field_qty,
-                'percent' => ($resultInfField[0]['price_type'] == 'amount' ? 0 : $resultInfField[0]['price']),
-                'price' => ($resultInfField[0]['price_type'] == 'amount' ? $resultInfField[0]['price'] : ($resultInfField[0]['price'] / 100) * $this->product->price)
-            ];
-        }
-
-
+    protected function orderFields($arrayFieldsTemp)
+    {
         // Reorganiza os campos e processa para ser inseridos no sistema de prestashop
         foreach ($arrayFieldsTemp as $key => $valuefieldstemp) {
             $price = 0;
@@ -221,35 +146,84 @@ class CpaProcessProduct
                 ];
             }
         }
+        return $arrayFields;
+    }
 
-        // Aplica pergentagem de um campo em outro campo
-        foreach ($arrayFields as $key => &$valuefields) {
-            $valuefields['price'] = $this->getInfluencesPercentage($key, $valuefields['price'], $arrayFields);
+    protected function checkFields()
+    {
+        $arrayFieldsTemp = [];
+        // Valida os campos e prepara para ser processados
+        foreach ($this->datacustom as $custom) {
+            $arrayCustom = explode('_', $custom);
+            if (count($arrayCustom) != 4) {
+                return false;
+            }
+
+            $id_type        = $arrayCustom[0];
+            $id_field       = $arrayCustom[1];
+            $id_field_value = $arrayCustom[2];
+            $field_qty      = $arrayCustom[3];
+
+            if ($id_type == 1 || $id_type == 7) {
+                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 0) {
+                    return false;
+                }
+            } else if ($id_type == 4) {
+                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1) {
+                    return false;
+                }
+            } else {
+                if ($id_type < 1 || $id_field < 1 || $id_field_value < 1 || $field_qty < 1) {
+                    return false;
+                }
+            }
+
+            $resultInfField = $this->getInfField($id_type, $id_field, $id_field_value);
+
+            if (!$resultInfField) {
+                return false;
+            }
+
+            if ($resultInfField[0]['is_visual'] == 1) {
+                $resultimg = $this->getImg($resultInfField[0]['id_field_value']);
+                if ($resultimg) {
+                    foreach ($resultimg as $img) {
+                        $imagem = _PS_ROOT_DIR_ . '/img/scenes/' . $img['type'] . $resultInfField[0]['id_field_value'] . '.' . $img['ext'];
+                        $this->arrayimg[] = $imagem;
+                    }
+                }
+            }
+
+            $arrayFieldsTemp[$resultInfField[0]['id_field']][] = [
+                'id_type' => $resultInfField[0]['id_type'],
+                'fieldname' => $resultInfField[0]['fieldname'],
+                'price_type' => $resultInfField[0]['price_type'],
+                'fieldvaluename' => $resultInfField[0]['fieldvaluename'],
+                'field_qty' => $field_qty,
+                'percent' => ($resultInfField[0]['price_type'] == 'amount' ? 0 : $resultInfField[0]['price']),
+                'price' => ($resultInfField[0]['price_type'] == 'amount' ? $resultInfField[0]['price'] : ($resultInfField[0]['price'] / 100) * $this->product->price)
+            ];
         }
+        return $arrayFieldsTemp;
+    }
 
-        // Cria o produto
-        if ($this->iseditcpa) {
-            $this->new_id_product = $this->idproducteditcpa;
-            $this->resetCustomization();
-        } else {
-            $this->new_id_product = $this->createProduct();
-        }
+    // Adiciona campos no sistema de custimização do prestashop
+    private function createLabelCustomFields($arrayFields)
+    {
+        $cpaCustomValue = [];
 
-
-        if (!$this->new_id_product) {
-            return false;
-        }
-
-        $newCPACustomValue = [];
-        // Adiciona campos no sistema de custimização do prestashop
         foreach ($arrayFields as $field) {
             $this->addPrice += $field['price'];
             $cpaCustomValue[] = array('index' => $this->createLabel($this->new_id_product, $field['fieldname'], 1, 0), 'value' => $field['fieldvaluename'] . ($field['price'] > 0 ? ' + ' . $this->getIVAPrice(round($field['price']), 2) . ' €' : ''));
         }
 
-        $this->updatePriceProduct();
+        return $cpaCustomValue;
+    }
 
-        // Prepara a descição para inserir no produto no campo descrição curta.
+    // Prepara a descição para inserir no produto no campo descrição curta.
+    private function customFieldsData($cpaCustomValue)
+    {
+        $newCPACustomValue = [];
         $indexed = [];
         foreach ($cpaCustomValue as $value) {
 
@@ -266,7 +240,58 @@ class CpaProcessProduct
             $fieldLabel = Db::getInstance()->getRow('SELECT name FROM `' . _DB_PREFIX_ . 'customization_field_lang` WHERE `id_customization_field` = ' . (int)$val['index'] . ' AND `id_lang`= ' . (int)$this->id_lang);
             $this->description .= '<p><b>' . $fieldLabel['name'] . ' : </b>' . $val['value'] . '</p>';
         }
+    }
 
+    public function init()
+    {
+        $arrayFields     = [];
+        $arrayFieldsTemp = [];
+        $cpaCustomValue  = [];
+
+        if ($this->tokencpa) {
+
+            $sql = "SELECT cfc.id_product_customization
+            FROM `" . _DB_PREFIX_ . "cpa_customization_field_configuration` cfc
+            WHERE cfc.`token`  = '" . pSQL($this->tokencpa) . "' and cfc.id_product_main = " . $this->id_product . " and cfc.id_lang_default = " . $this->id_lang . " and cfc.id_shop_default = " . $this->id_shop;
+
+            $editResult = Db::getInstance()->getValue($sql);
+
+            if ($editResult) {
+                $this->iseditcpa = true;
+                $this->idproducteditcpa = $editResult;
+            } else {
+                $this->tokencpa = false;
+            }
+        }
+
+        $this->arrayimg[] = $this->getImageCover();
+        $arrayFieldsTemp = $this->checkFields();
+        if (!$arrayFieldsTemp) {
+            return false;
+        }
+
+        $arrayFields = $this->orderFields($arrayFieldsTemp);
+
+        // Aplica pergentagem de um campo em outro campo
+        foreach ($arrayFields as $key => &$valuefields) {
+            $valuefields['price'] = $this->getInfluencesPercentage($key, $valuefields['price'], $arrayFields);
+        }
+
+        // Cria o produto
+        if ($this->iseditcpa) {
+            $this->new_id_product = $this->idproducteditcpa;
+            $this->resetCustomization();
+        } else {
+            $this->new_id_product = $this->createProduct();
+        }
+
+        if (!$this->new_id_product) {
+            return false;
+        }
+
+        $cpaCustomValue = $this->createLabelCustomFields($arrayFields);
+        $this->updatePriceProduct();
+        $this->customFieldsData($cpaCustomValue);
         $this->updateDescriptionProduct();
 
         // Criar imagem custimizada
@@ -299,14 +324,12 @@ class CpaProcessProduct
 
         foreach ($resultCPAcustomizationfieldconfiguration as $idcustomizationfieldconfiguration) {
             Db::getInstance()->execute(
-                'DELETE
-                        FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration
+                'DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration
                         WHERE cpa_customization_field_configuration_id = ' . (int)$idcustomizationfieldconfiguration['cpa_customization_field_configuration_id']
             );
 
             Db::getInstance()->execute(
-                'DELETE
-                        FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration_value
+                'DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration_value
                         WHERE id_cpa_customization_field_configuration = ' . (int)$idcustomizationfieldconfiguration['cpa_customization_field_configuration_id']
             );
         }
@@ -319,14 +342,12 @@ class CpaProcessProduct
 
         foreach ($resultcustomizationfield as $idcustomizationfield) {
             Db::getInstance()->execute(
-                'DELETE
-                        FROM ' . _DB_PREFIX_ . 'customization_field
+                'DELETE FROM ' . _DB_PREFIX_ . 'customization_field
                         WHERE id_customization_field = ' . (int)$idcustomizationfield['id_customization_field']
             );
 
             Db::getInstance()->execute(
-                'DELETE
-                        FROM ' . _DB_PREFIX_ . 'customization_field_lang
+                'DELETE FROM ' . _DB_PREFIX_ . 'customization_field_lang
                         WHERE id_customization_field = ' . (int)$idcustomizationfield['id_customization_field']
             );
         }
@@ -334,18 +355,16 @@ class CpaProcessProduct
         $resultcustomizationdata = Db::getInstance()->executeS(
             'SELECT `id_customization`
                     FROM ' . _DB_PREFIX_ . 'customization
-                    WHERE id_product = ' . (int)$this->new_id_product .' and   id_cart = ' . (int)$this->id_cart . ' and in_cart = 1'
+                    WHERE id_product = ' . (int)$this->new_id_product . ' and   id_cart = ' . (int)$this->id_cart . ' and in_cart = 1'
         );
 
         foreach ($resultcustomizationdata as $idcustomizationdata) {
 
             Db::getInstance()->execute(
-                'DELETE
-                        FROM ' . _DB_PREFIX_ . 'customized_data
+                'DELETE FROM ' . _DB_PREFIX_ . 'customized_data
                         WHERE id_customization = ' . (int)$idcustomizationdata['id_customization']
             );
         }
-
     }
 
     private function newCustomizationField()
@@ -366,7 +385,7 @@ class CpaProcessProduct
         }
     }
 
-    private function getInfluencesPercentage($id_cpa_customization_field, $price, $arrayFields)
+    protected function getInfluencesPercentage($id_cpa_customization_field, $price, $arrayFields)
     {
         $priceAdd = 0;
         $sqlfieldvalues = 'SELECT 
@@ -644,17 +663,6 @@ class CpaProcessProduct
         return $this->_addCustomization($id_product, 0, $index, $type, $text_value, 0);
     }
 
-    /**
-     * Add customer's pictures
-     *
-     * @return bool Always true
-     */
-    private function addPictureToProduct($id_product, $index, $type, $file)
-    {
-        return $this->_addCustomization($id_product, 0, $index, $type, $file, 0);
-    }
-
-
     private function _addCustomization($id_product, $id_product_attribute, $index, $type, $field, $quantity)
     {
 
@@ -664,7 +672,7 @@ class CpaProcessProduct
             FROM `' . _DB_PREFIX_ . 'customization` cu
             WHERE cu.id_cart = ' . (int)$this->id_cart . '
             AND cu.id_product = ' . (int)$id_product . '
-            AND cu.in_cart = 1'
+            AND cu.in_cart = '.( $this->iseditcpa ? 1 : 0)
         );
 
         if ($exising_customization) {

@@ -6,7 +6,6 @@ if (!defined('_PS_VERSION_')) {
   exit;
 }
 
-
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaFields.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaProcessFields.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaProcessProduct.php';
@@ -24,7 +23,7 @@ require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaCsvSe
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/models/CpaProduct.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/install.php';
 require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/install/sql/uninstall.php';
-require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/TCPDF/tcpdf.php';
+require_once _PS_MODULE_DIR_ . 'cpacustomizadorprodutosaluclass/classes/CpaProcessBudget.php';
 
 class CpaCustomizadorProdutosAluclass extends Module
 {
@@ -60,7 +59,7 @@ class CpaCustomizadorProdutosAluclass extends Module
     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
 
 
-    installCPASQL::init();
+    //installCPASQL::init();
     return parent::install()
       && $this->registerHook('Header')
       && $this->registerHook('displayReassurance')
@@ -68,6 +67,7 @@ class CpaCustomizadorProdutosAluclass extends Module
       && $this->registerHook('actionProductSave')
       && $this->registerHook('actionProductUpdate')
       && $this->registerHook('displayCartExtraProductActions')
+      && $this->registerHook('displayExpressCheckout')
       && $this->installModuleTab('AdminCpaPorduct', array((int)$this->context->language->id => 'Produtos Customizados'), $id_tab)
       && $this->installModuleTab('AdminCpaCustomization', array((int)$this->context->language->id => 'Gerir Campos Customizados'), $id_tab)
       && $this->installModuleTab('AdminCpaCustomizationValue', array((int)$this->context->language->id => 'Gerir Valores Campos Customizados'), -1)
@@ -77,7 +77,7 @@ class CpaCustomizadorProdutosAluclass extends Module
 
   public function uninstall()
   {
-    uninstallCPASQL::init();
+    //uninstallCPASQL::init();
     $id_tab = Tab::getIdFromClassName('AdminCpaCustomizadorProdutosAluclassNo');
     if (!parent::uninstall() || !$this->uninstallModuleTab('AdminCpaCustomizadorProdutosAluclassNo', $id_tab) || !$this->uninstallModuleTab('AdminCpaPorduct', $id_tab) || !$this->uninstallModuleTab('AdminCpaCustomization', $id_tab) || !$this->uninstallModuleTab('AdminCpaCustomizationValue', -1))
       return false;
@@ -185,7 +185,6 @@ class CpaCustomizadorProdutosAluclass extends Module
         'modulePath' => $this->_path,
       ]);
 
-
       if ($resultScript && $resultScript['filescript']) {
         $this->context->controller->registerJavascript(
           'module-cpa-scriptproduct-js',
@@ -206,7 +205,6 @@ class CpaCustomizadorProdutosAluclass extends Module
         ]
       );
 
-
       $this->context->controller->registerJavascript(
         'module-cpa-theme-js',
         'modules/' . $this->name . '/views/js/front/theme.js',
@@ -216,8 +214,6 @@ class CpaCustomizadorProdutosAluclass extends Module
         ]
       );
 
-
-
       $this->context->controller->registerJavascript(
         'module-cpa-calculeprice-js',
         'modules/' . $this->name . '/views/js/front/proccessprice.js',
@@ -226,7 +222,6 @@ class CpaCustomizadorProdutosAluclass extends Module
           'priority' => 850,
         ]
       );
-
 
       if ($is3dshow) {
         // 3D SCRIPTS
@@ -263,6 +258,11 @@ class CpaCustomizadorProdutosAluclass extends Module
         return $this->display(__FILE__, 'views/hook/price.tpl');
       }
     }
+  }
+
+  public function hookDisplayExpressCheckout($params)
+  {
+           return $this->display(__FILE__, 'views/hook/cpa_budget.tpl');
   }
 
   public function hookDisplayCartExtraProductActions($params)
