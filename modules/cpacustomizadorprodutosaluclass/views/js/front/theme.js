@@ -132,7 +132,6 @@ $(document).on('click', '.cpafieldvalue ', function () {
 
 $(document).on('change', 'input.cpa_field_text', function () {
     var field = $(this).attr('data-field');
-
     var idvalue = $(this).attr('data-id-value');
     var type = $(this).attr('data-typefield');
     var qty = $(this).val();

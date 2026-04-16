@@ -189,7 +189,7 @@ class CpaProcessProduct
                 if ($resultimg) {
                     foreach ($resultimg as $img) {
                         $imagem = _PS_ROOT_DIR_ . '/img/scenes/' . $img['type'] . $resultInfField[0]['id_field_value'] . '.' . $img['ext'];
-                        $this->arrayimg[] = $imagem;
+                        $this->arrayimg[$resultInfField[0]['zindex']] = $imagem;
                     }
                 }
             }
@@ -204,6 +204,7 @@ class CpaProcessProduct
                 'price' => ($resultInfField[0]['price_type'] == 'amount' ? $resultInfField[0]['price'] : ($resultInfField[0]['price'] / 100) * $this->product->price)
             ];
         }
+        ksort($this->arrayimg);
         return $arrayFieldsTemp;
     }
 
@@ -264,7 +265,7 @@ class CpaProcessProduct
             }
         }
 
-        $this->arrayimg[] = $this->getImageCover();
+        $this->arrayimg[-1] = $this->getImageCover();
         $arrayFieldsTemp = $this->checkFields();
         if (!$arrayFieldsTemp) {
             return false;
@@ -541,6 +542,7 @@ class CpaProcessProduct
                         cfvl.name as fieldvaluename, 
                         cfv.price,
                         cf.is_visual,
+                        cf.zindex,
                         cfv.id_cpa_customization_field_value as id_field_value
                     FROM ' . _DB_PREFIX_ . 'cpa_customization_field cf
                     INNER JOIN ' . _DB_PREFIX_ . 'cpa_customization_field_lang cfl on cfl.id_cpa_customization_field = cf.id_cpa_customization_field and cfl.id_lang = ' . (int)$this->id_lang . '

@@ -255,6 +255,8 @@ function ControlInfluences(field, idvalue) {
             $('#visual_' + item.id_cpa_customization_field_influence).remove();
             $('#cpafield_' + item.id_cpa_customization_field_influence).prop('disabled', true);
             $('.cpafieldvalue[data-field="' + item.id_cpa_customization_field_influence + '"]').removeClass('select-value');
+            $('.cpafieldvalue-qty[data-field="' + item.id_cpa_customization_field_influence + '"]').val(0);
+             $('.cpafieldvalue-qty[data-field="' + item.id_cpa_customization_field_influence + '"]').trigger('change');
             $('.form-group[data-field="' + item.id_cpa_customization_field_influence + '"]').addClass('disabled_value_by_' + item.id_cpa_customization_field_value_show);
         });
         $('.disabled_value_by_' + idvalue).removeClass('disabled_value_by_' + idvalue);
@@ -378,7 +380,7 @@ function ProccessPriceCPAFieldValue(element) {
     } else {
         $('#cpafield_' + field).val('0_0_0_0');
         $('#cpafield_' + field).attr('data-price', 0);
-        $('#cpafield_' + field).prop('disabled', false);
+        $('#cpafield_' + field).prop('disabled', true);
     }
     addCustomerPrice();
     ProgressBar();
