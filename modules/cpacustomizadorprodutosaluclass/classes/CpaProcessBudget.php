@@ -43,9 +43,21 @@ class CpaProcessBudget extends CpaProcessProduct
             $this->description .= '<p><b>' . $val['index'] . ' : </b>' . $val['value'] . '</p>';
         }
 
+        $price =  round($this->getIVAPrice($this->product->price + $this->addPrice), 2);
 
-        $price =  round($this->product->price + $this->addPrice, 2);
+        $token = $this->newCustomizationField();
 
+        $link = $this->context->link->getProductLink(
+            $this->id_product
+        );
+
+        $link .= '?actioncpa=edit&tokencpa=' . $token;
+
+        return $this->generatePDF($price, $link, $token);
+    }
+
+    private function generatePDF($price, $link, $token)
+    {
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $company = Configuration::get('PS_SHOP_NAME');
         $pdf->SetCreator(PDF_CREATOR);
@@ -62,28 +74,23 @@ class CpaProcessBudget extends CpaProcessProduct
         // HEADER CUSTOM
         // =========================
 
-
         $address1 = Configuration::get('PS_SHOP_ADDR1');
         $address2 = Configuration::get('PS_SHOP_ADDR2');
         $postcode = Configuration::get('PS_SHOP_CODE');
-        $city = Configuration::get('PS_SHOP_CITY');
-        $country = Configuration::get('PS_SHOP_COUNTRY');
-        $vat = Configuration::get('PS_SHOP_DETAILS');
+        $city     = Configuration::get('PS_SHOP_CITY');
+        $country  = Configuration::get('PS_SHOP_COUNTRY');
+        $vat      = Configuration::get('PS_SHOP_DETAILS');
+
         $html_left = '<br><strong>' . $company . '</strong><br>
               ' . $address1 . ' ' . $address2 . '<br>
               ' . $postcode . ' ' . $city . '<br>
               ' . $country . '<br>
               NIF: ' . $vat;
 
-
         $logo_path = _PS_IMG_DIR_ . Configuration::get('PS_LOGO');
-        // Logo (lado direito)
-        $logo = $logo_path;
 
-        $pdf->Image($logo, 150, 10, 40); // posição direita
-
+        $pdf->Image($logo_path, 150, 10, 40); // posição direita
         $pdf->writeHTMLCell(100, '', 10, 10, $html_left, 0, 0, false, true, 'L', true);
-
         $pdf->Ln(25);
 
         // =========================
@@ -91,12 +98,9 @@ class CpaProcessBudget extends CpaProcessProduct
         // =========================
         $pdf->SetFont('helvetica', 'B', 16);
         $pdf->Cell(0, 10, 'ORÇAMENTO', 0, 1, 'C');
-
         $pdf->Ln(5);
-
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(0, 10, $this->product->name, 0, 1, 'C');
-
         $pdf->Ln(5);
 
         // =========================
@@ -105,7 +109,8 @@ class CpaProcessBudget extends CpaProcessProduct
 
         $pdf->SetFont('helvetica', '', 10);
 
-        $html = '<table border="0" cellpadding="5">
+        $html = '<a href="' . $link . '" target="_blank" >Editar orçamento</a><br><br>';
+        $html .= '<table border="0" cellpadding="5">
                         <tr>
                             <th width="30%"> </th>
                             <th width="70%"></th>
@@ -136,15 +141,24 @@ class CpaProcessBudget extends CpaProcessProduct
         $content = $pdf->Output('', 'S');
 
         $letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $result = $letters[random_int(0, 25)] . $letters[random_int(0, 25)];
+        $namePDFtemp = $letters[random_int(0, 25)] . $letters[random_int(0, 25)];
 
-        $path = _PS_MODULE_DIR_ . '/cpacustomizadorprodutosaluclass/pdf/' . $result . '.pdf';
+        $idpdf = $this->savePDFBudget($namePDFtemp, $token);
+        $namePDF = $namePDFtemp . $idpdf;
+        $path = _PS_MODULE_DIR_ . '/cpacustomizadorprodutosaluclass/pdf/' . $namePDF . '.pdf';
 
         file_put_contents($path, $content);
 
-        $url = $this->getBaseUrlWithoutVirtual() . 'modules/cpacustomizadorprodutosaluclass/pdf/' . $result . '.pdf';
-
+        $url = $this->getBaseUrlWithoutVirtual() . 'modules/cpacustomizadorprodutosaluclass/pdf/' . $namePDF . '.pdf';
         return $url;
+    }
+
+    private function savePDFBudget($namePDFtemp, $token)
+    {
+        Db::getInstance()->execute("
+            INSERT INTO `" . _DB_PREFIX_ . "cpa_customization_budget` (`id_lang`, `id_shop`, `name`, `token_configuration`)
+            VALUES (" . (int)$this->id_lang . ", " . (int)$this->id_shop . ", '" . pSQL($namePDFtemp) . "', '" . pSQL($token) . "')");
+        return  (int)Db::getInstance()->Insert_ID();
     }
 
     private function getBaseUrlWithoutVirtual()
@@ -152,10 +166,10 @@ class CpaProcessBudget extends CpaProcessProduct
         $idShop = $this->id_shop;
 
         $row = Db::getInstance()->getRow('
-        SELECT domain, domain_ssl, physical_uri
-        FROM ' . _DB_PREFIX_ . 'shop_url
-        WHERE id_shop = ' . $idShop . ' AND main = 1
-    ');
+                    SELECT domain, domain_ssl, physical_uri
+                    FROM ' . _DB_PREFIX_ . 'shop_url
+                    WHERE id_shop = ' . $idShop . ' AND main = 1
+                ');
 
         $domain = Tools::usingSecureMode() ? $row['domain_ssl'] : $row['domain'];
 

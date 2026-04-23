@@ -16,6 +16,12 @@
   line-height: inherit;
   display: flex;
 }
+.submitCpashareCart {
+  height: 2.75rem;
+  padding-top: 0.625rem;
+  line-height: inherit;
+  display: flex;
+}
 .add-to-cart {
   display: none !important;
 }

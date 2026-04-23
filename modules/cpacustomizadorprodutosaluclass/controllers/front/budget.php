@@ -101,6 +101,45 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
 
 
         $pdf->Output('example_001.pdf', 'I');
+
+        $content = $pdf->Output('', 'S');
+
+        $letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $namePDFtemp = $letters[random_int(0, 25)] . $letters[random_int(0, 25)];
+
+        $idpdf = $this->savePDFBudget($namePDFtemp, $cart);
+        $namePDF = $namePDFtemp . $idpdf;
+        $path = _PS_MODULE_DIR_ . '/cpacustomizadorprodutosaluclass/pdf/' . $namePDF . '.pdf';
+
+        file_put_contents($path, $content);
+        $url = $this->getBaseUrlWithoutVirtual( $cart) . 'modules/cpacustomizadorprodutosaluclass/pdf/' . $namePDF . '.pdf';
+        Tools::redirect($url);
+
         exit;
+    }
+
+    private function savePDFBudget($namePDFtemp, $cart)
+    {
+        Db::getInstance()->execute("
+            INSERT INTO `" . _DB_PREFIX_ . "cpa_customization_budget` (`id_lang`, `id_shop`, `name`, `token_configuration`)
+            VALUES (" . (int)$cart->id_lang . ", " . (int)$cart->id_shop . ", '" . pSQL($namePDFtemp) . "', '')");
+        return  (int)Db::getInstance()->Insert_ID();
+    }
+
+    private function getBaseUrlWithoutVirtual( $cart)
+    {
+        $idShop =  $cart->id_shop;
+
+        $row = Db::getInstance()->getRow('
+                    SELECT domain, domain_ssl, physical_uri
+                    FROM ' . _DB_PREFIX_ . 'shop_url
+                    WHERE id_shop = ' . $idShop . ' AND main = 1
+                ');
+
+        $domain = Tools::usingSecureMode() ? $row['domain_ssl'] : $row['domain'];
+
+        return (Tools::usingSecureMode() ? 'https://' : 'http://')
+            . $domain
+            . $row['physical_uri'];
     }
 }

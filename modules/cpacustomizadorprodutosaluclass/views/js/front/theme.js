@@ -172,7 +172,7 @@ $.fn.cpaSubmit = function (event) {
             }
             $('#cpaloader').fadeOut().remove();
 
-            if (tokencpa !== false && cpacustomizationfield !== false) {
+            if (response.iseditcpa == 'true' && cpacustomizationfield !== false) {
                 prestashop.emit('updateCart', {
                     reason: {
                         idProduct: response.data.new_id_product,
@@ -181,7 +181,6 @@ $.fn.cpaSubmit = function (event) {
                     },
                     resp: response
                 });
-
             } else {
 
                 $.post(prestashop.urls.pages.cart, {
@@ -331,7 +330,6 @@ $(window).on("load", function () {
 
     if (cpacustomizationfield !== false) {
         $('body').append('<div class="cpa-loader" id="cpaloader"><div class="sk-folding-ball"><div class="sk-ball1 sk-ball"></div><div class="sk-ball2 sk-ball"></div><div class="sk-ball4 sk-ball"></div><div class="sk-ball3 sk-ball"></div></div></div>');
-        console.log(typeof cpacustomizationfield);
         data = JSON.parse(cpacustomizationfield);
         data.forEach(function (item, index) {
             setTimeout(function () {

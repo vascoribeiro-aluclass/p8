@@ -180,11 +180,24 @@ class installCPASQL
 				],
 
 				[
-					'name' => 'cpa_customization_field_configuration',
-					'primary' => 'cpa_customization_field_configuration',
+					'name' => 'cpa_customization_budget',
+					'primary' => 'id_cpa_customization_budget',
 					'cols' =>
 					[
-						['name' => 'cpa_customization_field_configuration_id', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
+						['name' => 'id_cpa_customization_budget', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
+						['name' => 'id_lang', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'id_shop', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'id_cpa_customization_field_configuration', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'name', 'opts' => 'varchar(100) NOT NULL']
+					]
+				],
+
+				[
+					'name' => 'cpa_customization_field_configuration',
+					'primary' => 'id_cpa_customization_field_configuration',
+					'cols' =>
+					[
+						['name' => 'id_cpa_customization_field_configuration', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
 						['name' => 'id_lang_default', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
 						['name' => 'id_shop_default', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
 						['name' => 'id_product_main', 'opts' => 'int(10) NOT NULL'],

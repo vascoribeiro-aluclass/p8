@@ -1,0 +1,2 @@
+<p>Olá {firstname},</p>
+<p>Este é um email enviado pelo módulo.</p>

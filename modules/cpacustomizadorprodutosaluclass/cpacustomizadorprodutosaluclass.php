@@ -138,7 +138,7 @@ class CpaCustomizadorProdutosAluclass extends Module
 
           $sql = "SELECT cfcv.value
             FROM `" . _DB_PREFIX_ . "cpa_customization_field_configuration` cfc
-            INNER JOIN `" . _DB_PREFIX_ . "cpa_customization_field_configuration_value` cfcv ON  cfcv.`id_cpa_customization_field_configuration` = cfc.`cpa_customization_field_configuration_id`
+            INNER JOIN `" . _DB_PREFIX_ . "cpa_customization_field_configuration_value` cfcv ON  cfcv.`id_cpa_customization_field_configuration` = cfc.`id_cpa_customization_field_configuration`
             WHERE cfc.`token`  = '" . pSQL($tokencpa)."' and cfc.id_product_main = ".$id_product." and cfc.id_lang_default = ".$this->context->language->id." and cfc.id_shop_default = ".$this->context->shop->id;
 
           $tokenResult = Db::getInstance()->executeS($sql);
@@ -191,7 +191,7 @@ class CpaCustomizadorProdutosAluclass extends Module
           'modules/' . $this->name . '/views/js/front/product/' . $resultScript['filescript'],
           [
             'position' => 'bottom',
-            'priority' => 851,
+            'priority' => 999,
           ]
         );
       }
@@ -234,7 +234,8 @@ class CpaCustomizadorProdutosAluclass extends Module
         $this->context->controller->registerJavascript('module-cpa-Detector-js', 'modules/' . $this->name . '/views/js/front/3d/Detector.js', ['position' => 'bottom', 'priority' => 956,]);
         $this->context->controller->registerJavascript('module-cpa-inflate-js', 'modules/' . $this->name . '/views/js/front/3d/libs/inflate.min.js', ['position' => 'bottom', 'priority' => 957,]);
         $this->context->controller->registerJavascript('module-cpa-stats-js', 'modules/' . $this->name . '/views/js/front/3d/libs/stats.min.js', ['position' => 'bottom', 'priority' => 958,]);
-        $this->context->controller->registerJavascript('module-cpa-3dproduct-js', 'modules/' . $this->name . '/views/js/front/3d/3dshow.js', ['position' => 'bottom', 'priority' => 999,]);
+        $this->context->controller->registerJavascript('module-cpa-3dmodelmanager-js', 'modules/' . $this->name . '/views/js/front/3d/ModelManager.js', ['position' => 'bottom', 'priority' => 997,]);
+        $this->context->controller->registerJavascript('module-cpa-3dproduct-js', 'modules/' . $this->name . '/views/js/front/3d/3dshow.js', ['position' => 'bottom', 'priority' => 998,]);
       }
     }
   }
@@ -262,7 +263,7 @@ class CpaCustomizadorProdutosAluclass extends Module
 
   public function hookDisplayExpressCheckout($params)
   {
-           return $this->display(__FILE__, 'views/hook/cpa_budget.tpl');
+           return $this->display(__FILE__, 'views/hook/cpa_shipping.tpl');
   }
 
   public function hookDisplayCartExtraProductActions($params)
@@ -290,7 +291,7 @@ class CpaCustomizadorProdutosAluclass extends Module
 
 
     $link = $this->context->link->getProductLink(
-      $idproductMain
+     $idproductMain
     );
     $link .= '?actioncpa=edit&tokencpa=' . $token;
     $this->context->smarty->assign([

@@ -35,7 +35,8 @@ class uninstallCPASQL
 		// tabela informações produto (scripts, css, etc)
 		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_product`";
 
-
+		// Budget
+		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_budget`";
 		foreach ($sql as $query)
 			if (Db::getInstance()->execute($query) == false)
 				return false;

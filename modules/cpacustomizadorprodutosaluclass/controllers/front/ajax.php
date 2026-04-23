@@ -45,8 +45,6 @@ class cpacustomizadorprodutosaluclassajaxModuleFrontController extends ModuleFro
                 $datacustom = Tools::getValue('datacustom');
                 $resultproduct = [];
 
-                $tokencpa = false;
-
                 $tokencpa = (array_key_exists('tokencpa', $datacustom) ? $datacustom['tokencpa'] : false);
 
                 $cpaProcessProduct = new CpaProcessProduct($datacustom['id_product'], $datacustom['cpafields'], $tokencpa);
@@ -60,6 +58,20 @@ class cpacustomizadorprodutosaluclassajaxModuleFrontController extends ModuleFro
                 break;
 
             case 'ProcessCPABudget':
+                $datacustom = Tools::getValue('datacustom');
+                $resultproduct = [];
+
+                $cpaProcessBudget = new CpaProcessBudget($datacustom['id_product'], $datacustom['cpafields']);
+                $resultproduct = $cpaProcessBudget->init();
+
+                $result = [
+                    'success' => true,
+                    'message' => 'Success',
+                    'data' => $resultproduct
+                ];
+                break;
+
+                case 'ProcessCPAShare':
                 $datacustom = Tools::getValue('datacustom');
                 $resultproduct = [];
 

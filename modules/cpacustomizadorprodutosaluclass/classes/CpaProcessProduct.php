@@ -4,7 +4,7 @@ use GuzzleHttp\Promise\Create;
 
 class CpaProcessProduct
 {
-    private $id_product = 0;
+    protected $id_product = 0;
     private $new_id_product = 0;
     private $new_id_customization = 0;
     protected $datacustom = [];
@@ -35,7 +35,7 @@ class CpaProcessProduct
         $this->arrayimg   = [];
 
         if (!$this->cart->id) {
-            $this->cart->id_shop =  (int)$this->id_shop;
+            $this->cart->id_shop = (int)$this->id_shop;
             $this->cart->id_lang = (int)$this->id_lang;
             $this->cart->id_currency = (int)$this->context->currency->id;
             $this->cart->id_customer = (int)$this->context->customer->id;
@@ -46,7 +46,7 @@ class CpaProcessProduct
 
             $this->id_cart = (int)$this->cart->id;
         } else {
-            $this->id_cart    = (int)$this->cart->id;
+            $this->id_cart = (int)$this->cart->id;
         }
 
         $this->languages = Language::getLanguages(true);
@@ -260,11 +260,10 @@ class CpaProcessProduct
             if ($editResult) {
                 $this->iseditcpa = true;
                 $this->idproducteditcpa = $editResult;
-            } else {
-                $this->tokencpa = false;
             }
         }
 
+ 
         $this->arrayimg[-1] = $this->getImageCover();
         $arrayFieldsTemp = $this->checkFields();
         if (!$arrayFieldsTemp) {
@@ -301,6 +300,7 @@ class CpaProcessProduct
         $this->newCustomizationField();
 
         $arraynewproduct = [];
+        $arraynewproduct['iseditcpa'] = $this->iseditcpa;
         $arraynewproduct['new_id_product'] = $this->new_id_product;
         $arraynewproduct['new_id_customization'] =  $this->new_id_customization;
 
@@ -318,7 +318,7 @@ class CpaProcessProduct
         }
 
         $resultCPAcustomizationfieldconfiguration = Db::getInstance()->executeS(
-            'SELECT `cpa_customization_field_configuration_id`
+            'SELECT `id_cpa_customization_field_configuration`
                     FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration
                     WHERE id_product_customization = ' . (int)$this->new_id_product
         );
@@ -326,12 +326,12 @@ class CpaProcessProduct
         foreach ($resultCPAcustomizationfieldconfiguration as $idcustomizationfieldconfiguration) {
             Db::getInstance()->execute(
                 'DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration
-                        WHERE cpa_customization_field_configuration_id = ' . (int)$idcustomizationfieldconfiguration['cpa_customization_field_configuration_id']
+                        WHERE id_cpa_customization_field_configuration = ' . (int)$idcustomizationfieldconfiguration['id_cpa_customization_field_configuration']
             );
 
             Db::getInstance()->execute(
                 'DELETE FROM ' . _DB_PREFIX_ . 'cpa_customization_field_configuration_value
-                        WHERE id_cpa_customization_field_configuration = ' . (int)$idcustomizationfieldconfiguration['cpa_customization_field_configuration_id']
+                        WHERE id_cpa_customization_field_configuration = ' . (int)$idcustomizationfieldconfiguration['id_cpa_customization_field_configuration']
             );
         }
 
@@ -368,7 +368,7 @@ class CpaProcessProduct
         }
     }
 
-    private function newCustomizationField()
+    protected function newCustomizationField()
     {
         $token = bin2hex(random_bytes(32));
         Db::getInstance()->execute('
@@ -384,6 +384,8 @@ class CpaProcessProduct
             INSERT INTO `" . _DB_PREFIX_ . "cpa_customization_field_configuration_value` (`id_cpa_customization_field_configuration`, `id_cpa_customization_field`, `value`, `id_cpa_customization_field_value`)
             VALUES (" . (int)$id_customization_field_configuration . ", " . (int)$id_field . ", '" . pSQL($custom) . "', " . (int)$id_field_value . ")");
         }
+
+        return $token;
     }
 
     protected function getInfluencesPercentage($id_cpa_customization_field, $price, $arrayFields)
@@ -436,7 +438,7 @@ class CpaProcessProduct
     }
 
 
-    private function getIVAPrice($price)
+    protected function getIVAPrice($price)
     {
         $tax_rate = Tax::getProductTaxRate($this->id_product, null, $this->context);
         $price_with_iva = $price + ($price * $tax_rate / 100);
@@ -685,6 +687,7 @@ class CpaProcessProduct
                VALUES (' . (int)$this->id_cart . ', ' . (int)$id_product . ', ' . (int)$id_product_attribute . ', ' . (int)$quantity . ')'
             );
             $id_customization = Db::getInstance()->Insert_ID();
+         
         }
 
         $query = 'INSERT INTO `' . _DB_PREFIX_ . 'customized_data` (`id_customization`, `type`, `index`, `value`)
