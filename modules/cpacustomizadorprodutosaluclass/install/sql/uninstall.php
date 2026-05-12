@@ -37,6 +37,13 @@ class uninstallCPASQL
 
 		// Budget
 		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_budget`";
+
+		// share
+		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_cart_share`";
+		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_cart_product_share`";
+		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_field_share`";
+		$sql[] = "DROP TABLE IF EXISTS `" . $prefix . "cpa_customization_field_configuration_value_share`";
+
 		foreach ($sql as $query)
 			if (Db::getInstance()->execute($query) == false)
 				return false;

@@ -5,8 +5,8 @@ use GuzzleHttp\Promise\Create;
 class CpaProcessProduct
 {
     protected $id_product = 0;
-    private $new_id_product = 0;
-    private $new_id_customization = 0;
+    protected $new_id_product = 0;
+    protected $new_id_customization = 0;
     protected $datacustom = [];
     protected $id_lang;
     protected $id_shop;
@@ -63,6 +63,8 @@ class CpaProcessProduct
 
     protected function orderFields($arrayFieldsTemp)
     {
+
+        $arrayFields = [];
         // Reorganiza os campos e processa para ser inseridos no sistema de prestashop
         foreach ($arrayFieldsTemp as $key => $valuefieldstemp) {
             $price = 0;
@@ -152,9 +154,11 @@ class CpaProcessProduct
     protected function checkFields()
     {
         $arrayFieldsTemp = [];
+             
         // Valida os campos e prepara para ser processados
         foreach ($this->datacustom as $custom) {
             $arrayCustom = explode('_', $custom);
+
             if (count($arrayCustom) != 4) {
                 return false;
             }
@@ -181,6 +185,7 @@ class CpaProcessProduct
             $resultInfField = $this->getInfField($id_type, $id_field, $id_field_value);
 
             if (!$resultInfField) {
+
                 return false;
             }
 
@@ -209,7 +214,7 @@ class CpaProcessProduct
     }
 
     // Adiciona campos no sistema de custimização do prestashop
-    private function createLabelCustomFields($arrayFields)
+    protected function createLabelCustomFields($arrayFields)
     {
         $cpaCustomValue = [];
 
@@ -222,7 +227,7 @@ class CpaProcessProduct
     }
 
     // Prepara a descição para inserir no produto no campo descrição curta.
-    private function customFieldsData($cpaCustomValue)
+    protected function customFieldsData($cpaCustomValue)
     {
         $newCPACustomValue = [];
         $indexed = [];
@@ -494,7 +499,7 @@ class CpaProcessProduct
         return $filemainImg;
     }
 
-    private function addImage()
+    protected function addImage()
     {
         $filemainImg = $this->joinImage();
         $newImage = new Image();
@@ -555,25 +560,24 @@ class CpaProcessProduct
                     INNER JOIN ' . _DB_PREFIX_ . 'cpa_customization_field_value_lang cfvl on cfv.id_cpa_customization_field_value = cfvl.id_cpa_customization_field_value and cfvl.id_lang = ' . (int)$this->id_lang . '
                     WHERE cfv.id_cpa_customization_field_value = ' . (int)$id_field_value . ' and cf.id_cpa_customization_field_type = ' . (int)$id_type . ' and cf.id_cpa_customization_field = ' . (int)$id_field . '
                             ';
-
         return Db::getInstance()->executeS($sqlfields);
     }
 
-    private function updatePriceProduct()
+    protected function updatePriceProduct()
     {
         $product = new Product($this->new_id_product, false, $this->id_lang, $this->id_shop);
         $product->price = $this->product->price + $this->addPrice;
         return $product->update();
     }
 
-    private function updateDescriptionProduct()
+    protected function updateDescriptionProduct()
     {
         $product = new Product($this->new_id_product, false, $this->id_lang, $this->id_shop);
         $product->description_short = $this->description;
         return $product->update();
     }
 
-    private function createProduct()
+    protected function createProduct()
     {
         $cusText = 'CPA PRODUCT ';
 

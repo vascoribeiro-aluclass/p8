@@ -7,7 +7,7 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
 
         $cart = $this->context->cart;
         $products = $cart->getProducts();
-
+        
 
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $company = Configuration::get('PS_SHOP_NAME');
@@ -48,19 +48,22 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         // TÍTULO
         // =========================
         $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->Cell(0, 10, 'ORÇAMENTO', 0, 1, 'C');
+        $pdf->Cell(0, 10, $this->trans('ORÇAMENTO', [], 'Modules.Cpacustomizadorprodutosaluclass.budget'), 0, 1, 'C');
 
         $pdf->Ln(5);
 
         $contentbody = '';
-        $price  = 0;
+        $pricewithreduction  = 0;
+        $pricewithreductiontax = 0;
         foreach ($products as $product) {
 
             $cover = Image::getCover($product['id_product']);
             $idImageSource = (int)$cover['id_image'];
             $imageSource = new Image($idImageSource);
             $imgCover =  _PS_PROD_IMG_DIR_ . $imageSource->getExistingImgPath() . '.jpg';
-            $price += $product['price_with_reduction'];
+            $pricewithreductiontax += $product['price_with_reduction_without_tax'];
+
+            $pricewithreduction += $product['price_with_reduction'];
             $contentbody .= '<tr>
                             <td align="center">
                             <br><br>
@@ -68,6 +71,9 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
                             </td>
                             <td> <strong>' . $product['name'] . '</strong> 
                                 ' . $product['description_short'] . '
+                            </td>
+                                   <td>   <br><br>
+                                ' . $product['quantity'] . '
                             </td>
                             <td>   <br><br>
                                 ' . round($product['price_with_reduction'], 2) . ' €
@@ -80,9 +86,10 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
 
         $html = '<table border="1" cellpadding="5">
                         <tr>
-                            <th width="20%"><strong>Produto</strong></th>
-                            <th width="60%"><strong>Descrição</strong></th>
-                            <th width="20%"><strong>Preços</strong></th>
+                            <th width="20%"><strong>' . $this->trans('Produto', [], 'Modules.Cpacustomizadorprodutosaluclass.budget') . '</strong></th>
+                            <th width="55%"><strong>' . $this->trans('Descrição', [], 'Modules.Cpacustomizadorprodutosaluclass.budget') . '</strong></th>
+                            <th width="10%"><strong>' . $this->trans('Quant.', [], 'Modules.Cpacustomizadorprodutosaluclass.budget') . '</strong></th>
+                            <th width="15%"><strong>' . $this->trans('Preço C/IVA', [], 'Modules.Cpacustomizadorprodutosaluclass.budget') . '</strong></th>
                         </tr>
 
                        ' . $contentbody . '
@@ -96,8 +103,11 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
 
         $pdf->Ln(5);
 
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(180, 10, $this->trans('Total SEM IVA: %s €', [round($pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budget'), 0, 1, 'R');
+        $pdf->Cell(180, 10, $this->trans('IVA: %s €', [round($pricewithreduction - $pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budget'), 0, 1, 'R');
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(180, 10, 'Total: ' . round($price, 2) . '€', 0, 1, 'R');
+        $pdf->Cell(180, 10, $this->trans('Total COM IVA: %s €', [round($pricewithreduction, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budget'), 0, 1, 'R');
 
 
         $pdf->Output('example_001.pdf', 'I');
@@ -112,7 +122,7 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         $path = _PS_MODULE_DIR_ . '/cpacustomizadorprodutosaluclass/pdf/' . $namePDF . '.pdf';
 
         file_put_contents($path, $content);
-        $url = $this->getBaseUrlWithoutVirtual( $cart) . 'modules/cpacustomizadorprodutosaluclass/pdf/' . $namePDF . '.pdf';
+        $url = $this->getBaseUrlWithoutVirtual($cart) . 'modules/cpacustomizadorprodutosaluclass/pdf/' . $namePDF . '.pdf';
         Tools::redirect($url);
 
         exit;
@@ -126,7 +136,7 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         return  (int)Db::getInstance()->Insert_ID();
     }
 
-    private function getBaseUrlWithoutVirtual( $cart)
+    private function getBaseUrlWithoutVirtual($cart)
     {
         $idShop =  $cart->id_shop;
 

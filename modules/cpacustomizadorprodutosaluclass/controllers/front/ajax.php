@@ -71,13 +71,11 @@ class cpacustomizadorprodutosaluclassajaxModuleFrontController extends ModuleFro
                 ];
                 break;
 
-                case 'ProcessCPAShare':
-                $datacustom = Tools::getValue('datacustom');
-                $resultproduct = [];
-
-                $cpaProcessBudget = new CpaProcessBudget($datacustom['id_product'], $datacustom['cpafields']);
-                $resultproduct = $cpaProcessBudget->init();
-
+            case 'ProcessCPAShare':
+                $name = Tools::getValue('name');
+                $email = Tools::getValue('email');
+                $cpaProcessShare = new CpaProcessShare($name, $email);
+                $resultproduct = $cpaProcessShare->init();
                 $result = [
                     'success' => true,
                     'message' => 'Success',

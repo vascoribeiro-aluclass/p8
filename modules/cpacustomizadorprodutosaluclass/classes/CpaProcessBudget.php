@@ -2,9 +2,11 @@
 
 class CpaProcessBudget extends CpaProcessProduct
 {
+    private $trans;
     public function __construct($id_product, $datacustom)
     {
         parent::__construct($id_product, $datacustom, false);
+        $this->trans = Context::getContext()->getTranslator();
     }
 
     public function init()
@@ -14,6 +16,8 @@ class CpaProcessBudget extends CpaProcessProduct
         if (!$arrayFieldsTemp) {
             return false;
         }
+
+        $cpaCustomValue = [];
 
         $arrayFields = $this->orderFields($arrayFieldsTemp);
 
@@ -43,7 +47,8 @@ class CpaProcessBudget extends CpaProcessProduct
             $this->description .= '<p><b>' . $val['index'] . ' : </b>' . $val['value'] . '</p>';
         }
 
-        $price =  round($this->getIVAPrice($this->product->price + $this->addPrice), 2);
+        $pricewithreductiontax =  round($this->product->price + $this->addPrice, 2);
+        $pricewithreduction =  round($this->getIVAPrice($this->product->price + $this->addPrice), 2);
 
         $token = $this->newCustomizationField();
 
@@ -53,16 +58,16 @@ class CpaProcessBudget extends CpaProcessProduct
 
         $link .= '?actioncpa=edit&tokencpa=' . $token;
 
-        return $this->generatePDF($price, $link, $token);
+        return $this->generatePDF($pricewithreduction, $pricewithreductiontax, $link, $token);
     }
 
-    private function generatePDF($price, $link, $token)
+    private function generatePDF($pricewithreduction, $pricewithreductiontax, $link, $token)
     {
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $company = Configuration::get('PS_SHOP_NAME');
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetAuthor($company);
-        $pdf->SetTitle('Orçamento');
+        $pdf->SetTitle($this->trans->trans('Orçamento', [], 'Modules.Cpacustomizadorprodutosaluclass.budget'));
 
         // Remover header/footer automático
         $pdf->setPrintHeader(false);
@@ -97,7 +102,7 @@ class CpaProcessBudget extends CpaProcessProduct
         // TÍTULO
         // =========================
         $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->Cell(0, 10, 'ORÇAMENTO', 0, 1, 'C');
+        $pdf->Cell(0, 10, $this->trans->trans('ORÇAMENTO', [], 'Modules.Cpacustomizadorprodutosaluclass.budgetp'), 0, 1, 'C');
         $pdf->Ln(5);
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(0, 10, $this->product->name, 0, 1, 'C');
@@ -109,16 +114,16 @@ class CpaProcessBudget extends CpaProcessProduct
 
         $pdf->SetFont('helvetica', '', 10);
 
-        $html = '<a href="' . $link . '" target="_blank" >Editar orçamento</a><br><br>';
-        $html .= '<table border="0" cellpadding="5">
+        $html = '<a href="' . $link . '" target="_blank" >'.$this->trans->trans('Editar/Adicionar personalização', [], 'Modules.Cpacustomizadorprodutosaluclass.budgetp').'</a><br><br>';
+        $html .= '<table border="1" cellpadding="5">
                         <tr>
-                            <th width="30%"> </th>
-                            <th width="70%"></th>
+                            <th width="30%"><strong>' . $this->trans->trans('Imagem', [], 'Modules.Cpacustomizadorprodutosaluclass.budgetp') . '</strong></th>
+                            <th width="70%"><strong>' . $this->trans->trans('Descrição', [], 'Modules.Cpacustomizadorprodutosaluclass.budgetp') . '</strong></th>
                         </tr>
 
                         <tr>
                             <td align="center">
-                            <br><br><br>
+                            <br><br>
                                 <img src="' . $this->getImageCover() . '" width="200">
                             </td>
                             <td>
@@ -134,9 +139,12 @@ class CpaProcessBudget extends CpaProcessProduct
         // =========================
 
         $pdf->Ln(5);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(180, 10, $this->trans->trans('Total SEM IVA : %s €', [round($pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budgetp'), 0, 1, 'R');
+        $pdf->Cell(180, 10, $this->trans->trans('IVA : %s €', [round($pricewithreduction - $pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budgetp'), 0, 1, 'R');
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(180, 10, 'Total: ' . $price . '€', 0, 1, 'R');
+        $pdf->Cell(180, 10, $this->trans->trans('Total COM IVA : %s €', [round($pricewithreduction, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budgetp'), 0, 1, 'R');
 
         $content = $pdf->Output('', 'S');
 

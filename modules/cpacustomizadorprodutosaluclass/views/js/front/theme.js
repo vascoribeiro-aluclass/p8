@@ -156,6 +156,10 @@ $.fn.cpaSubmit = function (event) {
     event.preventDefault();
 
     datacustom = Checkfields();
+    if (!datacustom) {
+        $('#cpaloader').fadeOut().remove();
+        return;
+    }
 
     $.ajax({
         type: 'POST',
@@ -224,6 +228,11 @@ $.fn.cpaSubmitBudget = function (event) {
     event.preventDefault();
 
     datacustom = Checkfields();
+
+    if (!datacustom) {
+        $('#cpaloader').fadeOut().remove();
+        return;
+    }
 
     $.ajax({
         type: 'POST',

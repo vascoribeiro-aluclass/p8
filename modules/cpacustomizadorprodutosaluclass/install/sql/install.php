@@ -187,7 +187,7 @@ class installCPASQL
 						['name' => 'id_cpa_customization_budget', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
 						['name' => 'id_lang', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
 						['name' => 'id_shop', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
-						['name' => 'id_cpa_customization_field_configuration', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'token_configuration', 'opts' => 'varchar(100) NOT NULL'],
 						['name' => 'name', 'opts' => 'varchar(100) NOT NULL']
 					]
 				],
@@ -270,6 +270,83 @@ class installCPASQL
 						['name' => 'id_product', 'opts' => 'int(10) NOT NULL'],
 					]
 				],
+				[
+					'name' => 'cpa_cart_share',
+					'primary' => 'id_cart_share',
+					'cols' =>
+					[
+						['name' => 'id_cart_share', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
+						['name' => 'token', 'opts' => 'varchar(100) NOT NULL'],
+						['name' => 'id_cart', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_shop_group', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_shop', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_carrier', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'delivery_option', 'opts' => 'mediumtext NOT NULL'],
+						['name' => 'id_lang', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_address_delivery', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_address_invoice', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_customer', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_guest', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'secure_key', 'opts' => 'varchar(32) NOT NULL'],
+						['name' => 'recyclable', 'opts' => 'tinyint(1) NOT NULL'],
+						['name' => 'gift', 'opts' => 'tinyint(1) NOT NULL'],
+						['name' => 'gift_message', 'opts' => 'mediumtext NOT NULL'],
+						['name' => 'mobile_theme', 'opts' => 'tinyint(1) NOT NULL'],
+						['name' => 'allow_seperated_package', 'opts' => 'tinyint(1) NOT NULL'],
+						['name' => 'date_add', 'opts' => 'datetime NOT NULL'],
+						['name' => 'date_upd', 'opts' => 'datetime NOT NULL'],
+						['name' => 'checkout_session_data', 'opts' => 'mediumtext NOT NULL'],
+					]
+				],
+				[
+					'name' => 'cpa_cart_product_share',
+					'primary' => '',
+					'cols' =>
+					[
+						['name' => 'id_cart_share', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_cart', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_product', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_address_delivery', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_shop', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_product_attribute', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_customization', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'quantity', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'date_add', 'opts' => 'datetime NOT NULL'],
+					]
+				],
+				[
+					'name' => 'cpa_customization_field_configuration_share',
+					'primary' => '',
+					'cols' =>
+					[
+						
+						['name' => 'id_cart_share', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_cpa_customization_field_configuration', 'opts' => 'int(10) NOT NULL PRIMARY KEY AUTO_INCREMENT'],
+						['name' => 'id_lang_default', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'id_shop_default', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'id_product_main', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_customization', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_product_customization', 'opts' => 'int(10) NOT NULL DEFAULT 0'],
+						['name' => 'token', 'opts' => 'varchar(100) NOT NULL']
+					]
+				],
+				[
+					'name' => 'cpa_customization_field_configuration_value_share',
+					
+					'primary' => '',
+					'cols' =>
+					[
+						
+						['name' => 'id_cart_share', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_cpa_customization_field_configuration', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'id_cpa_customization_field', 'opts' => 'int(10) NOT NULL'],
+						['name' => 'value', 'opts' => 'varchar(255) NOT NULL'],
+						['name' => 'id_cpa_customization_field_value', 'opts' => 'int(10) NOT NULL'],
+
+					]
+				],
+
+
 
 			];
 

@@ -1,3 +1,5 @@
+
+
 <a target="_blank" href="{$link->getModuleLink('cpacustomizadorprodutosaluclass','budget')}">
     <button class="btn btn-primary submitCpabudgetCart mt-1" id="submitCpabudgetCart" style="  height: 2.75rem;
   padding-top: 0.625rem;
@@ -10,8 +12,7 @@
     </button>
 </a>
 
-
-<button data-href="{$link->getModuleLink('cpacustomizadorprodutosaluclass','share')}"
+<button
     class="btn btn-primary submitCpashareCart mt-1" id="submitCpashareCart" style="  height: 2.75rem;
   padding-top: 0.625rem;
   line-height: inherit;
@@ -20,4 +21,6 @@
         share
     </span>
     <div class="mon_text">{l s='Partilhar Carrinho' mod='cpacustomizadorprodutosaluclass'}</div>
-</button>
+</button> 
+
+{include file='module:cpacustomizadorprodutosaluclass/views/hook/modal/cpa_modal_share.tpl'}
