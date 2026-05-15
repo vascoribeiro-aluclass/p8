@@ -104,83 +104,83 @@ function Checkfields() {
     return datacustom;
 }
 
-function show3D() {
-    var productCover = $(".product-cover");
-    var container;
-    let exists = $(".3dshow").length > 0;
+// function show3D() {
+//     var productCover = $(".product-cover");
+//     var container;
+//     let exists = $(".3dshow").length > 0;
 
-    if (!exists) {
-        console.log("Criando div #3dshow...");
-        var container = $("<div>", {
-            id: "3dshow",
-            class: "3dshow",
-            css: {
-                width: "100%",
-                height: "100%",
-                backgroundColor: "red",
-                position: "absolute",
-                zIndex: 998
-            }
-        });
-        // Cria o botão dentro do container
-        var btn3D = $("<div>", {
-            class: "btn btn-primary",
-            text: "Mudar ambiente",
-            css: {
-                position: "absolute",
-                left: "5px",
-                top: "5px",
-                zIndex: 999 // botão acima do container
-            },
-            click: function () {
-                changeBackground(); // chama a função ao clicar
-            }
-        });
+//     if (!exists) {
+//         console.log("Criando div #3dshow...");
+//         var container = $("<div>", {
+//             id: "3dshow",
+//             class: "3dshow",
+//             css: {
+//                 width: "100%",
+//                 height: "100%",
+//                 backgroundColor: "red",
+//                 position: "absolute",
+//                 zIndex: 998
+//             }
+//         });
+//         // Cria o botão dentro do container
+//         var btn3D = $("<div>", {
+//             class: "btn btn-primary",
+//             text: "Mudar ambiente",
+//             css: {
+//                 position: "absolute",
+//                 left: "5px",
+//                 top: "5px",
+//                 zIndex: 999 // botão acima do container
+//             },
+//             click: function () {
+//                 changeBackground(); // chama a função ao clicar
+//             }
+//         });
 
-        // Adiciona o botão dentro do container
-        container.append(btn3D);
-        productCover.prepend(container);
+//         // Adiciona o botão dentro do container
+//         container.append(btn3D);
+//         productCover.prepend(container);
 
-        let colordefaut = $('.img-value.is_visual.treed.select-value').data('color');
-        if (!colordefaut) {
-            colordefaut = '#383E42';
-        }
+//         let colordefaut = $('.img-value.is_visual.treed.select-value').data('color');
+//         if (!colordefaut) {
+//             colordefaut = '#383E42';
+//         }
 
-        init(colordefaut);
-        animate();
+//         init(colordefaut);
+//         animate();
 
-        $('.img-value.is_visual.treed').off('click').on('click', function () {
-            var color = $(this).data('color');
-            if (!color) {
-                color = '#383E42';
-            } else {
-                toggleMaterial(color);
-            }
-        });
+//         $('.img-value.is_visual.treed').off('click').on('click', function () {
+//             var color = $(this).data('color');
+//             if (!color) {
+//                 color = '#383E42';
+//             } else {
+//                 toggleMaterial(color);
+//             }
+//         });
 
-        $('.cpa_dimension_text').off('change').on('change', function () {
-            var idfield = $(this).data('field');
-            var widthMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').attr('min'));
-            var heightMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').attr('min'));
-            var depthMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').attr('min'));
-            var widthMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').attr('max'));
-            var heightMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').attr('max'));
-            var depthMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').attr('max'));
-            var width = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').val()) || widthMin;
-            var height = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').val()) || heightMin;
-            var depth = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').val()) || depthMin;
+//         $('.cpa_dimension_text').off('change').on('change', function () {
+//             var idfield = $(this).data('field');
+//             var widthMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').attr('min'));
+//             var heightMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').attr('min'));
+//             var depthMin = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').attr('min'));
+//             var widthMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').attr('max'));
+//             var heightMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').attr('max'));
+//             var depthMax = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').attr('max'));
+//             var width = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_width').val()) || widthMin;
+//             var height = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_height').val()) || heightMin;
+//             var depth = parseInt($('.cpa_dimension_text[data-field="' + idfield + '"].dimension_text_depth').val()) || depthMin;
 
-            toggleSize(width, widthMin, widthMax, height, heightMin, heightMax, depth, depthMin, depthMax);
-        });
+//             toggleSize(width, widthMin, widthMax, height, heightMin, heightMax, depth, depthMin, depthMax);
+//         });
 
 
-    } else {
-        $(".3dshow").remove();
-        $('.img-value.is_visual.treed').off('click');
-        $('.cpa_dimension_text').off('change');
-    }
+//     } else {
+//         $(".3dshow").remove();
+//         $('.img-value.is_visual.treed').off('click');
+//         $('.cpa_dimension_text').off('change');
+//     }
 
-}
+// }
 
 //  progressBar
 function ProgressBar() {

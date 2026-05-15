@@ -630,6 +630,7 @@ class CpaProcessProduct
                 (int)Configuration::get('CPA_CATEGORY')
             ]);
             $this->new_id_product = $customProd->id;
+            StockAvailable::setProductOutOfStock($this->new_id_product, 1);
         }
 
         return $this->new_id_product;

@@ -48,7 +48,7 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         // TÍTULO
         // =========================
         $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->Cell(0, 10, $this->trans('ORÇAMENTO', [], 'Modules.Cpacustomizadorprodutosaluclass.budget'), 0, 1, 'C');
+        $pdf->Cell(0, 10, $this->trans('ORÇAMENTO', [], 'Modules.Cpacustomizadorprodutosaluclass.Front'), 0, 1, 'C');
 
         $pdf->Ln(5);
 
@@ -58,12 +58,12 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         foreach ($products as $product) {
 
             $cover = Image::getCover($product['id_product']);
-            $idImageSource = (int)$cover['id_image'];
+            $idImageSource = (is_array($cover) && isset($cover['id_image'])) ? (int)$cover['id_image'] : 0;
             $imageSource = new Image($idImageSource);
             $imgCover =  _PS_PROD_IMG_DIR_ . $imageSource->getExistingImgPath() . '.jpg';
-            $pricewithreductiontax += $product['price_with_reduction_without_tax'];
+            $pricewithreductiontax += $product['price_with_reduction_without_tax']*$product['quantity'] ;
 
-            $pricewithreduction += $product['price_with_reduction'];
+            $pricewithreduction += $product['price_with_reduction']*$product['quantity'] ;
             $contentbody .= '<tr>
                             <td align="center">
                             <br><br>
@@ -86,10 +86,10 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
 
         $html = '<table border="1" cellpadding="5">
                         <tr>
-                            <th width="20%"><strong>' . $this->trans('Produto', [], 'Modules.Cpacustomizadorprodutosaluclass.budget') . '</strong></th>
-                            <th width="55%"><strong>' . $this->trans('Descrição', [], 'Modules.Cpacustomizadorprodutosaluclass.budget') . '</strong></th>
-                            <th width="10%"><strong>' . $this->trans('Quant.', [], 'Modules.Cpacustomizadorprodutosaluclass.budget') . '</strong></th>
-                            <th width="15%"><strong>' . $this->trans('Preço C/IVA', [], 'Modules.Cpacustomizadorprodutosaluclass.budget') . '</strong></th>
+                            <th width="20%"><strong>' . $this->trans('Produto', [], 'Modules.Cpacustomizadorprodutosaluclass.Front') . '</strong></th>
+                            <th width="55%"><strong>' . $this->trans('Descrição', [], 'Modules.Cpacustomizadorprodutosaluclass.Front') . '</strong></th>
+                            <th width="10%"><strong>' . $this->trans('Quant.', [], 'Modules.Cpacustomizadorprodutosaluclass.Front') . '</strong></th>
+                            <th width="15%"><strong>' . $this->trans('Preço C/IVA', [], 'Modules.Cpacustomizadorprodutosaluclass.Front') . '</strong></th>
                         </tr>
 
                        ' . $contentbody . '
@@ -104,10 +104,10 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', '', 10);
-        $pdf->Cell(180, 10, $this->trans('Total SEM IVA: %s €', [round($pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budget'), 0, 1, 'R');
-        $pdf->Cell(180, 10, $this->trans('IVA: %s €', [round($pricewithreduction - $pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budget'), 0, 1, 'R');
+        $pdf->Cell(180, 10, $this->trans('Total SEM IVA: %s €', [round($pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass'), 0, 1, 'R');
+        $pdf->Cell(180, 10, $this->trans('IVA: %s €', [round($pricewithreduction - $pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass.Front'), 0, 1, 'R');
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(180, 10, $this->trans('Total COM IVA: %s €', [round($pricewithreduction, 2)], 'Modules.Cpacustomizadorprodutosaluclass.budget'), 0, 1, 'R');
+        $pdf->Cell(180, 10, $this->trans('Total COM IVA: %s €', [round($pricewithreduction, 2)], 'Modules.Cpacustomizadorprodutosaluclass.Front'), 0, 1, 'R');
 
 
         $pdf->Output('example_001.pdf', 'I');

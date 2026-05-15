@@ -51,7 +51,7 @@
 						 	<option value="{$valueselect.value}">{$valueselect.name}</option>
 						 {/foreach}
 						</select>
-						<span id="error-dimension-{$value.id_cpa_customization_field_value}" style="display: none;" class="error-dimension">{l s='Medida fora dos valores premitidos' mod='cpacustomizadorprodutosaluclass'}</span>
+						<span id="error-dimension-{$value.id_cpa_customization_field_value}" style="display: none;" class="error-dimension">{l s='Medida fora dos valores permitidos' mod='cpacustomizadorprodutosaluclass'}</span>
 				</div>
 
 			{/foreach}

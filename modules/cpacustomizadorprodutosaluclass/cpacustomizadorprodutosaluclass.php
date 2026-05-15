@@ -255,8 +255,10 @@ class CpaCustomizadorProdutosAluclass extends Module
         $this->context->controller->registerJavascript('module-cpa-Detector-js', 'modules/' . $this->name . '/views/js/front/3d/Detector.js', ['position' => 'bottom', 'priority' => 956,]);
         $this->context->controller->registerJavascript('module-cpa-inflate-js', 'modules/' . $this->name . '/views/js/front/3d/libs/inflate.min.js', ['position' => 'bottom', 'priority' => 957,]);
         $this->context->controller->registerJavascript('module-cpa-stats-js', 'modules/' . $this->name . '/views/js/front/3d/libs/stats.min.js', ['position' => 'bottom', 'priority' => 958,]);
+         $this->context->controller->registerJavascript('module-cpa-3dproduct-js', 'modules/' . $this->name . '/views/js/front/3d/3dshow.js', ['position' => 'bottom', 'priority' => 995,]);
         $this->context->controller->registerJavascript('module-cpa-3dmodelmanager-js', 'modules/' . $this->name . '/views/js/front/3d/ModelManager.js', ['position' => 'bottom', 'priority' => 997,]);
-        $this->context->controller->registerJavascript('module-cpa-3dproduct-js', 'modules/' . $this->name . '/views/js/front/3d/3dshow.js', ['position' => 'bottom', 'priority' => 998,]);
+        $this->context->controller->registerJavascript('module-cpa-viewer3D-js', 'modules/' . $this->name . '/views/js/front/3d/viewer3D.js', ['position' => 'bottom', 'priority' => 997,]);
+       
       }
     }
   }

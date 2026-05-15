@@ -1,52 +1,78 @@
 // Ficheiro JS criado automaticamente
 
-const models = new ModelManager(CPA3Dscene, CPA3Dloader, modulePath + "views/js/front/3d/product/", "48485-1.fbx");
 
-// configurar
-models
-    .setCount(0)
-    .setSpacing(253)
-    .setPosition(253, -100, -12);
+function getStart_Override() {
 
+    let defaultColor = $(".img-value.is_visual.treed.select-value").data(
+        "color",
+    );
 
-function toggleMaterial_Override(color, fbxObjectnew) {
+    if (defaultColor) {
+        toggleMaterial(defaultColor);
+    }
 
-    let fbxObjectchange = fbxObjectnew ? fbxObjectnew : CPA3DfbxObject;
+    let defaulidfield = $('.dimension_text_height').first().data("field");
 
-    models
-        .setColor(color)
-        .setMetalness(0.7)
-        .setRoughness(0.35)
-        .reload();
-
-    fbxObjectchange.traverse(function (child) {
-        if (child.isMesh) {
-            child.material = new THREE.MeshStandardMaterial({
-                color: color,
-                metalness: 0.7,
-                roughness: 0.35
-            });
-            child.material.needsUpdate = true;
-        }
-    });
+    if (defaulidfield) {
+        GetSize(defaulidfield);
+    }
+    
 }
 
-function toggleSize_Override(width, widthMin, widthMax, height, heightMin, heightMax, depth, depthMin, depthMax, fbxObjectnew) {
-    models.setCount(width);
-    models.setColor(CPA3Dcolor);
-    models.setMetalness(0.7);
-    models.setRoughness(0.35);
-    models.reload();
+function toggleMaterial_Override(color) {
+    CPA3Dmanager.setColor(color);
+    CPA3Dmanager.objects.forEach((obj) => {
+        CPA3Dmanager.setupObject(obj, 'plast',  { metalness: 0, roughness: 0.55});
+    });
+    
+}
 
-    const group = new THREE.Group();
-    models.objects.forEach(obj => group.add(obj));
+function toggleSize_Override(
+    width, widthMin, widthMax,
+    height, heightMin, heightMax,
+    depth, depthMin, depthMax
+) {
 
-    const box = new THREE.Box3().setFromObject(group);
-    const center = box.getCenter(new THREE.Vector3());
-    CPA3Dcamera.lookAt(center);
-    CPA3Dcamera.position.set(center.x, center.y, center.z + (width*1000));
-    CPA3Dcontrols.target.set((width*125), 0,0 );
+    width = width > 10 ? 10 : width;
+    oldsize = CPA3Dmanager.extraModal;
 
-     setupBackground(CPA3Dimagens[CPA3DindexFundo], (width*125));
+    if(oldsize == width )
+        return;
 
+    for (i = 1; i < oldsize + 1; i++) {
+        CPA3Dmanager.removeModel("sec-" + i)
+    }
+    CPA3Dmanager.extraModal = width;
+    const spacing = 253;
+    for (i = 1; i < width + 1; i++) {
+        CPA3Dmanager.addModel(
+            modulePath +
+            "views/js/front/3d/product/48485-1.fbx",
+            {
+                positionx: spacing * i,
+                positiony: 0,
+                positionz: 0,
+                id: "sec-" + i,
+                scaleX: 1,
+                scaleY: 1,
+                scaleZ: 1,
+                meshName: "plast",
+                materialOptions: {
+                    metalness: 0,
+                    roughness: 0.55
+                }
+            }
+        );
+    }
+
+    const centerX = (spacing * (width - 1)) / 2;
+    const center = new THREE.Vector3(
+        centerX,
+        0,
+        0
+    );
+
+    CPA3Dviewer.updateBackground(
+        center       // centro do conjunto
+    );
 }
