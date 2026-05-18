@@ -20,9 +20,9 @@ class AdminCpaPorductController extends ModuleAdminController
 
         $this->bulk_actions = [
             'delete' => [
-                'text' => $this->trans('Excluir selecionado', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'text' => $this->module->l('Excluir selecionado', 'AdminCpaPorduct'),
                 'icon' => 'icon-trash',
-                'confirm' => $this->trans('Excluir itens selecionados?', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+                'confirm' => $this->module->l('Excluir itens selecionados?', 'AdminCpaPorduct')
             ]
         ];
 
@@ -32,19 +32,19 @@ class AdminCpaPorductController extends ModuleAdminController
 
         $this->fields_list = [
             'id_cpa_customization_product' => [
-                'title' => $this->trans('ID', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('ID', 'AdminCpaPorduct'),
                 'align' => 'center',
                 'width' => 25,
             ],
 
             'pl_name' => [
-                'title' => $this->trans('Nome Produto ', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Nome Produto ', 'AdminCpaPorduct'),
                 'filter_key' => 'pl!name',
                 'width' => 250,
 
             ],
             'filescript' => [
-                'title' => $this->trans('Ficheiro Javascript', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Ficheiro Javascript', 'AdminCpaPorduct'),
                 'width' => 100,
             ],
 
@@ -58,9 +58,9 @@ class AdminCpaPorductController extends ModuleAdminController
         Media::addJsDef([
             'ajaxFileUrl' => $this->context->link->getAdminLink('AdminCpaPorduct', true, [], ['action' => 'CreateFileCPA', 'ajax' => 1]),
             'ajaxUploadFbxUrl' => $this->context->link->getAdminLink('AdminCpaPorduct', true, [], ['action' => 'UploadFbx', 'ajax' => 1]),
-            'text_error_progress' => $this->trans('Erro crítico na comunicação com o servidor.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            'text_error_nothing' => $this->trans('Falta o nome do ficheiro.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            'text_error_filefbx' => $this->trans('Só são permitidos ficheiros FBX..', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+            'text_error_progress' => $this->module->l('Erro crítico na comunicação com o servidor.', 'AdminCpaPorduct'),
+            'text_error_nothing' => $this->module->l('Falta o nome do ficheiro.', 'AdminCpaPorduct'),
+            'text_error_filefbx' => $this->module->l('Só são permitidos ficheiros FBX..', 'AdminCpaPorduct')
         ]);
 
 
@@ -75,7 +75,7 @@ class AdminCpaPorductController extends ModuleAdminController
         $name = preg_replace('/[^a-zA-Z0-9_-]/', '', Tools::getValue('name'));
 
         if (empty($name)) {
-            $arrayrespond['msn'] = $this->trans('Nome inválido.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $arrayrespond['msn'] = $this->module->l('Nome inválido.', 'AdminCpaPorduct');
             die(json_encode($arrayrespond));
         }
 
@@ -85,13 +85,13 @@ class AdminCpaPorductController extends ModuleAdminController
             $content = "// Ficheiro JS criado automaticamente\n";
 
             if (file_put_contents($path, $content)) {
-                $arrayrespond['msn'] = $this->trans('Ficheiro criado: %s.js.', [$name], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+                $arrayrespond['msn'] = sprintf($this->module->l('Ficheiro criado: %s.js.',  'AdminCpaPorduct'),$name);
                 $arrayrespond['success'] = true;
             } else {
-                $arrayrespond['msn'] = $this->trans('Erro ao gravar o ficheiro no servidor.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+                $arrayrespond['msn'] = $this->module->l('Erro ao gravar o ficheiro no servidor.', 'AdminCpaPorduct');
             }
         } else {
-            $arrayrespond['msn'] = $this->trans('Ficheiro: %s.js já existe.', [$name], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $arrayrespond['msn'] = sprintf($this->module->l('Ficheiro: %s.js já existe.', 'AdminCpaPorduct'),$name);
         }
 
         die(json_encode($arrayrespond));
@@ -107,10 +107,10 @@ class AdminCpaPorductController extends ModuleAdminController
             $targetFile = $targetDir . basename($file['name']);
 
             if (move_uploaded_file($file['tmp_name'], $targetFile)) {
-                $arrayrespond['msn'] = $this->trans('Ficheiro %s enviado com sucesso.', [$file['name']], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+                $arrayrespond['msn'] = sprintf($this->module->l('Ficheiro %s enviado com sucesso.', 'AdminCpaPorduct'), $file['name']);
                 $arrayrespond['success'] = true;
             } else {
-                $arrayrespond['msn'] = $this->trans('Erro ao enviar ficheiro %s.', [$file['name']], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+                $arrayrespond['msn'] = sprintf($this->module->l('Erro ao enviar ficheiro %s.', 'AdminCpaPorduct'), $file['name']);
                 $arrayrespond['success'] = false;
             }
         }
@@ -196,17 +196,17 @@ class AdminCpaPorductController extends ModuleAdminController
 
         $fields_form = [
             'legend' => [
-                'title' => $this->trans('Gerir Campos Customizados', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Gerir Campos Customizados', 'AdminCpaPorduct'),
             ],
             'submit' => [
-                'title' => $this->trans('Gravar', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Gravar', 'AdminCpaPorduct'),
             ],
             'input' => [
                 [
                     'type' => 'file',
-                    'label' => $this->trans('Ficheiro FBX :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Ficheiro FBX :', 'AdminCpaPorduct'),
                     'name' => 'fbx_file',
-                    'desc' =>  $this->trans('Adicione aqui os ficheiros FBX de modelos 3D', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' =>  $this->module->l('Adicione aqui os ficheiros FBX de modelos 3D', 'AdminCpaPorduct'),
                     'attr' => [
                         'id' => 'fbx_file'
                     ],
@@ -214,24 +214,24 @@ class AdminCpaPorductController extends ModuleAdminController
                 [
                     'type' => 'html',
                     'name' => 'custom_js_input',
-                    'label' => $this->trans('Novo ficheiro JS :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Novo ficheiro JS :', 'AdminCpaPorduct'),
                     'html_content' => '
                         <div class="form-inline">
-                            <input type="text" id="js_filename" name="js_filename" placeholder="' . $this->trans('Nome do ficheiro...', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin') . '" class="form-control fixed-width-lg" />
+                            <input type="text" id="js_filename" name="js_filename" placeholder="' . $this->module->l('Nome do ficheiro...', 'AdminCpaPorduct') . '" class="form-control fixed-width-lg" />
                             <div id="create_js_file" class="btn btn-default">
                                 <i class="icon-plus-sign"></i> Criar
                             </div>
                         </div>
                     ',
-                    'desc' =>  $this->trans('Adicione nome do ficheiro JS', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' =>  $this->module->l('Adicione nome do ficheiro JS', 'AdminCpaPorduct'),
                 ],
                 [
                     'type' => 'select',
-                    'label' => $this->trans('Produto :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Produto :', 'AdminCpaPorduct'),
                     'name' => 'id_product',
                     'required' => true,
                     'class' => 'chosen',
-                    'desc' => $this->trans('Produto.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' => $this->module->l('Produto.', 'AdminCpaPorduct'),
                     'options' => [
                         'query' => $products_array,
                         'id'    => 'id_product',
@@ -240,7 +240,7 @@ class AdminCpaPorductController extends ModuleAdminController
                 ],
                 [
                     'type' => 'select',
-                    'label' => $this->trans('Ficheiro :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Ficheiro :', 'AdminCpaPorduct'),
                     'name' => 'filescript',
                     'class' => 'fixed-width-xs ',
                     'options' => [
@@ -248,11 +248,11 @@ class AdminCpaPorductController extends ModuleAdminController
                         'id' => 'filescript',
                         'name' => 'name'
                     ],
-                    'desc' => $this->trans('Escolha se o aumento do campo será em valor absoluto ou percentual.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+                    'desc' => $this->module->l('Escolha se o aumento do campo será em valor absoluto ou percentual.', 'AdminCpaPorduct')
                 ],
                 [
                     'type' => 'select',
-                    'label' => $this->trans('Ficheiro 3D:', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Ficheiro 3D:', 'AdminCpaPorduct'),
                     'name' => 'filesthreed',
                     'class' => 'fixed-width-xs ',
                     'options' => [
@@ -260,7 +260,7 @@ class AdminCpaPorductController extends ModuleAdminController
                         'id' => 'filethreed',
                         'name' => 'name'
                     ],
-                    'desc' => $this->trans('Escolha se o aumento do campo será em valor absoluto ou percentual.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+                    'desc' => $this->module->l('Escolha se o aumento do campo será em valor absoluto ou percentual.', 'AdminCpaPorduct')
                 ],
 
 
@@ -278,10 +278,10 @@ class AdminCpaPorductController extends ModuleAdminController
         $object->filescript     = Tools::getValue('filescript');
         $object->filesthreed     = Tools::getValue('filesthreed');
         if ($object->save()) {
-            $this->confirmations[] = $this->trans('Campo gravado com sucesso', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $this->confirmations[] = $this->module->l('Campo gravado com sucesso', 'AdminCpaPorduct');
             $this->redirect_after = self::$currentIndex . '&token=' . $this->token . '&conf=3';
         } else {
-            $this->errors[] = $this->trans('Erro ao gravar o campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $this->errors[] = $this->module->l('Erro ao gravar o campo', 'AdminCpaPorduct');
         }
         return $object;
     }

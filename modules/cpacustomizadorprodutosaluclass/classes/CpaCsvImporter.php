@@ -30,27 +30,27 @@ class CpaCsvImporter
     public function importCSV($filePath)
     {
         $context = Context::getContext();
-        $translator = $context->getTranslator();
+        $translator = Module::getInstanceByName('cpacustomizadorprodutosaluclass');
 
         if (!$this->checkCSV($filePath)) {
-            $this->errors[] = $translator->trans('CSV inválido', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $this->errors[] = $translator->l("CSV inválido", 'CpaCsvImporter');
             return false;
         }
 
         if (!file_exists($filePath)) {
-            $this->errors[] = $translator->trans('Ficheiro não encontrado', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $this->errors[] = $translator->l('Ficheiro não encontrado', 'CpaCsvImporter');
             return false;
         }
 
         $handle = fopen($filePath, 'r');
 
         if ($handle === false) {
-            $this->errors[] = $translator->trans('Erro ao abrir o ficheiro CSV', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $this->errors[] = $translator->l('Erro ao abrir o ficheiro CSV', 'CpaCsvImporter');
             return false;
         }
 
         if (!$this->deleteCSV()) {
-            $this->errors[] = $translator->trans('Erro ao deletar registos na base de dados', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $this->errors[] = $translator->l('Erro ao deletar registos na base de dados', 'CpaCsvImporter');
             return false;
         }
 
@@ -89,7 +89,7 @@ class CpaCsvImporter
                 $price = 0;
                 $price  = round(str_replace(',', '.', $arrayprice[$key]),6);
                 if (!$this->SetRowCSV($price, $width)) {
-                    $this->errors[] = $translator->trans('Erro ao inserir na base de dados', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+                    $this->errors[] = $translator->l('Erro ao inserir na base de dados', 'CpaCsvImporter');
                 }
             }
            

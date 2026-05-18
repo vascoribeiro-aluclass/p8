@@ -13,7 +13,7 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         $company = Configuration::get('PS_SHOP_NAME');
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetAuthor($company);
-        $pdf->SetTitle('Orçamento');
+        $pdf->SetTitle($this->module->l('ORÇAMENTO', 'budget'));
 
         // Remover header/footer automático
         $pdf->setPrintHeader(false);
@@ -48,7 +48,7 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         // TÍTULO
         // =========================
         $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->Cell(0, 10, $this->trans('ORÇAMENTO', [], 'Modules.Cpacustomizadorprodutosaluclass.Front'), 0, 1, 'C');
+        $pdf->Cell(0, 10,  $this->module->l('ORÇAMENTO', 'budget'), 0, 1, 'C');
 
         $pdf->Ln(5);
 
@@ -86,10 +86,10 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
 
         $html = '<table border="1" cellpadding="5">
                         <tr>
-                            <th width="20%"><strong>' . $this->trans('Produto', [], 'Modules.Cpacustomizadorprodutosaluclass.Front') . '</strong></th>
-                            <th width="55%"><strong>' . $this->trans('Descrição', [], 'Modules.Cpacustomizadorprodutosaluclass.Front') . '</strong></th>
-                            <th width="10%"><strong>' . $this->trans('Quant.', [], 'Modules.Cpacustomizadorprodutosaluclass.Front') . '</strong></th>
-                            <th width="15%"><strong>' . $this->trans('Preço C/IVA', [], 'Modules.Cpacustomizadorprodutosaluclass.Front') . '</strong></th>
+                            <th width="20%"><strong>' .  $this->module->l('Produto', 'budget') . '</strong></th>
+                            <th width="55%"><strong>' .  $this->module->l('Descrição', 'budget') . '</strong></th>
+                            <th width="10%"><strong>' .  $this->module->l('Quant.', 'budget') . '</strong></th>
+                            <th width="15%"><strong>' .  $this->module->l('Preço C/IVA', 'budget') . '</strong></th>
                         </tr>
 
                        ' . $contentbody . '
@@ -104,10 +104,10 @@ class CpacustomizadorprodutosaluclassBudgetModuleFrontController extends ModuleF
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', '', 10);
-        $pdf->Cell(180, 10, $this->trans('Total SEM IVA: %s €', [round($pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass'), 0, 1, 'R');
-        $pdf->Cell(180, 10, $this->trans('IVA: %s €', [round($pricewithreduction - $pricewithreductiontax, 2)], 'Modules.Cpacustomizadorprodutosaluclass.Front'), 0, 1, 'R');
+        $pdf->Cell(180, 10,  sprintf($this->module->l('Total SEM IVA: %s €', 'budget'), round($pricewithreductiontax, 2)), 0, 1, 'R');
+        $pdf->Cell(180, 10,  sprintf($this->module->l('IVA: %s €', 'budget'), round($pricewithreduction - $pricewithreductiontax, 2)), 0, 1, 'R');
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(180, 10, $this->trans('Total COM IVA: %s €', [round($pricewithreduction, 2)], 'Modules.Cpacustomizadorprodutosaluclass.Front'), 0, 1, 'R');
+        $pdf->Cell(180, 10,  sprintf($this->module->l('Total COM IVA: %s €', 'budget'), round($pricewithreduction, 2)), 0, 1, 'R');
 
 
         $pdf->Output('example_001.pdf', 'I');

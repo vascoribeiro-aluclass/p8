@@ -57,9 +57,9 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
         $this->bulk_actions = [
             'delete' => [
-                'text' => $this->trans('Delete selected', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'text' => $this->module->l('Delete selected', 'AdminCpaCustomizationValue'),
                 'icon' => 'icon-trash',
-                'confirm' => $this->trans('Delete selected items?', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin')
+                'confirm' => $this->module->l('Delete selected items?', 'AdminCpaCustomizationValue')
             ]
         ];
 
@@ -69,23 +69,23 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
         $this->fields_list = [
             'id_cpa_customization_field_value' => [
-                'title' => $this->trans('ID', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('ID', 'AdminCpaCustomizationValue'),
                 'align' => 'center',
                 'width' => 25,
             ],
 
             'cf_name' => [
-                'title' => $this->trans('Nome ', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Nome ', 'AdminCpaCustomizationValue'),
                 'filter_key' => 'cl!name',
                 'width' => 250,
 
             ],
             'price' => [
-                'title' => $this->trans('Preço', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Preço', 'AdminCpaCustomizationValue'),
                 'width' => 100,
             ],
             'isvisivel' => [
-                'title' => $this->trans('Visível', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Visível', 'AdminCpaCustomizationValue'),
                 'active' => 'isvisivel',
                 'type' => 'bool',
                 'width' => 25,
@@ -94,7 +94,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             ],
 
             'position' => [
-                'title' => $this->trans('Posição', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Posição', 'AdminCpaCustomizationValue'),
                 'filter_key' => 'a!position',
                 'align' => 'center',
                 'width' => 25,
@@ -114,7 +114,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
         foreach ($this->getSavedExcProductsDetailed((int)Tools::getValue('id_cpa_customization_field_value')) as $row) {
             $cpaProducts[] = [
                 'id' => (int)$row['id_product'],
-                'text' => $row['name'] . ' (' . $this->trans('Ref. :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin') . ' ' . $row['reference'] . ')'
+                'text' => $row['name'] . ' (' . $this->module->l('Ref. :', 'AdminCpaCustomizationValue') . ' ' . $row['reference'] . ')'
             ];
         }
 
@@ -134,15 +134,15 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             'id_cpa_customization_field_type' => $this->id_cpa_customization_field_type,
 
             'select2_translations' => [
-                'inputTooShort' => $this->trans('Introduza pelo menos %d caracteres', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                'noMatches' => $this->trans('Nenhum resultado encontrado', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                'searching' => $this->trans('A pesquisar...', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-                'searchingProducts' => $this->trans('A pesquisar produtos...', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'inputTooShort' => $this->module->l('Introduza pelo menos %d caracteres', 'AdminCpaCustomizationValue'),
+                'noMatches' => $this->module->l('Nenhum resultado encontrado', 'AdminCpaCustomizationValue'),
+                'searching' => $this->module->l('A pesquisar...', 'AdminCpaCustomizationValue'),
+                'searchingProducts' => $this->module->l('A pesquisar produtos...', 'AdminCpaCustomizationValue'),
             ],
-            'icon_file_text_error' => $this->trans('Formato inválido. Use apenas JPG ou JPEG.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            'img_file_text_error' => $this->trans('Formato inválido. Use apenas JPG, JPEG.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            'preview_file_text_error' => $this->trans('Formato inválido. Use apenas JPG ou JPEG  WebP.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
-            'cpa_delete_img' => $this->trans('Deseja eliminar imagem?', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+            'icon_file_text_error' => $this->module->l('Formato inválido. Use apenas JPG ou JPEG.', 'AdminCpaCustomizationValue'),
+            'img_file_text_error' => $this->module->l('Formato inválido. Use apenas JPG, JPEG.', 'AdminCpaCustomizationValue'),
+            'preview_file_text_error' => $this->module->l('Formato inválido. Use apenas JPG ou JPEG  WebP.', 'AdminCpaCustomizationValue'),
+            'cpa_delete_img' => $this->module->l('Deseja eliminar imagem?', 'AdminCpaCustomizationValue'),
 
         ]);
 
@@ -294,7 +294,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
         $this->toolbar_btn['new'] = [
             'href' => $link,
-            'desc' => $this->trans(
+            'desc' => $this->module->l(
                 'Adicionar novo',
                 [],
                 'Modules.Cpacustomizadorprodutosaluclass.Admin'
@@ -391,61 +391,61 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             foreach ($arrayImgTemp as $valueImg) {
                 $arrayImg[$valueImg['type']][] = $valueImg['ext'];
             }
-            $htmlImgIcon = $this->getHtmlImg('cpa/thumbs/', $arrayImg, $this->trans('Icon do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'), 'max-width:100px;max-height:100px;');
-            $htmlImg = $this->getHtmlImg('cpa/img/', $arrayImg, $this->trans('Imagem do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'), 'max-width:250px;max-height:250px;');
-            $htmlImgPreview = $this->getHtmlImg('cpa/preview/', $arrayImg, $this->trans('Preview campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'), 'max-width:250px;max-height:250px;');
+            $htmlImgIcon = $this->getHtmlImg('cpa/thumbs/', $arrayImg, $this->module->l('Icon do campo', 'AdminCpaCustomizationValue'), 'max-width:100px;max-height:100px;');
+            $htmlImg = $this->getHtmlImg('cpa/img/', $arrayImg, $this->module->l('Imagem do campo', 'AdminCpaCustomizationValue'), 'max-width:250px;max-height:250px;');
+            $htmlImgPreview = $this->getHtmlImg('cpa/preview/', $arrayImg, $this->module->l('Preview campo', 'AdminCpaCustomizationValue'), 'max-width:250px;max-height:250px;');
         }
 
 
         $fields_form = [
             'legend' => [
-                'title' => $this->trans('Gerir Valores Campos Customizados', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Gerir Valores Campos Customizados', 'AdminCpaCustomizationValue'),
             ],
             'submit' => [
-                'title' => $this->trans('Gravar', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                'title' => $this->module->l('Gravar', 'AdminCpaCustomizationValue'),
             ],
             'input' => [
                 [
                     'type' => 'shop',
-                    'label' => $this->trans('Shop association', [], 'Admin.Global'),
+                    'label' => $this->module->l('Shop association', 'AdminCpaCustomizationValue'),
                     'name' => 'checkBoxShopAsso',
                 ],
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Nome :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Nome :', 'AdminCpaCustomizationValue'),
                     'name' => 'name',
                     'required' => true,
                     'lang' => true,
                 ],
                 [
                     'type' => 'textarea',
-                    'label' => $this->trans('Descrição :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Descrição :', 'AdminCpaCustomizationValue'),
                     'name' => 'description',
-                    'desc' => $this->trans('Descrição do valor do campo customizado.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' => $this->module->l('Descrição do valor do campo customizado.', 'AdminCpaCustomizationValue'),
                     'autoload_rte' => true,
                     'lang' => true,
                     'form_group_class' => 'visivel-2 visivel-3 visivel-4 visivel-5 visivel-6',
                 ],
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Mostra campos de influênciada :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Mostra campos de influênciada :', 'AdminCpaCustomizationValue'),
                     'name' => 'selected_cpa_fields',
                     'class' => 'ajax-cpa-fields-search visivel-2 visivel-3',
-                    'desc' => $this->trans('Adiciona o campos que erá aprecer quando selecionado este valor, os campos pesquisados são adicionados nas nas influênciadas no campo pai deste valor', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' => $this->module->l('Adiciona o campos que erá aprecer quando selecionado este valor, os campos pesquisados são adicionados nas nas influênciadas no campo pai deste valor', 'AdminCpaCustomizationValue'),
 
                 ],
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Produtos excluidos :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Produtos excluidos :', 'AdminCpaCustomizationValue'),
                     'name' => 'selected_exc_products',
                     'class' => 'ajax-exc-product-search',
-                    'desc' => $this->trans('Excluir este campo para estes produtos.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' => $this->module->l('Excluir este campo para estes produtos.', 'AdminCpaCustomizationValue'),
 
                 ],
 
                 [
                     'type' => 'color',
-                    'label' => $this->trans('Cor :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Cor :', 'AdminCpaCustomizationValue'),
                     'name' => 'colorpicker',
                     'class' => 'color mColorPickerInput',
                     'form_group_class' => 'visivel-2 visivel-5 visivel-6',
@@ -453,7 +453,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Preço :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Preço :', 'AdminCpaCustomizationValue'),
                     'name' => 'price',
                     'required' => true,
                     'class' => 'float-field',
@@ -462,7 +462,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                 ],
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Preço de Custo :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Preço de Custo :', 'AdminCpaCustomizationValue'),
                     'name' => 'cost_price',
                     'required' => false,
                     'class' => 'integer-field',
@@ -471,7 +471,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
                 [
                     'type' => 'switch',
-                    'label' => $this->trans('Visível :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Visível :', 'AdminCpaCustomizationValue'),
                     'name' => 'isvisivel',
                     'is_bool' => true,
                     'form_group_class' => 'visivel-1 visivel-2 visivel-3 visivel-7',
@@ -479,12 +479,12 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                         [
                             'id' => 'is_visivel_on',
                             'value' => 1,
-                            'label' => $this->trans('Yes', [], 'Admin.Global')
+                            'label' => $this->module->l('Yes', 'AdminCpaCustomizationValue')
                         ],
                         [
                             'id' => 'is_visivel_off',
                             'value' => 0,
-                            'label' => $this->trans('No', [], 'Admin.Global')
+                            'label' => $this->module->l('No', 'AdminCpaCustomizationValue')
                         ]
                     ],
                 ],
@@ -492,7 +492,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
                 [
                     'type' => 'text',
-                    'label' => $this->trans('Posição :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Posição :', 'AdminCpaCustomizationValue'),
                     'name' => 'position',
                     'required' => true,
                     'class' => 'integer-field',
@@ -500,47 +500,47 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
 
                 [
                     'type' => 'file',
-                    'label' => $this->trans('Ícon :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Ícon :', 'AdminCpaCustomizationValue'),
                     'name' => 'icon_file',
-                    'desc' =>  $this->trans('Adicione aqui o ícon do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' =>  $this->module->l('Adicione aqui o ícon do campo', 'AdminCpaCustomizationValue'),
                     'class' => 'icon-file-input',
                     'form_group_class' => 'visivel-2 visivel-5 visivel-6',
                 ],
                 [
                     'type' => 'html',
                     'name' => 'icon_preview',
-                    'label' => $this->trans('Pré-visualização do icon', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Pré-visualização do icon', 'AdminCpaCustomizationValue'),
                     'html_content' => $htmlImgIcon,
                     'form_group_class' => 'visivel-2 visivel-5 visivel-6',
                 ],
 
                 [
                     'type' => 'file',
-                    'label' => $this->trans('Imagem :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Imagem :', 'AdminCpaCustomizationValue'),
                     'name' => 'img_file',
-                    'desc' =>  $this->trans('Adicione aqui a imagem do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' =>  $this->module->l('Adicione aqui a imagem do campo', 'AdminCpaCustomizationValue'),
                     'class' => 'img-file-input',
                     'form_group_class' => 'visivel-2 visivel-3 visivel-6',
                 ],
                 [
                     'type' => 'html',
                     'name' => 'img_preview',
-                    'label' => $this->trans('Pré-visualização da imagem', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Pré-visualização da imagem', 'AdminCpaCustomizationValue'),
                     'html_content' => $htmlImg,
                     'form_group_class' => 'visivel-2 visivel-3 visivel-6',
                 ],
                 [
                     'type' => 'file',
-                    'label' => $this->trans('Imagem de pré-visualização :', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Imagem de pré-visualização :', 'AdminCpaCustomizationValue'),
                     'name' => 'preview_file',
-                    'desc' =>  $this->trans('Adicione aqui a imagem de pré-visualização do campo', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'desc' =>  $this->module->l('Adicione aqui a imagem de pré-visualização do campo', 'AdminCpaCustomizationValue'),
                     'class' => 'preview-file-input',
                     'form_group_class' => 'visivel-2 visivel-3 visivel-5 visivel-6',
                 ],
                 [
                     'type' => 'html',
                     'name' => 'preview_preview',
-                    'label' => $this->trans('Pré-visualização da imagem de pré-visualização do campo.', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin'),
+                    'label' => $this->module->l('Pré-visualização da imagem de pré-visualização do campo.', 'AdminCpaCustomizationValue'),
                     'html_content' =>  $htmlImgPreview,
                     'form_group_class' => 'visivel-2 visivel-3 visivel-5 visivel-6',
                 ],
@@ -628,7 +628,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                 }
             }
 
-            $this->confirmations[] = $this->trans('Valor guardado com sucesso', [], 'Modules.Cpacustomizadorprodutosaluclass.Admin');
+            $this->confirmations[] = $this->module->l('Valor guardado com sucesso', 'AdminCpaCustomizationValue');
 
             $this->updatefile((int)$object->id, 'icon_file', 'cpa/thumbs/');
             $this->updatefile((int)$object->id, 'img_file', 'cpa/img/');
@@ -636,7 +636,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
             Tools::redirectAdmin($this->context->link->getAdminLink('AdminCpaCustomizationValue') . '&id_cpa_customization_field=' . (int)$object->id_cpa_customization_field . '&id_cpa_customization_field_type=' . (int)$this->id_cpa_customization_field_type);
         } else {
 
-            $this->errors[] = $this->trans(
+            $this->errors[] = $this->module->l(
                 'Erro ao guardar o valor',
                 [],
                 'Modules.Cpacustomizadorprodutosaluclass.Admin'
@@ -686,7 +686,7 @@ class AdminCpaCustomizationValueController extends ModuleAdminController
                 $webpFile = $destination . $id_cpa_customization_field_value . '.webp';
 
                 if (!ImageManager::resize($file['tmp_name'], $webpFile)) {
-                    $this->errors[] = $this->trans(
+                    $this->errors[] = $this->module->l(
                         'Erro ao gerar WebP',
                         [],
                         'Modules.Cpacustomizadorprodutosaluclass.Admin'
